@@ -1,54 +1,286 @@
-<header class="header-home">
-  <nav class="navbar" aria-label="Navegación del ciudadano">
-    <a routerLink="/home-ciudadano" class="logo"><img src="/img/logo.png" alt="Huellas de Auxilio" /></a>
-    <div class="nav-links">
-      <a routerLink="/home-ciudadano" class="nav-link activo">Inicio</a>
-      <span class="nav-link pendiente" title="Módulo en desarrollo">Mis reportes</span>
-      <span class="nav-link pendiente" title="Módulo en desarrollo">Directorio</span>
-      <span class="nav-link pendiente" title="Módulo en desarrollo">Adopciones</span>
-      <span class="nav-link pendiente" title="Módulo en desarrollo">Ayuda</span>
+<header class="header-ciudadano">
+  <nav class="navbar">
+    <!-- Botón Hamburguesa para Mobile -->
+    <button class="btn-menu" id="btnMenu" aria-label="Abrir menú" (click)="abrirMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <a routerLink="/home-ciudadano" class="logo">
+      <img src="/img/logo.png" alt="Huellas de Auxilio" />
+    </a>
+
+    <!-- Enlaces Desktop -->
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/home-ciudadano" class="nav-link activo">Inicio</a>
+      </li>
+      <li>
+        <a routerLink="/mis-reportes" class="nav-link">Mis reportes</a>
+      </li>
+      <li>
+        <a routerLink="/directorio" class="nav-link">Directorio</a>
+      </li>
+      <li>
+        <a routerLink="/adopciones" class="nav-link">Adopciones</a>
+      </li>
+      <li>
+        <a routerLink="/ayuda" class="nav-link">Ayuda</a>
+      </li>
+    </ul>
+
+    <!-- Acciones Derecha -->
+    <div class="header-actions">
+      <a routerLink="/reportar" class="btn-reportar">
+        Reportar
+      </a>
+
+      <a routerLink="/notificaciones" class="btn-campana" title="Notificaciones">
+        <img src="/icons/campana.png" alt="Notificaciones" />
+      </a>
+
+      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
+        <img src="/icons/user-circle.png" alt="Mi cuenta" />
+        <span>Mi cuenta</span>
+      </a>
+
+      <button type="button" class="btn-salir" (click)="cerrarSesion()" title="Cerrar sesión">
+        Salir
+      </button>
     </div>
-    <button type="button" class="btn-salir" (click)="cerrarSesion()">Cerrar sesión</button>
+
+    <a routerLink="/reportar" class="btn-reporte-mobile">
+      Reporte
+    </a>
   </nav>
+
+  <!-- Menú Mobile Desplegable -->
+  <div class="menu-mobile" [class.activo]="menuMobileAbierto">
+    <div class="menu-mobile-top">
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+        <div>
+          <h3>{{ nombreUsuario }}</h3>
+          <a routerLink="/mi-cuenta-ciudadano" (click)="cerrarMenu()">Ver mi perfil</a>
+        </div>
+      </div>
+
+      <button class="btn-cerrar-menu" (click)="cerrarMenu()" aria-label="Cerrar menú">
+        ×
+      </button>
+    </div>
+
+    <div class="menu-mobile-links">
+      <a routerLink="/home-ciudadano" class="activo" (click)="cerrarMenu()">Inicio</a>
+      <a routerLink="/mis-reportes" (click)="cerrarMenu()">Mis Reportes</a>
+      <a routerLink="/directorio" (click)="cerrarMenu()">Directorio</a>
+      <a routerLink="/adopciones" (click)="cerrarMenu()">Adopciones</a>
+      <a routerLink="/ayuda" (click)="cerrarMenu()">Ayuda</a>
+      <a routerLink="/notificaciones" (click)="cerrarMenu()">Notificaciones</a>
+      <a (click)="cerrarSesion(); cerrarMenu()" style="color: #c94040; cursor: pointer;">Cerrar sesión</a>
+    </div>
+  </div>
 </header>
 
 <main class="home-ciudadano">
+  <!-- Hero Section -->
   <section class="hero-ciudadano">
-    <div class="hero-img"><img src="/img/banner-ciudadano.png" alt="Animales protegidos" /></div>
+    <div class="hero-img">
+      <img src="/img/banner-ciudadano.png" alt="Animales protegidos" />
+    </div>
+
     <div class="hero-text">
-      <h1>Hola, <span>ciudadano</span></h1>
-      <p>Gracias por ayudar a proteger a los animales.<br />Desde aquí podrás reportar, revisar tus casos y encontrar apoyo.</p>
+      <h1>Hola, <span>{{ nombreUsuario }}</span></h1>
+      <p>
+        Gracias por ayudar a proteger a los animales.<br />
+        Desde aquí puedes reportar, revisar el estado de tus casos y encontrar apoyo.
+      </p>
+
       <div class="hero-buttons">
-        <button type="button" class="btn-primary" disabled title="Se integrará con el módulo de reportes">Reportar</button>
-        <button type="button" class="btn-outline" disabled title="Se integrará con Mis reportes">Ver mis reportes</button>
+        <a routerLink="/reportar" class="btn-primary">
+          <img src="/icons/mas-blanco.png" alt="Reportar" />
+          Reportar
+        </a>
+
+        <a routerLink="/mis-reportes" class="btn-outline">
+          <img src="/icons/documento-verde.png" alt="Ver mis reportes" />
+          Ver mis reportes
+        </a>
       </div>
     </div>
   </section>
 
-  <div class="aviso-prototipo">Vista prototipada · Las cifras y el caso mostrado son datos de ejemplo.</div>
-  <section class="stats" aria-label="Resumen de reportes de ejemplo">
-    <article class="stat-card"><div class="stat-icon fondo-verde"><img src="/icons/documento-verde.png" alt="" /></div><div><h3>Reportes enviados</h3><p class="numero verde">4</p></div></article>
-    <article class="stat-card"><div class="stat-icon fondo-naranja"><img src="/icons/reloj-naranja.png" alt="" /></div><div><h3>En revisión</h3><p class="numero naranja">2</p></div></article>
-    <article class="stat-card"><div class="stat-icon fondo-check"><img src="/icons/check-verde.png" alt="" /></div><div><h3>Casos atendidos</h3><p class="numero atendido">1</p></div></article>
-  </section>
-
-  <section class="seguimiento">
-    <h2>Seguimiento reciente</h2>
-    <article class="caso-card">
-      <div class="caso-info">
-        <div class="caso-header"><h3>HA-0241</h3><span>En revisión</span></div>
-        <p class="caso-meta">San Miguel, Lima · 12 may, 2026 · Municipalidad de San Miguel</p>
-        <p class="caso-desc">Reporte de ejemplo por posible abandono de cachorros en parque.</p>
+  <!-- Tarjetas de Estadísticas -->
+  <section class="stats" aria-label="Resumen de reportes">
+    <article class="stat-card">
+      <div class="stat-content">
+        <div class="stat-icon fondo-verde">
+          <img src="/icons/documento-verde.png" alt="Reportes enviados" />
+        </div>
+        <div>
+          <h3>Reportes enviados</h3>
+          <p class="numero verde">{{ resumen.total }}</p>
+        </div>
       </div>
-      <span class="detalle-pendiente">Ver detalle · Próximamente</span>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-content">
+        <div class="stat-icon fondo-naranja">
+          <img src="/icons/reloj-naranja.png" alt="En revisión" />
+        </div>
+        <div>
+          <h3>En revisión</h3>
+          <p class="numero naranja">{{ resumen.enRevision }}</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-content">
+        <div class="stat-icon fondo-check">
+          <img src="/icons/check-verde.png" alt="Casos atendidos" />
+        </div>
+        <div>
+          <h3>Casos atendidos</h3>
+          <p class="numero atendido">{{ resumen.atendidos }}</p>
+        </div>
+      </div>
     </article>
   </section>
 
+  <!-- Seguimiento Reciente -->
+  <section class="seguimiento">
+    <h2>Seguimiento reciente</h2>
+
+    <article class="caso-card">
+      <img
+        src="/img/evidencia-foto-3.png"
+        alt="Caso reciente"
+        class="caso-img"
+      />
+
+      <div class="caso-info">
+        <div class="caso-header">
+          <h3>{{ ultimoReporte ? 'HA-00' + ultimoReporte.idReporte : 'HA-0241' }}</h3>
+          <span>{{ ultimoReporte && ultimoReporte.estado === 'AT' ? 'Atendido' : 'En revisión' }}</span>
+        </div>
+
+        <div class="caso-meta">
+          <p>
+            <img src="/icons/map2.png" alt="Ubicación" />
+            {{ ultimoReporte?.ubicacion?.distrito ? ultimoReporte?.ubicacion?.distrito + ', Lima' : 'San Miguel, Lima' }}
+          </p>
+
+          <p>
+            <img src="/icons/calendario.png" alt="Fecha" />
+            {{ ultimoReporte?.fechaReporte || '12 may, 2026' }}
+          </p>
+
+          <p>
+            <img src="/icons/edificio.png" alt="Entidad" />
+            {{ ultimoReporte?.entidad?.nombreEntidad || 'Municipalidad de San Miguel' }}
+          </p>
+        </div>
+
+        <p class="caso-desc">
+          {{ ultimoReporte?.descripcion || 'Reporte por posible abandono de cachorros en parque.' }}
+        </p>
+      </div>
+
+      <a routerLink="/mis-reportes" class="btn-detalle">
+        Ver detalle
+      </a>
+    </article>
+  </section>
+
+  <!-- Accesos Rápidos -->
   <section class="accesos">
     <h2>Accesos rápidos</h2>
+
     <div class="accesos-grid">
-      <article class="acceso-card"><img src="/icons/casita.png" alt=""/><div><h3>Directorio de apoyo</h3><p>Encuentra entidades y contactos de ayuda.</p></div></article>
-      <article class="acceso-card"><img src="/icons/huella.png" alt=""/><div><h3>Adopciones</h3><p>Conoce animales que buscan un hogar.</p></div></article>
+      <a routerLink="/directorio" class="acceso-card">
+        <div class="acceso-icon">
+          <img src="/icons/casita.png" alt="Directorio de apoyo" />
+        </div>
+        <div class="acceso-text">
+          <h3>Directorio de apoyo</h3>
+          <p>Encuentra entidades y contactos de ayuda.</p>
+        </div>
+        <img src="/icons/flecha-derecha.png" alt="Ver" class="flecha" />
+      </a>
+
+      <a routerLink="/adopciones" class="acceso-card">
+        <div class="acceso-icon">
+          <img src="/icons/huella-corazon.png" alt="Adopciones" />
+        </div>
+        <div class="acceso-text">
+          <h3>Adopciones</h3>
+          <p>Conoce animales que buscan un hogar.</p>
+        </div>
+        <img src="/icons/flecha-derecha.png" alt="Ver" class="flecha" />
+      </a>
+
+      <a routerLink="/guia-ayuda" class="acceso-card">
+        <div class="acceso-icon">
+          <img src="/icons/libro-verde.png" alt="Guía para reportar" />
+        </div>
+        <div class="acceso-text">
+          <h3>Guía para reportar</h3>
+          <p>Consejos y pasos para hacer un buen reporte.</p>
+        </div>
+        <img src="/icons/flecha-derecha.png" alt="Ver" class="flecha" />
+      </a>
     </div>
   </section>
+
+  <!-- Banner de Ayuda -->
+  <section class="ayuda-banner">
+    <div class="ayuda-info">
+      <div class="ayuda-icon">
+        <img src="/icons/ayuda-verde.png" alt="Ayuda" />
+      </div>
+      <div>
+        <h3>¿Necesitas orientación?</h3>
+        <p>Consulta recursos útiles o contáctanos.</p>
+      </div>
+    </div>
+
+    <a routerLink="/ayuda" class="btn-ayuda">
+      <img src="/icons/interrogracion blanca.png" alt="Ayuda" />
+      <span>Ir a ayuda</span>
+    </a>
+  </section>
 </main>
+
+<!-- Footer -->
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+    <div class="footer-compacto-brand">
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+      <p>
+        © 2026 Huellas de Auxilio. Todos<br />
+        los derechos reservados.
+      </p>
+    </div>
+
+    <div class="footer-compacto-links">
+      <a routerLink="/ayuda">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank">Política de Privacidad</a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank">Términos y condiciones</a>
+    </div>
+
+    <div class="footer-social">
+      <a href="https://www.facebook.com/" target="_blank">
+        <img src="/icons/facebook.png" alt="Facebook" />
+      </a>
+      <a href="https://x.com/" target="_blank">
+        <img src="/icons/x.png" alt="X" />
+      </a>
+      <a href="https://www.instagram.com/" target="_blank">
+        <img src="/icons/instagram.png" alt="Instagram" />
+      </a>
+    </div>
+  </div>
+</footer>
