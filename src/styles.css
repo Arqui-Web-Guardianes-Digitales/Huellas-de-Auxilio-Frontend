@@ -1,1 +1,138 @@
-/* You can add global styles to this file, and also import other style files */
+/* Estilos globales de Huellas de Auxilio */
+html, body { margin: 0; min-height: 100%; }
+body { font-family: Poppins, Arial, sans-serif; background:#fbfaf7; color:#082f3d; }
+button, input, select { font: inherit; }
+.angular-error { color:#a82330; background:#fff1f2; border:1px solid #f3bec2; border-radius:10px; padding:12px 16px; margin:12px 0; font-size:14px; }
+.angular-info { color:#155263; background:#e9f6f4; border:1px solid #a9cecb; border-radius:10px; padding:12px 16px; margin:12px 0; font-size:14px; }
+button[disabled] { opacity:.65; cursor:wait; }
+.footer-compacto {
+  width: 100%;
+  background-color: #1d5053;
+  color: #ffffff;
+  padding: 24px 65px;
+}
+
+.footer-compacto-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.footer-compacto-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.footer-compacto-brand > img {
+  width: 140px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.footer-compacto-brand p {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #ffffff;
+}
+
+.footer-compacto-links {
+  display: flex;
+  align-items: center;
+  gap: 70px;
+}
+
+.footer-compacto-links a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.footer-compacto-links a:hover {
+  text-decoration: underline;
+}
+
+.footer-social {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.footer-social a {
+  width: 42px;
+  height: 42px;
+  border: 1.7px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.footer-social a:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.footer-social img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .footer-compacto {
+    padding: 24px 40px;
+  }
+
+  .footer-compacto-container {
+    gap: 28px;
+  }
+
+  .footer-compacto-links {
+    gap: 36px;
+  }
+
+  .footer-compacto-links a {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-compacto {
+    padding: 30px 24px;
+  }
+
+  .footer-compacto-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 24px;
+  }
+
+  .footer-compacto-brand {
+    align-items: center;
+  }
+
+  .footer-compacto-links {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .footer-social {
+    gap: 18px;
+  }
+}
+
+@media (max-width: 430px) {
+  .footer-social a {
+    width: 40px;
+    height: 40px;
+  }
+
+  .footer-social img {
+    width: 19px;
+    height: 19px;
+  }
+}

@@ -1,0 +1,159 @@
+
+    <main class="registro-page">
+      <a routerLink="/crear-cuenta" class="back-btn" aria-label="Volver">
+        <img src="/icons/flecha-volver.png" alt="Volver" />
+      </a>
+
+      <section class="registro-container">
+        <h1>Registro de ciudadano</h1>
+
+        <div class="steps">
+          <div class="step completed">
+            <span>1</span>
+            <p>Tipo de usuario</p>
+          </div>
+
+          <div class="line"></div>
+
+          <div class="step active">
+            <span>2</span>
+            <p>Datos principales</p>
+          </div>
+
+          <div class="line"></div>
+
+          <div class="step">
+            <span>3</span>
+            <p>Confirmación</p>
+          </div>
+        </div>
+
+        <section class="form-card">
+          <h2>Datos principales</h2>
+
+          <div class="mensaje-error" id="mensajeErrorDni" [class.activo]="error.startsWith('El DNI')">
+            <img src="/icons/jam_alert-f.png" alt="Error" class="alert-icon" />
+
+            <div>
+              <h3 id="tituloErrorDni">DNI inválido</h3>
+              <p id="textoErrorDni">
+                El DNI debe contener exactamente 8 dígitos.
+              </p>
+            </div>
+          </div>
+
+          <form
+            class="registro-form"
+            id="formRegistroCiudadano"
+           (ngSubmit)="submit()">
+@if (error && !error.startsWith('El DNI')) { <p class="angular-error" role="alert">{{ error }}</p> }
+            <div class="form-group">
+              <label for="dni">DNI</label>
+              <div class="input-box" id="boxDni">
+                <img src="/icons/dni.png" alt="DNI" class="input-icon" />
+
+                <input
+                  type="text"
+                  id="dni"
+                  inputmode="numeric"
+                  maxlength="8"
+                  placeholder="Ingresa tu número de DNI"
+                 name="dni" [(ngModel)]="datos.dni" >
+
+                <img
+                  src="/icons/jam_alert-f.png"
+                  alt="Error"
+                  class="input-error-img"
+                  id="errorDniIcon"
+                />
+              </div>
+            </div>
+              
+            <div class="form-group">
+              <label for="correo">Correo electrónico</label>
+
+              <div class="input-box">
+                <img src="/icons/email2.png" alt="Correo" class="input-icon" />
+                <input
+                  type="email"
+                  id="correo"
+                  placeholder="ejemplo@correo.com"
+                 name="correo" [(ngModel)]="datos.correo" >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="distrito">Distrito</label>
+
+              <div class="input-box">
+                <img src="/icons/map2.png" alt="Distrito" class="input-icon" />
+                <input
+                  type="text"
+                  id="distrito"
+                  placeholder="Ej: Lima metropolitana, Cuzco..."
+                 name="distrito" [(ngModel)]="datos.distrito" >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="telefono">
+                Teléfono <span>(opcional)</span>
+              </label>
+
+              <div class="input-box">
+                <img src="/icons/llamar2.png" alt="Teléfono" class="input-icon" />
+                <input
+                  type="tel"
+                  id="telefono"
+                  placeholder="Ingresa tu número de teléfono"
+                 name="telefono" [(ngModel)]="datos.telefono" >
+              </div>
+            </div>
+
+            <button type="submit" class="btn-continuar">
+              Continuar
+              <img src="/icons/huella.png" alt="Continuar" />
+            </button>
+          </form>
+        </section>
+      </section>
+    </main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+    <div class="footer-compacto-brand">
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+
+      <p>
+        © 2026 Huellas de Auxilio. Todos<br />
+        los derechos reservados.
+      </p>
+    </div>
+
+    <div class="footer-compacto-links">
+      <a href="#">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank">
+        Política de Privacidad
+      </a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank">
+        Términos y condiciones
+      </a>
+    </div>
+
+    <div class="footer-social">
+          <a href="https://www.facebook.com/">
+            <img src="/icons/facebook.png" alt="Facebook" />
+          </a>
+
+          <a href="https://x.com/">
+            <img src="/icons/x.png" alt="X" />
+          </a>
+
+          <a href="https://www.instagram.com/">
+            <img src="/icons/instagram.png" alt="Instagram" />
+          </a>
+        </div>
+  </div>
+</footer>
+  
+  
