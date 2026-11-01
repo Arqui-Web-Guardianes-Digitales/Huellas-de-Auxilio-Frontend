@@ -38,7 +38,7 @@
   }
 
   <!-- ============================================================== -->
-  <!-- PASO 1 y 2: CONTENEDOR PRINCIPAL DEL REPORTE -->
+  <!-- PASO 1 Y PASO 2: CONTENEDOR PRINCIPAL DEL REPORTE -->
   <!-- ============================================================== -->
   @if (pasoActual === 1 || pasoActual === 2) {
     <section class="reportar-contenedor">
@@ -59,7 +59,7 @@
 
           <div class="campo-form">
             <label for="direccion">Dirección o calle aproximada</label>
-            <input type="text" id="direccion" [(ngModel)]="direccion" placeholder="Ej: Av. Arequipa 1230" />
+            <input type="text" id="direccion" [(ngModel)]="direccion" placeholder="Haz clic en el mapa o escribe aquí..." />
           </div>
 
           <div class="campo-form">
@@ -85,7 +85,6 @@
           </div>
 
           <div class="subir-evidencia">
-            <!-- Input oculto y botón con estilo -->
             <input type="file" id="inputFile" accept="image/*" (change)="onArchivoSeleccionado($event)" style="display: none;" #fileInput />
             <button type="button" class="btn-subir-foto" (click)="fileInput.click()">
               <img src="/icons/camara-verde.png" alt="Foto" />
@@ -158,7 +157,7 @@
 
       <!-- COLUMNA DERECHA: PASOS Y MAPA / RESUMEN -->
       <section class="panel-resumen">
-        <!-- Indicador de 3 pasos -->
+        <!-- Indicador de pasos sin errores de compilación -->
         <div class="pasos-indicador">
           <div class="paso-num" [class.activo]="pasoActual >= 1">
             <span>1</span>
@@ -169,8 +168,8 @@
             <span>2</span>
             <p>Detalles</p>
           </div>
-          <div class="linea-paso" [class.activa]="pasoActual === 3"></div>
-          <div class="paso-num" [class.activo]="pasoActual === 3">
+          <div class="linea-paso"></div>
+          <div class="paso-num">
             <span>3</span>
             <p>Confirmar</p>
           </div>
@@ -194,7 +193,7 @@
           </div>
         }
 
-        <!-- RESUMEN ANTES DE ENVIAR -->
+        <!-- EN PASO 2: RESUMEN ANTES DE ENVIAR -->
         @if (pasoActual === 2) {
           <div class="resumen-box">
             <h2>Resumen previo</h2>

@@ -57,7 +57,6 @@ export class ReportarComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Inicializamos el mapa
     this.iniciarMapa();
   }
 
@@ -73,7 +72,7 @@ export class ReportarComponent implements OnInit, AfterViewInit {
         attribution: '© OpenStreetMap contributors',
       }).addTo(this.map);
 
-      // Ícono de pin personalizado usando la huella del proyecto
+      // Ícono de pin usando imagen de huella
       const customIcon = L.icon({
         iconUrl: '/icons/map2.png',
         iconSize: [36, 36],
@@ -90,6 +89,25 @@ export class ReportarComponent implements OnInit, AfterViewInit {
         if (this.marker) {
           this.marker.setLatLng(e.latlng);
         }
+        
+        fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${this.latitud}&lon=${this.longitud}`,
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.address) {
+              const calle =
+                data.address.road ||
+                data.address.pedestrian ||
+                data.address.suburb ||
+                'Calle sin nombre';
+              this.direccion = calle;
+              this.referencia = data.display_name.split(',').slice(0, 3).join(',');
+              this.cdr.detectChanges();
+            }
+          })
+          .catch(() => console.log('Coordenadas fijadas'));
+
         this.cdr.detectChanges();
       });
     }, 200);
@@ -101,7 +119,6 @@ export class ReportarComponent implements OnInit, AfterViewInit {
     if (file) {
       this.archivoSeleccionado = file;
 
-      // Crear previsualización local inmediata
       const reader = new FileReader();
       reader.onload = () => {
         this.previewUrl = reader.result as string;
@@ -117,10 +134,9 @@ export class ReportarComponent implements OnInit, AfterViewInit {
           this.subiendoFoto = false;
           this.cdr.detectChanges();
         },
-        error: (err) => {
-          console.error('Error al subir imagen al servidor:', err);
+        error: () => {
           this.subiendoFoto = false;
-          // Fallback a una foto de prueba si el servidor no tiene permisos de carpeta
+          // Fallback seguro si no hay backend levantado en ese momento
           this.urlFotoSubida = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1';
           this.cdr.detectChanges();
         },
@@ -138,7 +154,6 @@ export class ReportarComponent implements OnInit, AfterViewInit {
     this.nivelUrgencia = nivel;
   }
 
-  // Navegación entre pasos
   irAlPaso2(): void {
     if (!this.direccion || !this.distrito) {
       alert('Por favor ingresa la dirección y el distrito.');
@@ -153,7 +168,7 @@ export class ReportarComponent implements OnInit, AfterViewInit {
     setTimeout(() => this.iniciarMapa(), 100);
   }
 
-  // Envío Final al BACKEND
+  // Envío final al backend
   enviarReporteFinal(): void {
     if (!this.tipoCaso || !this.descripcion.trim()) {
       alert('Por favor completa el tipo de caso y la descripción.');
@@ -163,7 +178,7 @@ export class ReportarComponent implements OnInit, AfterViewInit {
     this.enviandoReporte = true;
     this.errorEnvio = '';
 
-    //  primero guardar Ubicación
+    // Guardar Ubicación
     const nuevaUbicacion: Ubicacion = {
       direccion: this.direccion,
       distrito: this.distrito,
@@ -174,38 +189,39 @@ export class ReportarComponent implements OnInit, AfterViewInit {
 
     this.reporteService.crearUbicacion(nuevaUbicacion).subscribe({
       next: (ubCreada) => {
-        // guardar Reporte con la entidad calculada por Haversine
+        // Guardar Reporte con ciudadano dinámico de la sesión
+        const idCiudadanoSesion = this.auth.idCiudadano();
+
         const payloadReporte = {
           ubicacion: { idUbicacion: ubCreada.idUbicacion },
-          ciudadano: { idCiudadano: 1 }, // Juan Perez (ID 1)
+          ciudadano: { idCiudadano: idCiudadanoSesion },
           fechaReporte: new Date().toISOString().split('T')[0],
-          tipoCaso: this.tipoCaso.substring(0, 1).toUpperCase(), // 'M' o 'A'
+          tipoCaso: this.tipoCaso.substring(0, 1).toUpperCase(),
           nivelUrgencia:
             this.nivelUrgencia === 'Alta' ? 'AL' : this.nivelUrgencia === 'Media' ? 'ME' : 'BA',
           descripcion: this.descripcion,
-          estado: 'R', // Recibido
+          estado: 'R',
         };
 
         this.reporteService.crearReporte(payloadReporte).subscribe({
           next: (repCreado) => {
             this.codigoReporteGenerado = `HA-00${repCreado.idReporte}`;
 
-            // 3. Guardar Evidencia si se adjuntó foto
             if (this.urlFotoSubida && repCreado.idReporte) {
               this.reporteService
                 .guardarEvidencia(repCreado.idReporte, this.urlFotoSubida)
                 .subscribe({
                   next: () => {},
-                  error: (e) => console.log('Evidencia guardada localmente'),
+                  error: () => {},
                 });
             }
 
             this.enviandoReporte = false;
-            this.pasoActual = 3; // Ir a la pantalla de felicitaciones
+            this.pasoActual = 3; // Mostrar pantalla de confirmación exitosa
             this.cdr.detectChanges();
             window.scrollTo({ top: 0, behavior: 'smooth' });
           },
-          error: (err) => {
+          error: () => {
             this.enviandoReporte = false;
             this.errorEnvio = 'Ocurrió un error al registrar el reporte.';
             this.cdr.detectChanges();
@@ -220,7 +236,6 @@ export class ReportarComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // Fallback si la imagen no existe
   imagenError(event: any): void {
     event.target.src = '/img/evidencia-foto-1.png';
   }
