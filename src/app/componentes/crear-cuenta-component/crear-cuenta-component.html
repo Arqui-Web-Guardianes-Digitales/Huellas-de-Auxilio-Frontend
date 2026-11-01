@@ -1,0 +1,86 @@
+
+  <main class="registro-page">
+    <a routerLink="/login" class="back-btn" aria-label="Volver">
+      <img src="/icons/flecha-volver.png" alt="Volver" />
+    </a>
+
+    <section class="registro-container">
+      <h1>Regístrate como</h1>
+
+      <div class="steps">
+        <div class="step active">
+          <span>1</span>
+          <p>Tipo de usuario</p>
+        </div>
+
+        <div class="line"></div>
+
+        <div class="step">
+          <span>2</span>
+          <p>Datos principales</p>
+        </div>
+
+        <div class="line"></div>
+
+        <div class="step">
+          <span>3</span>
+          <p>Confirmación</p>
+        </div>
+      </div>
+
+      <div class="cards-tipo">
+        <a routerLink="/registro-ciudadano" class="tipo-card">
+          <div class="icono-tipo">
+            <img src="/icons/user.png" alt="Ciudadano denunciante" />
+          </div>
+          <h2>Ciudadano denunciante</h2>
+          <p>Reporta casos de maltrato o abandono animal y realiza seguimiento</p>
+        </a>
+
+        <a routerLink="/registro-entidad" class="tipo-card">
+          <div class="icono-tipo">
+            <img src="/icons/casita.png" alt="Entidad de apoyo animal" />
+          </div>
+          <h2>Entidad de apoyo animal</h2>
+          <p>Recibe, revisa y gestiona reportes para brindar apoyo.</p>
+        </a>
+      </div>
+    </section>
+  </main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+    <div class="footer-compacto-brand">
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+
+      <p>
+        © 2026 Huellas de Auxilio. Todos<br />
+        los derechos reservados.
+      </p>
+    </div>
+
+    <div class="footer-compacto-links">
+      <a href="#">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank">
+        Política de Privacidad
+      </a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank">
+        Términos y condiciones
+      </a>
+    </div>
+
+    <div class="footer-social">
+      <a href="#">
+        <img src="/icons/facebook.png" alt="Facebook" />
+      </a>
+
+      <a href="#">
+        <img src="/icons/x.png" alt="X" />
+      </a>
+
+      <a href="#">
+        <img src="/icons/instagram.png" alt="Instagram" />
+      </a>
+    </div>
+  </div>
+</footer>

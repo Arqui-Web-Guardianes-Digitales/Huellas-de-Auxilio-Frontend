@@ -1,0 +1,54 @@
+<header class="header-home">
+  <nav class="navbar" aria-label="Navegación del ciudadano">
+    <a routerLink="/home-ciudadano" class="logo"><img src="/img/logo.png" alt="Huellas de Auxilio" /></a>
+    <div class="nav-links">
+      <a routerLink="/home-ciudadano" class="nav-link activo">Inicio</a>
+      <span class="nav-link pendiente" title="Módulo en desarrollo">Mis reportes</span>
+      <span class="nav-link pendiente" title="Módulo en desarrollo">Directorio</span>
+      <span class="nav-link pendiente" title="Módulo en desarrollo">Adopciones</span>
+      <span class="nav-link pendiente" title="Módulo en desarrollo">Ayuda</span>
+    </div>
+    <button type="button" class="btn-salir" (click)="cerrarSesion()">Cerrar sesión</button>
+  </nav>
+</header>
+
+<main class="home-ciudadano">
+  <section class="hero-ciudadano">
+    <div class="hero-img"><img src="/img/banner-ciudadano.png" alt="Animales protegidos" /></div>
+    <div class="hero-text">
+      <h1>Hola, <span>ciudadano</span></h1>
+      <p>Gracias por ayudar a proteger a los animales.<br />Desde aquí podrás reportar, revisar tus casos y encontrar apoyo.</p>
+      <div class="hero-buttons">
+        <button type="button" class="btn-primary" disabled title="Se integrará con el módulo de reportes">Reportar</button>
+        <button type="button" class="btn-outline" disabled title="Se integrará con Mis reportes">Ver mis reportes</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="aviso-prototipo">Vista prototipada · Las cifras y el caso mostrado son datos de ejemplo.</div>
+  <section class="stats" aria-label="Resumen de reportes de ejemplo">
+    <article class="stat-card"><div class="stat-icon fondo-verde"><img src="/icons/documento-verde.png" alt="" /></div><div><h3>Reportes enviados</h3><p class="numero verde">4</p></div></article>
+    <article class="stat-card"><div class="stat-icon fondo-naranja"><img src="/icons/reloj-naranja.png" alt="" /></div><div><h3>En revisión</h3><p class="numero naranja">2</p></div></article>
+    <article class="stat-card"><div class="stat-icon fondo-check"><img src="/icons/check-verde.png" alt="" /></div><div><h3>Casos atendidos</h3><p class="numero atendido">1</p></div></article>
+  </section>
+
+  <section class="seguimiento">
+    <h2>Seguimiento reciente</h2>
+    <article class="caso-card">
+      <div class="caso-info">
+        <div class="caso-header"><h3>HA-0241</h3><span>En revisión</span></div>
+        <p class="caso-meta">San Miguel, Lima · 12 may, 2026 · Municipalidad de San Miguel</p>
+        <p class="caso-desc">Reporte de ejemplo por posible abandono de cachorros en parque.</p>
+      </div>
+      <span class="detalle-pendiente">Ver detalle · Próximamente</span>
+    </article>
+  </section>
+
+  <section class="accesos">
+    <h2>Accesos rápidos</h2>
+    <div class="accesos-grid">
+      <article class="acceso-card"><img src="/icons/casita.png" alt=""/><div><h3>Directorio de apoyo</h3><p>Encuentra entidades y contactos de ayuda.</p></div></article>
+      <article class="acceso-card"><img src="/icons/huella.png" alt=""/><div><h3>Adopciones</h3><p>Conoce animales que buscan un hogar.</p></div></article>
+    </div>
+  </section>
+</main>

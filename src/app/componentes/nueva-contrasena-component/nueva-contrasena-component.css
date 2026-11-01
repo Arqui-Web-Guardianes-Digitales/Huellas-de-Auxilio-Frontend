@@ -1,0 +1,350 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:host {
+  background-color: #fbfaf7;
+  background-image: url("/img/Fondo_registro.png"); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; 
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  color: #082f3d;
+  width: 100%;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ========================================================
+   HEADER
+   ======================================================== */
+.header-recuperar {
+  width: 100%;
+  height: 100px; 
+  position: relative;
+  background: none; 
+}
+
+.back-btn {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #fbfaf7;
+  border: 3px solid #d9dde0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background-color: #eaf3f2;
+  border-color: #08736e;
+}
+
+.back-btn img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* ========================================================
+   CONTENEDOR Y TARJETA CENTRAL
+   ======================================================== */
+.recuperar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  margin-top: 0;
+  padding: 0 16px 80px;
+  position: relative;
+  z-index: 5;
+  flex: 1;
+}
+
+.recuperar-card {
+  width: 100%;
+  max-width: 480px; /* Un poco más ancha para alojar las contraseñas cómodamente */
+  background-color: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+}
+
+.recuperar-logo {
+  width: 165px;
+  margin-bottom: 25px;
+}
+
+.recuperar-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #082f3d;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.recuperar-desc {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 30px;
+}
+
+/* ========================================================
+   FORMULARIO E INPUTS
+   ======================================================== */
+.recuperar-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.input-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #676d68;
+  margin-bottom: 8px;
+}
+
+.input-box {
+  width: 100%;
+  height: 46px;
+  border: 1px solid #d5d5d5;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  background-color: #ffffff;
+  transition: border-color 0.2s;
+}
+
+.input-box:focus-within {
+  border-color: #08736e;
+}
+
+.input-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  margin-right: 12px;
+  opacity: 0.6;
+}
+
+.input-box input {
+  flex: 1; /* Empuja el ícono del ojito hacia la derecha */
+  height: 100%;
+  border: none;
+  outline: none;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  color: #333333;
+  background-color: transparent;
+}
+
+.input-box input::placeholder {
+  color: #999;
+  letter-spacing: 2px; /* Da el efecto de los asteriscos separados */
+}
+
+.icon-eye {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.icon-eye:hover {
+  opacity: 1;
+}
+
+/* ========================================================
+   TEXTO DE REQUISITOS Y BOTÓN
+   ======================================================== */
+.password-reqs {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.btn-enviar {
+  width: 100%;
+  height: 46px;
+  background-color: #13565d;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-enviar:hover {
+  background-color: #0e464c;
+}
+
+/* ========================================================
+   RESPONSIVE
+   ======================================================== */
+@media (max-width: 768px) {
+  .back-btn {
+    width: 44px;
+    height: 44px;
+    top: 20px;
+    left: 20px;
+  }
+  .recuperar-card {
+    padding: 35px 25px;
+  }
+  .recuperar-title {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 430px) {
+  .recuperar-card {
+    padding: 30px 20px;
+  }
+  .recuperar-title {
+    font-size: 20px;
+  }
+  .recuperar-desc, .password-reqs {
+    font-size: 12px;
+  }
+}
+
+/* ========================================================
+   MODAL DE ÉXITO (POPUP)
+   ======================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: none; /* Oculto por defecto */
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; 
+}
+
+.modal-overlay.activo {
+  display: flex;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 16px;
+  padding: 40px 30px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.btn-close-modal {
+  position: absolute;
+  top: 15px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 26px;
+  color: #d93636; 
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-icon-container {
+  width: 60px;
+  height: 60px;
+  background-color: #eaf3f2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.modal-icon-container img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #082f3d;
+  margin-bottom: 12px;
+}
+
+.modal-text {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.btn-aceptar-modal {
+  background-color: #13565d;
+  color: #ffffff;
+  border: none;
+  width: 100%;
+  max-width: 250px; /* Le da el ancho correcto al botón del modal */
+  padding: 12px 0;
+  border-radius: 8px;
+  font-family: "Poppins", Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: background-color 0.2s;
+}
+
+.btn-aceptar-modal:hover {
+  background-color: #0e464c;
+}
+
+.link-modal-secundario {
+  color: #13565d;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.link-modal-secundario:hover {
+  color: #08736e;
+  text-decoration: underline;
+}

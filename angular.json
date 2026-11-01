@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "HuellasDeAuxilio": {
+    "huellas-auxilio": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -39,11 +39,17 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "20kB",
+                  "maximumError": "30kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,
@@ -57,10 +63,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "HuellasDeAuxilio:build:production"
+              "buildTarget": "huellas-auxilio:build:production"
             },
             "development": {
-              "buildTarget": "HuellasDeAuxilio:build:development"
+              "buildTarget": "huellas-auxilio:build:development"
             }
           },
           "defaultConfiguration": "development"

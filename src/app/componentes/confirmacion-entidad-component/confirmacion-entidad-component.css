@@ -1,0 +1,438 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:host {
+  background-color: #fbfaf7;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  color: #082f3d;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.registro-page {
+  min-height: calc(100vh - 150px);
+  position: relative;
+  background-image: url("/img/Fondo_registro.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 42px 70px 55px;
+}
+
+.back-btn {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  width: 44px;
+  height: 44px;
+  border: 2px solid #d7dddd;
+  border-radius: 50%;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.back-btn img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.registro-container {
+  max-width: 1050px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.registro-container h1 {
+  font-size: 46px;
+  font-weight: 700;
+  color: #082f3d;
+  margin-bottom: 22px;
+}
+
+.steps {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-bottom: 60px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 125px;
+}
+
+.step span {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid #777777;
+  background-color: #ffffff;
+  color: #555555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.step.active span,
+.step.completed span {
+  background-color: #0b5b63;
+  color: #ffffff;
+  border-color: #0b5b63;
+}
+
+.step p {
+  font-size: 13px;
+  margin-top: 10px;
+  color: #4d5a5d;
+}
+
+.step.active p,
+.step.completed p {
+  color: #0b5b63;
+  font-weight: 600;
+}
+
+.line {
+  width: 82px;
+  height: 2px;
+  background-color: #8e8e8e;
+  margin-top: 28px;
+}
+
+.confirmacion-card {
+  width: 520px;
+  background-color: #ffffff;
+  border: 3px solid #d9dddd;
+  border-radius: 16px;
+  padding: 30px 36px 28px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.icono-confirmacion {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background-color: #eef5f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icono-confirmacion img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.confirmacion-card h2 {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #082f3d;
+  margin-bottom: 14px;
+}
+
+.descripcion {
+  text-align: center;
+  font-size: 15px;
+  color: #6b716e;
+  line-height: 1.45;
+  margin-bottom: 34px;
+}
+
+.confirmacion-form {
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 22px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #676d68;
+  margin-bottom: 7px;
+}
+
+.input-box {
+  width: 100%;
+  height: 43px;
+  border: 2px solid #d5d5d5;
+  border-radius: 8px;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+}
+
+.input-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.input-box input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  color: #333333;
+  background-color: transparent;
+}
+
+.input-box input::placeholder {
+  color: #9a9a9a;
+}
+
+.terminos {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 6px;
+  margin-bottom: 28px;
+}
+
+.terminos input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #0b5b63;
+  flex-shrink: 0;
+}
+
+.terminos label {
+  font-size: 13px;
+  color: #5f6662;
+  line-height: 1.5;
+}
+
+.terminos a {
+  color: #08736e;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.btn-crear {
+  width: 100%;
+  height: 45px;
+  border: none;
+  border-radius: 8px;
+  background-color: #0b5b63;
+  color: #ffffff;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  font-size: 21px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.btn-crear img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  position: absolute;
+  right: 18px;
+}
+
+.btn-crear:hover {
+  background-color: #084950;
+}
+
+@media (max-width: 1024px) {
+  .registro-page {
+    padding: 38px 45px 50px;
+  }
+
+  .registro-container {
+    max-width: 900px;
+  }
+
+  .registro-container h1 {
+    font-size: 40px;
+  }
+
+  .steps {
+    margin-bottom: 50px;
+  }
+
+  .confirmacion-card {
+    width: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .registro-page {
+    min-height: auto;
+    padding: 86px 24px 45px;
+    background-size: cover;
+    background-position: 18% center;
+    background-repeat: no-repeat;
+  }
+
+  .back-btn {
+    top: 22px;
+    left: 22px;
+    width: 42px;
+    height: 42px;
+  }
+
+  .back-btn img {
+    width: 19px;
+    height: 19px;
+  }
+
+  .registro-container h1 {
+    font-size: 34px;
+    margin-bottom: 20px;
+  }
+
+  .steps {
+    margin-bottom: 38px;
+  }
+
+  .step {
+    min-width: 84px;
+  }
+
+  .step span {
+    width: 44px;
+    height: 44px;
+    font-size: 21px;
+  }
+
+  .step p {
+    font-size: 11px;
+    max-width: 80px;
+  }
+
+  .line {
+    width: 34px;
+    margin-top: 21px;
+  }
+
+  .confirmacion-card {
+    width: 100%;
+    max-width: 430px;
+    padding: 26px 24px 26px;
+  }
+
+  .confirmacion-card h2 {
+    font-size: 21px;
+  }
+
+  .descripcion {
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+
+  .btn-crear {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 430px) {
+  .registro-page {
+    padding: 78px 16px 36px;
+    background-size: cover;
+    background-position: 14% center;
+    background-repeat: no-repeat;
+  }
+
+  .registro-container h1 {
+    font-size: 29px;
+  }
+
+  .steps {
+    margin-bottom: 34px;
+  }
+
+  .step {
+    min-width: 72px;
+  }
+
+  .step span {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .step p {
+    font-size: 10px;
+    max-width: 68px;
+  }
+
+  .line {
+    width: 24px;
+    margin-top: 19px;
+  }
+
+  .confirmacion-card {
+    padding: 24px 18px 24px;
+  }
+
+  .icono-confirmacion {
+    width: 62px;
+    height: 62px;
+  }
+
+  .icono-confirmacion img {
+    width: 37px;
+    height: 37px;
+  }
+
+  .confirmacion-card h2 {
+    font-size: 20px;
+  }
+
+  .descripcion {
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+
+  .input-box {
+    height: 42px;
+  }
+
+  .input-box input {
+    font-size: 12px;
+  }
+
+  .terminos label {
+    font-size: 12px;
+  }
+
+  .btn-crear {
+    height: 44px;
+    font-size: 17px;
+  }
+
+  .btn-crear img {
+    width: 21px;
+    height: 21px;
+    right: 14px;
+  }
+}

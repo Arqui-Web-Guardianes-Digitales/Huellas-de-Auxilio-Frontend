@@ -1,0 +1,50 @@
+<header class="header-home">
+  <nav class="navbar" aria-label="Navegación de la entidad">
+    <a routerLink="/home-entidad" class="logo"><img src="/img/logo.png" alt="Huellas de Auxilio" /></a>
+    <div class="nav-links">
+      <a routerLink="/home-entidad" class="nav-link activo">Inicio</a>
+      <span class="nav-link pendiente" title="Módulo en desarrollo">Reportes</span>
+      <span class="nav-link pendiente" title="Módulo en desarrollo">Adopciones</span>
+      <span class="nav-link pendiente" title="Módulo en desarrollo">Red de apoyo</span>
+      <span class="nav-link pendiente" title="Módulo en desarrollo">Ayuda</span>
+    </div>
+    <button type="button" class="btn-salir" (click)="cerrarSesion()">Cerrar sesión</button>
+  </nav>
+</header>
+
+<main class="home-entidad">
+  <section class="hero-entidad">
+    <div class="hero-img"><img src="/img/banner-entidad.png" alt="Equipo de atención animal" /></div>
+    <div class="hero-texto">
+      <h1>Bienvenida, entidad de apoyo</h1>
+      <p>Gestiona reportes recibidos, revisa casos urgentes y coordina procesos de adopción desde un solo panel.</p>
+      <div class="hero-botones">
+        <button type="button" class="btn-principal" disabled title="Se integrará con el módulo de reportes">Ver reportes pendientes</button>
+        <button type="button" class="btn-secundario" disabled title="Se integrará con el módulo de adopciones">Gestionar adopciones</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="aviso-prototipo">Vista prototipada · Las cifras y los reportes mostrados son datos de ejemplo.</div>
+  <section class="resumen-entidad" aria-label="Resumen de la entidad de ejemplo">
+    <article class="card-resumen"><div class="resumen-icono fondo-verde"><img src="/icons/documento-verde.png" alt="" /></div><div><h3>Reportes recibidos</h3><p class="numero verde">12</p></div></article>
+    <article class="card-resumen"><div class="resumen-icono fondo-naranja"><img src="/icons/alerta-naranja.png" alt="" /></div><div><h3>Urgentes</h3><p class="numero naranja">3</p></div></article>
+    <article class="card-resumen"><div class="resumen-icono fondo-azul"><img src="/icons/reloj-naranja.png" alt="" /></div><div><h3>En revisión</h3><p class="numero azul">5</p></div></article>
+    <article class="card-resumen"><div class="resumen-icono fondo-verde"><img src="/icons/check-verde.png" alt="" /></div><div><h3>Atendidos</h3><p class="numero atendido">4</p></div></article>
+  </section>
+
+  <section class="reportes-section">
+    <h2>Reportes recientes</h2>
+    <div class="tabla-reportes" role="table" aria-label="Reportes de ejemplo">
+      <div class="tabla-fila tabla-head" role="row"><span>Código</span><span>Distrito</span><span>Urgencia</span><span>Estado</span></div>
+      <div class="tabla-fila" role="row"><span>HA-0241</span><span>San Miguel</span><span class="etiqueta alta">Alta</span><span class="etiqueta recibido">Recibido</span></div>
+      <div class="tabla-fila" role="row"><span>HA-0238</span><span>Surco</span><span class="etiqueta media">Media</span><span class="etiqueta revision">En revisión</span></div>
+      <div class="tabla-fila" role="row"><span>HA-0234</span><span>Chorrillos</span><span class="etiqueta baja">Baja</span><span class="etiqueta atendido">Atendido</span></div>
+    </div>
+  </section>
+
+  <section class="paneles-entidad">
+    <article class="panel-card"><h3>Solicitudes de adopción</h3><p>Se mostrarán las solicitudes cuando se integre el módulo correspondiente.</p><div class="mascotas"><img src="/img/luna.png" alt="Luna" /><img src="/img/simba.png" alt="Simba" /><span>Ejemplo de mascotas</span></div></article>
+    <article class="panel-card"><h3>Avisos internos</h3><p>Las notificaciones aparecerán aquí cuando el equipo conecte este módulo.</p></article>
+  </section>
+</main>

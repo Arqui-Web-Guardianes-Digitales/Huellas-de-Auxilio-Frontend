@@ -1,0 +1,152 @@
+
+    <main class="registro-page">
+      <a routerLink="/crear-cuenta" class="back-btn" aria-label="Volver">
+        <img src="/icons/flecha-volver.png" alt="Volver" />
+      </a>
+
+      <section class="registro-container">
+        <h1>Registro de entidad</h1>
+
+        <div class="steps">
+          <div class="step completed">
+            <span>1</span>
+            <p>Tipo de usuario</p>
+          </div>
+
+          <div class="line"></div>
+
+          <div class="step active">
+            <span>2</span>
+            <p>Datos principales</p>
+          </div>
+
+          <div class="line"></div>
+
+          <div class="step">
+            <span>3</span>
+            <p>Confirmación</p>
+          </div>
+        </div>
+
+        <section class="form-card">
+          <h2>Datos principales</h2>
+
+          <form class="registro-form" (ngSubmit)="submit()">
+@if (error) { <p class="angular-error" role="alert">{{ error }}</p> }
+            <div class="form-group">
+              <label for="nombre-entidad">Nombre de la entidad</label>
+
+              <div class="input-box">
+                <img src="/icons/edificio.png" alt="Entidad" class="input-icon" />
+
+                <input
+                  type="text"
+                  id="nombre-entidad"
+                  placeholder="Ej: Asociación Patitas Felices"
+                 name="nombre-entidad" [(ngModel)]="datos.nombreEntidad" >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="tipo-entidad">Tipo de entidad</label>
+
+              <div class="input-box select-box">
+                <img src="/icons/escudo2.png" alt="Tipo de entidad" class="input-icon" />
+
+                <select id="tipo-entidad" name="tipo-entidad" [(ngModel)]="datos.tipoEntidad" >
+                  <option value="">Selecciona el tipo de entidad</option>
+                  <option value="refugio">Refugio animal</option>
+                  <option value="ong">ONG de protección animal</option>
+                  <option value="rescatista">Grupo rescatista</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="correo">Correo electrónico</label>
+
+              <div class="input-box">
+                <img src="/icons/email2.png" alt="Correo" class="input-icon" />
+
+                <input
+                  type="email"
+                  id="correo"
+                  placeholder="ejemplo@entidad.org"
+                 name="correo" [(ngModel)]="datos.correo" >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="zona">Zona de atención</label>
+
+              <div class="input-box">
+                <img src="/icons/map2.png" alt="Zona de atención" class="input-icon" />
+
+                <input
+                  type="text"
+                  id="zona"
+                  placeholder="Ej: Lima Metropolitana, Arequipa..."
+                 name="zona" [(ngModel)]="datos.zonaAtencion" >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="telefono">Teléfono de contacto</label>
+
+              <div class="input-box">
+                <img src="/icons/llamar2.png" alt="Teléfono" class="input-icon" />
+
+                <input
+                  type="tel"
+                  id="telefono"
+                  placeholder="Ej: +51 988 354 170"
+                 name="telefono" [(ngModel)]="datos.telefono" >
+              </div>
+            </div>
+
+            <button type="submit" class="btn-continuar">
+              Continuar
+              <img src="/icons/huella.png" alt="Continuar" />
+            </button>
+          </form>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer-compacto">
+      <div class="footer-compacto-container">
+        <div class="footer-compacto-brand">
+          <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+
+          <p>
+            © 2026 Huellas de Auxilio. Todos<br />
+            los derechos reservados.
+          </p>
+        </div>
+
+        <div class="footer-compacto-links">
+          <a href="#">Soporte</a>
+          <a href="/documentos/politica-privacidad.pdf" target="_blank">
+            Política de Privacidad
+          </a>
+          <a href="/documentos/terminos-condiciones.pdf" target="_blank">
+            Términos y condiciones
+          </a>
+        </div>
+
+        <div class="footer-social">
+          <a href="https://www.facebook.com/">
+            <img src="/icons/facebook.png" alt="Facebook" />
+          </a>
+
+          <a href="https://x.com/">
+            <img src="/icons/x.png" alt="X" />
+          </a>
+
+          <a href="https://www.instagram.com/">
+            <img src="/icons/instagram.png" alt="Instagram" />
+          </a>
+        </div>
+      </div>
+    </footer>
+  
