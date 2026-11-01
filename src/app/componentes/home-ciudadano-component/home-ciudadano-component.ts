@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth-service';
 import { ReporteService } from '../../services/reporte-service';
@@ -15,52 +15,60 @@ export class HomeCiudadanoComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly reporteService = inject(ReporteService);
+  private readonly cdr = inject(ChangeDetectorRef); // <-- Para pintar de inmediato en pantalla
 
   menuMobileAbierto: boolean = false;
 
-  // Estadísticas con valores por defecto de la maqueta
+  // Estadísticas que se actualizarán con el backend
   resumen: ResumenReportes = {
-    total: 4,
-    enRevision: 2,
-    atendidos: 1,
+    total: 0,
+    enRevision: 0,
+    atendidos: 0,
   };
 
-  // Último reporte para el card de seguimiento reciente
   ultimoReporte: Reporte | null = null;
-  nombreUsuario: string = 'HuellaAmiga247';
+  nombreUsuario: string = 'Ciudadano';
 
   ngOnInit(): void {
-    // Protección de ruta: Solo para ciudadanos con sesión iniciada
+    // Si no hay token o no es ciudadano, al login
     if (!this.auth.token() || !this.auth.roles().includes('ROLE_CIUDADANO')) {
       this.router.navigateByUrl('/login');
       return;
     }
 
-    // Intentamos cargar estadísticas reales si existen en el backend (idCiudadano = 1 por defecto de momento)
+    this.nombreUsuario = this.auth.nombreCiudadano();
+
     this.cargarEstadisticas();
   }
 
   cargarEstadisticas(): void {
-    const idCiudadanoPrueba = 1; // Correspondiente al Juan de import.sql
-    this.reporteService.obtenerResumenCiudadano(idCiudadanoPrueba).subscribe({
+    // ID dinámico del ciudadano que inició sesión (o 1 por defecto)
+    const idCiudadano = this.auth.idCiudadano();
+
+    // Cargar números estadísticos
+    this.reporteService.obtenerResumenCiudadano(idCiudadano).subscribe({
       next: (datos) => {
         if (datos) {
           this.resumen = datos;
+          this.cdr.detectChanges();
         }
       },
-      error: () => {
-        // Si no responde el backend por alguna razón, mantiene los datos visuales de la maqueta
-        console.log('Mostrando datos base de la maqueta.');
+      error: (e) => {
+        console.log('Error o sin reportes para el usuario:', e);
       },
     });
 
-    this.reporteService.listarPorCiudadano(idCiudadanoPrueba).subscribe({
+    // Cargar el último reporte para la tarjeta de seguimiento
+    this.reporteService.listarPorCiudadano(idCiudadano).subscribe({
       next: (reportes) => {
         if (reportes && reportes.length > 0) {
           this.ultimoReporte = reportes[0];
+          this.cdr.detectChanges(); // Chicos aquí se fuerza a Angular a mostrar cambios de inmediato
         }
       },
-      error: () => {},
+      error: (e) => {
+        console.log('Sin historial de reportes:', e);
+      },
     });
   }
 
