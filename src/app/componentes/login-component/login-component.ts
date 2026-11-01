@@ -24,7 +24,7 @@ export class LoginComponent {
           return;
         }
         if(r.roles.includes('ROLE_CIUDADANO')) {
-          this.auth.iniciarSesion(r);
+          this.auth.iniciarSesion(r, this.correo); // <--- Le pasamos el correo dinámicamente
           this.router.navigateByUrl('/home-ciudadano');
         } else if(r.roles.includes('ROLE_ENTIDAD')) {
           this.auth.iniciarSesion(r);
