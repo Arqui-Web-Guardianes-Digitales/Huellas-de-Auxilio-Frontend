@@ -1,0 +1,489 @@
+<header class="header-ciudadano">
+  <nav class="navbar">
+    <button type="button"
+            class="btn-menu"
+            id="btnMenu"
+            aria-label="Abrir menú"
+            aria-controls="menuMobile"
+            [attr.aria-expanded]="menuAbierto"
+            (click)="menuAbierto = !menuAbierto">>
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <a routerLink="/home-ciudadano-component" class="logo">
+      <img src="/img/logo.png" alt="Huellas de Auxilio" />
+    </a>
+
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/home-ciudadano-component" class="nav-link">
+          Inicio
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/mis-reportes-component" class="nav-link">
+          Mis reportes
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/directorio-component" class="nav-link">
+          Directorio
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/adopciones-component" class="nav-link activo">
+          Adopciones
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/ayuda-component" class="nav-link">
+          Ayuda
+        </a>
+      </li>
+    </ul>
+
+    <div class="header-actions">
+      <a routerLink="/reportar-component" class="btn-reportar">
+        Reportar
+      </a>
+
+      <a routerLink="/notificaciones-component" class="btn-campana">
+        <img src="/icons/campana.png" alt="Notificaciones" />
+      </a>
+
+      <a routerLink="/mi-cuenta-ciudadano-component" class="btn-cuenta">
+        <img src="/icons/user-circle.png" alt="Mi cuenta" />
+        <span>Mi cuenta</span>
+      </a>
+    </div>
+
+    <a routerLink="/reportar-component" class="btn-reporte-mobile">
+      Reporte
+    </a>
+  </nav>
+
+  <div class="menu-mobile" id="menuMobile" [class.activo]="menuAbierto">
+    <div class="menu-mobile-top">
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+
+        <div>
+          <h3>HuellaAmiga247</h3>
+          <a routerLink="/mi-cuenta-ciudadano-component">
+            Ver mi perfil
+          </a>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar-menu"
+        id="btnCerrarMenu"
+        aria-label="Cerrar menú"
+        (click)="menuAbierto = false">
+        ×
+      </button>
+    </div>
+
+    <div class="menu-mobile-links">
+      <a routerLink="/home-ciudadano-component">Inicio</a>
+      <a routerLink="/mis-reportes-component">Mis Reportes</a>
+      <a routerLink="/directorio-component">Directorio</a>
+      <a routerLink="/adopciones-component" class="activo">Adopciones</a>
+      <a routerLink="/ayuda-component">Ayuda</a>
+      <a routerLink="/notificaciones-component">Notificaciones</a>
+    </div>
+  </div>
+</header>
+
+<main class="adopciones-page">
+  <section class="hero-adopciones">
+    <div class="hero-img">
+      <img src="/img/banner-ciudadano.png" alt="Mascotas en adopción" />
+    </div>
+
+    <div class="hero-text">
+      <h1>Adopciones responsables</h1>
+      <p>Conoce animales rescatados que buscan un hogar.</p>
+    </div>
+  </section>
+
+  <section class="tabs-adopciones">
+    <a routerLink="/adopciones-component" class="tab activo">
+      <img src="/icons/huella-verde.png" alt="Mascotas" />
+      Mascotas disponibles
+    </a>
+
+    <a routerLink="/mis-solicitudes-component" class="tab">
+      <img src="/icons/documento-gris.png" alt="Solicitudes" />
+      Mis solicitudes
+    </a>
+  </section>
+
+  <section class="filtros-adopciones">
+    <div class="buscar-box">
+      <img src="/icons/buscar.png" alt="Buscar" />
+      <input
+        type="text"
+        id="buscarMascota"
+        placeholder="Buscar mascota" />
+    </div>
+
+    <select id="filtroEspecie">
+      <option value="">Especie</option>
+      <option value="perro">Perro</option>
+      <option value="gato">Gato</option>
+    </select>
+
+    <select id="filtroEdad">
+      <option value="">Edad</option>
+      <option value="cachorro">Cachorro</option>
+      <option value="joven">Joven</option>
+      <option value="adulto">Adulto</option>
+    </select>
+
+    <select id="filtroDistrito">
+      <option value="">Distrito</option>
+      <option value="miraflores">Miraflores</option>
+      <option value="san borja">San Borja</option>
+      <option value="surco">Surco</option>
+      <option value="jesus maria">Jesús María</option>
+      <option value="pueblo libre">Pueblo Libre</option>
+      <option value="lince">Lince</option>
+    </select>
+
+    <button class="btn-limpiar" id="btnLimpiar" type="button">
+      Limpiar filtros
+    </button>
+  </section>
+
+  <section class="mascotas-grid" id="contenedorMascotas">
+    <article
+      class="mascota-card"
+      data-nombre="max"
+      data-especie="perro"
+      data-edad="adulto"
+      data-distrito="miraflores">
+
+      <img src="/img/max-perro.png" alt="Max" class="mascota-img" />
+
+      <div class="mascota-info">
+        <div class="mascota-header">
+          <h3>Max</h3>
+          <span>Perro</span>
+        </div>
+
+        <div class="mascota-datos">
+          <p>
+            <img src="/icons/calendario.png" alt="Edad" />
+            2 años
+          </p>
+
+          <p>
+            <img src="/icons/map.png" alt="Distrito" />
+            Miraflores
+          </p>
+        </div>
+
+        <p class="descripcion">
+          Cariñoso y juguetón, le encanta correr y recibir caricias.
+        </p>
+
+        <div class="mascota-botones">
+          <a routerLink="/detalle-mascota-component" class="btn-detalle">
+            Ver detalle
+          </a>
+
+          <a
+            routerLink="/solicitud-adopcion-component"
+            class="btn-solicitar">
+            Solicitar adopción
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <article
+      class="mascota-card"
+      data-nombre="fifi"
+      data-especie="gato"
+      data-edad="joven"
+      data-distrito="san borja">
+
+      <img src="/img/fifi-gato.png" alt="Fifi" class="mascota-img" />
+
+      <div class="mascota-info">
+        <div class="mascota-header">
+          <h3>Fifi</h3>
+          <span>Gato</span>
+        </div>
+
+        <div class="mascota-datos">
+          <p>
+            <img src="/icons/calendario.png" alt="Edad" />
+            1 año
+          </p>
+
+          <p>
+            <img src="/icons/map.png" alt="Distrito" />
+            San Borja
+          </p>
+        </div>
+
+        <p class="descripcion">
+          Tranquila y observadora, ideal para un hogar calmado.
+        </p>
+
+        <div class="mascota-botones">
+          <a routerLink="/detalle-mascota-component" class="btn-detalle">
+            Ver detalle
+          </a>
+
+          <a
+            routerLink="/solicitud-adopcion-component"
+            class="btn-solicitar">
+            Solicitar adopción
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <article
+      class="mascota-card"
+      data-nombre="simba"
+      data-especie="perro"
+      data-edad="cachorro"
+      data-distrito="surco">
+
+      <img src="/img/simba-perro.png" alt="Simba" class="mascota-img" />
+
+      <div class="mascota-info">
+        <div class="mascota-header">
+          <h3>Simba</h3>
+          <span>Perro</span>
+        </div>
+
+        <div class="mascota-datos">
+          <p>
+            <img src="/icons/calendario.png" alt="Edad" />
+            6 meses
+          </p>
+
+          <p>
+            <img src="/icons/map.png" alt="Distrito" />
+            Surco
+          </p>
+        </div>
+
+        <p class="descripcion">
+          Cachorro lleno de energía, busca una familia activa.
+        </p>
+
+        <div class="mascota-botones">
+          <a routerLink="/detalle-mascota-component" class="btn-detalle">
+            Ver detalle
+          </a>
+
+          <a
+            routerLink="/solicitud-adopcion-component"
+            class="btn-solicitar">
+            Solicitar adopción
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <article
+      class="mascota-card"
+      data-nombre="luna"
+      data-especie="gato"
+      data-edad="adulto"
+      data-distrito="jesus maria">
+
+      <img src="/img/luna-gato.png" alt="Luna" class="mascota-img" />
+
+      <div class="mascota-info">
+        <div class="mascota-header">
+          <h3>Luna</h3>
+          <span>Gato</span>
+        </div>
+
+        <div class="mascota-datos">
+          <p>
+            <img src="/icons/calendario.png" alt="Edad" />
+            2 años
+          </p>
+
+          <p>
+            <img src="/icons/map.png" alt="Distrito" />
+            Jesús María
+          </p>
+        </div>
+
+        <p class="descripcion">
+          Muy afectuosa y sociable, le encantan las siestas al sol.
+        </p>
+
+        <div class="mascota-botones">
+          <a routerLink="/detalle-mascota-component" class="btn-detalle">
+            Ver detalle
+          </a>
+
+          <a
+            routerLink="/solicitud-adopcion-component"
+            class="btn-solicitar">
+            Solicitar adopción
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <article
+      class="mascota-card"
+      data-nombre="toby"
+      data-especie="perro"
+      data-edad="adulto"
+      data-distrito="pueblo libre">
+
+      <img src="/img/toby-perro.png" alt="Toby" class="mascota-img" />
+
+      <div class="mascota-info">
+        <div class="mascota-header">
+          <h3>Toby</h3>
+          <span>Perro</span>
+        </div>
+
+        <div class="mascota-datos">
+          <p>
+            <img src="/icons/calendario.png" alt="Edad" />
+            3 años
+          </p>
+
+          <p>
+            <img src="/icons/map.png" alt="Distrito" />
+            Pueblo Libre
+          </p>
+        </div>
+
+        <p class="descripcion">
+          Pequeño y leal, siempre listo para acompañarte.
+        </p>
+
+        <div class="mascota-botones">
+          <a routerLink="/detalle-mascota-component" class="btn-detalle">
+            Ver detalle
+          </a>
+
+          <a
+            routerLink="/solicitud-adopcion-component"
+            class="btn-solicitar">
+            Solicitar adopción
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <article
+      class="mascota-card"
+      data-nombre="mia"
+      data-especie="gato"
+      data-edad="adulto"
+      data-distrito="lince">
+
+      <img src="/img/mia-gato.png" alt="Mia" class="mascota-img" />
+
+      <div class="mascota-info">
+        <div class="mascota-header">
+          <h3>Mia</h3>
+          <span>Gato</span>
+        </div>
+
+        <div class="mascota-datos">
+          <p>
+            <img src="/icons/calendario.png" alt="Edad" />
+            4 años
+          </p>
+
+          <p>
+            <img src="/icons/map.png" alt="Distrito" />
+            Lince
+          </p>
+        </div>
+
+        <p class="descripcion">
+          Tierna y curiosa, está aprendiendo a conocer el mundo.
+        </p>
+
+        <div class="mascota-botones">
+          <a routerLink="/detalle-mascota-component" class="btn-detalle">
+            Ver detalle
+          </a>
+
+          <a
+            routerLink="/solicitud-adopcion-component"
+            class="btn-solicitar">
+            Solicitar adopción
+          </a>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <p class="mensaje-vacio" id="mensajeVacio">
+    No se encontraron mascotas con esos filtros.
+  </p>
+
+  <section class="paginacion">
+    <button class="pagina activa" type="button">1</button>
+    <button class="pagina" type="button">2</button>
+    <button class="pagina" type="button">3</button>
+    <span>...</span>
+    <button class="pagina" type="button">4</button>
+    <button class="pagina" type="button">›</button>
+  </section>
+</main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+    <div class="footer-compacto-brand">
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+
+      <p>
+        © 2026 Huellas de Auxilio. Todos<br />
+        los derechos reservados.
+      </p>
+    </div>
+
+    <div class="footer-compacto-links">
+      <a href="#">Soporte</a>
+
+      <a href="/documentos/politica-privacidad.pdf" target="_blank">
+        Política de Privacidad
+      </a>
+
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank">
+        Términos y condiciones
+      </a>
+    </div>
+
+    <div class="footer-social">
+      <a href="https://www.facebook.com/">
+        <img src="/icons/facebook.png" alt="Facebook" />
+      </a>
+
+      <a href="https://x.com/">
+        <img src="/icons/x.png" alt="X" />
+      </a>
+
+      <a href="https://www.instagram.com/">
+        <img src="/icons/instagram.png" alt="Instagram" />
+      </a>
+    </div>
+  </div>
+</footer>
