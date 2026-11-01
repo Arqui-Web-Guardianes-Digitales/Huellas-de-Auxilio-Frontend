@@ -11,7 +11,8 @@ import {LoginComponent} from './componentes/login-component/login-component';
 import {NuevaContrasenaComponent} from './componentes/nueva-contrasena-component/nueva-contrasena-component';
 import {RecuperarCuentaComponent} from './componentes/recuperar-cuenta-component/recuperar-cuenta-component';
 import {RegistroCiudadanoComponent} from './componentes/registro-ciudadano-component/registro-ciudadano-component';
-import {RegistroEntidadComponent} from './componentes/registro-entidad-component/registro-entidad-component';
+import { RegistroEntidadComponent } from './componentes/registro-entidad-component/registro-entidad-component';
+import { AdopcionesComponent } from './componentes/adopciones-component/adopciones-component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -27,5 +28,6 @@ export const routes: Routes = [
   { path: 'cuenta-registrada-entidad', component: CuentaRegistradaEntidadComponent },
   { path: 'recuperar-cuenta', component: RecuperarCuentaComponent },
   { path: 'nueva-contrasena', component: NuevaContrasenaComponent },
-  { path: '**', component: LandingComponent },
+  { path: 'adopciones', component: AdopcionesComponent },
+  { path: '**', component: LandingComponent }
 ];
