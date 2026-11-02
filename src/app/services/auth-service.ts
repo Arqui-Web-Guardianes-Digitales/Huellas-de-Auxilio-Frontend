@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, switchMap, map } from 'rxjs';
 import { environment } from '../../environments/environment';
-import {AuthResponse} from '../model/auth-response';
-import {Ciudadano, DatosCiudadano} from '../model/ciudadano';
-import {Entidad, DatosEntidad} from '../model/entidad';
-import {Usuario} from '../model/usuario';
+import { AuthResponse } from '../model/auth-response';
+import { Ciudadano, DatosCiudadano } from '../model/ciudadano';
+import { Entidad, DatosEntidad } from '../model/entidad';
+import { Usuario } from '../model/usuario';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -18,7 +18,6 @@ export class AuthService {
   }
 
   iniciarSesion(respuesta: AuthResponse, correo?: string): void {
-    // Sesión temporal: borrar token cerrando la pestaña o al cerrar sesión.
     sessionStorage.setItem('jwt', respuesta.jwt);
     sessionStorage.setItem('roles', JSON.stringify(respuesta.roles));
     if (correo) {
@@ -46,6 +45,7 @@ export class AuthService {
   token(): string | null {
     return sessionStorage.getItem('jwt');
   }
+
   roles(): string[] {
     try {
       return JSON.parse(sessionStorage.getItem('roles') || '[]') as string[];
@@ -53,8 +53,24 @@ export class AuthService {
       return [];
     }
   }
+
   cerrarSesion(): void {
     sessionStorage.clear();
+  }
+
+  // Buscamos el ID real del ciudadano usando su correo en sesión
+  obtenerPerfilCiudadanoDB(): Observable<Ciudadano> {
+    const correo = this.correo();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${this.token()}` });
+
+    // Primero buscamos el Usuario por correo, luego el Ciudadano por idUsuario
+    return this.http
+      .get<Usuario>(`${this.url}/usuario/correo/${correo}`, { headers })
+      .pipe(
+        switchMap((user) =>
+          this.http.get<Ciudadano>(`${this.url}/ciudadano/usuario/${user.idUsuario}`, { headers }),
+        ),
+      );
   }
 
   // HU01: El backend separa el alta en DOS recursos: usuario -> ciudadano.
@@ -85,6 +101,7 @@ export class AuthService {
       }),
     );
   }
+
   // HU02: usuario -> entidad; no inventar endpoints.
   registrarEntidad(datos: DatosEntidad, contraseña: string): Observable<Entidad> {
     const usuario: Usuario = {

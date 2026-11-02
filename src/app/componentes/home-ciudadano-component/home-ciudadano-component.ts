@@ -15,37 +15,40 @@ export class HomeCiudadanoComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly reporteService = inject(ReporteService);
-  private readonly cdr = inject(ChangeDetectorRef); // <-- Para pintar de inmediato en pantalla
+  private readonly cdr = inject(ChangeDetectorRef);
 
   menuMobileAbierto: boolean = false;
-
-  // Estadísticas que se actualizarán con el backend
-  resumen: ResumenReportes = {
-    total: 0,
-    enRevision: 0,
-    atendidos: 0,
-  };
-
+  resumen: ResumenReportes = { total: 0, enRevision: 0, atendidos: 0 };
   ultimoReporte: Reporte | null = null;
   nombreUsuario: string = 'Ciudadano';
 
   ngOnInit(): void {
-    // Si no hay token o no es ciudadano, al login
     if (!this.auth.token() || !this.auth.roles().includes('ROLE_CIUDADANO')) {
       this.router.navigateByUrl('/login');
       return;
     }
 
-    this.nombreUsuario = this.auth.nombreCiudadano();
-
-    this.cargarEstadisticas();
+    // MAGIA: Traemos los datos REALES del ciudadano logueado
+    this.auth.obtenerPerfilCiudadanoDB().subscribe({
+      next: (ciudadano) => {
+        if (ciudadano && ciudadano.idCiudadano) {
+          this.auth.guardarDatosCiudadano(
+            ciudadano.idCiudadano,
+            ciudadano.nombreCompleto || 'Ciudadano',
+          );
+          this.nombreUsuario = this.auth.nombreCiudadano();
+          this.cargarEstadisticas();
+        }
+      },
+      error: () => {
+        this.cargarEstadisticas(); // Fallback por si acaso
+      },
+    });
   }
 
   cargarEstadisticas(): void {
-    // ID dinámico del ciudadano que inició sesión (o 1 por defecto)
-    const idCiudadano = this.auth.idCiudadano();
+    const idCiudadano = this.auth.idCiudadano(); // Ahora sí tiene el ID correcto
 
-    // Cargar números estadísticos
     this.reporteService.obtenerResumenCiudadano(idCiudadano).subscribe({
       next: (datos) => {
         if (datos) {
@@ -53,21 +56,14 @@ export class HomeCiudadanoComponent implements OnInit {
           this.cdr.detectChanges();
         }
       },
-      error: (e) => {
-        console.log('Error o sin reportes para el usuario:', e);
-      },
     });
 
-    // Cargar el último reporte para la tarjeta de seguimiento
     this.reporteService.listarPorCiudadano(idCiudadano).subscribe({
       next: (reportes) => {
         if (reportes && reportes.length > 0) {
           this.ultimoReporte = reportes[0];
-          this.cdr.detectChanges(); // Chicos aquí se fuerza a Angular a mostrar cambios de inmediato
+          this.cdr.detectChanges();
         }
-      },
-      error: (e) => {
-        console.log('Sin historial de reportes:', e);
       },
     });
   }
@@ -75,11 +71,9 @@ export class HomeCiudadanoComponent implements OnInit {
   abrirMenu(): void {
     this.menuMobileAbierto = true;
   }
-
   cerrarMenu(): void {
     this.menuMobileAbierto = false;
   }
-
   cerrarSesion(): void {
     this.auth.cerrarSesion();
     this.router.navigateByUrl('/login');
