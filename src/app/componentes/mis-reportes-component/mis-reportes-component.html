@@ -1,1 +1,181 @@
-<p>mis-reportes-component works!</p>
+<header class="header-ciudadano">
+  <nav class="navbar">
+    <button class="btn-menu" (click)="abrirMenu()" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
+    </button>
+    <a routerLink="/home-ciudadano" class="logo">
+      <img src="/img/logo.png" alt="Huellas de Auxilio" />
+    </a>
+    <ul class="nav-links">
+      <li><a routerLink="/home-ciudadano" class="nav-link">Inicio</a></li>
+      <li><a routerLink="/mis-reportes" class="nav-link activo">Mis reportes</a></li>
+      <li><a routerLink="/directorio" class="nav-link">Directorio</a></li>
+      <li><a routerLink="/adopciones" class="nav-link">Adopciones</a></li>
+      <li><a routerLink="/ayuda" class="nav-link">Ayuda</a></li>
+    </ul>
+    <div class="header-actions">
+      <a routerLink="/reportar" class="btn-reportar">Reportar</a>
+      <a routerLink="/notificaciones" class="btn-campana"><img src="/icons/campana.png" alt="Notificaciones" /></a>
+      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
+        <img src="/icons/user-circle.png" alt="Mi cuenta" /><span>Mi cuenta</span>
+      </a>
+      <button type="button" class="btn-salir" (click)="cerrarSesion()" title="Cerrar sesión">Salir</button>
+    </div>
+    <a routerLink="/reportar" class="btn-reporte-mobile">Reporte</a>
+  </nav>
+
+  <div class="menu-mobile" [class.activo]="menuMobileAbierto">
+    <div class="menu-mobile-top">
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+        <div><h3>{{ nombreUsuario }}</h3><a routerLink="/mi-cuenta-ciudadano" (click)="cerrarMenu()">Ver mi perfil</a></div>
+      </div>
+      <button class="btn-cerrar-menu" (click)="cerrarMenu()">×</button>
+    </div>
+    <div class="menu-mobile-links">
+      <a routerLink="/home-ciudadano" (click)="cerrarMenu()">Inicio</a>
+      <a routerLink="/mis-reportes" class="activo" (click)="cerrarMenu()">Mis reportes</a>
+      <a routerLink="/directorio" (click)="cerrarMenu()">Directorio</a>
+      <a routerLink="/adopciones" (click)="cerrarMenu()">Adopciones</a>
+      <a routerLink="/ayuda" (click)="cerrarMenu()">Ayuda</a>
+      <a (click)="cerrarSesion(); cerrarMenu()" style="color: #c94040; cursor:pointer;">Cerrar sesión</a>
+    </div>
+  </div>
+</header>
+
+<main class="reportes-page">
+  <section class="reportes-header">
+    <div class="titulo-con-volver">
+      <a routerLink="/home-ciudadano" class="btn-volver"><img src="/icons/flecha-volver.png" alt="Volver" /></a>
+      <h1>Mis reportes</h1>
+    </div>
+    <p>Consulta el estado y detalle de los casos que has enviado</p>
+  </section>
+
+  <!-- MÉTRICAS DINÁMICAS -->
+  <section class="resumen-reportes">
+    <article class="card-resumen">
+      <div class="icono-resumen verde"><img src="/icons/documento-verde.png" alt="Total enviados" /></div>
+      <div><h3>Total reportes</h3><strong>{{ resumen.total }}</strong></div>
+    </article>
+    <article class="card-resumen">
+      <div class="icono-resumen naranja"><img src="/icons/reloj-naranja.png" alt="En revisión" /></div>
+      <div><h3>En revisión</h3><strong class="texto-naranja">{{ resumen.enRevision }}</strong></div>
+    </article>
+    <article class="card-resumen">
+      <div class="icono-resumen verde-claro"><img src="/icons/check-verde.png" alt="Atendidos" /></div>
+      <div><h3>Atendidos</h3><strong class="texto-verde-claro">{{ resumen.atendidos }}</strong></div>
+    </article>
+  </section>
+
+  <!-- FILTROS REACTIVOS -->
+  <section class="filtros-reportes">
+    <div class="buscador-reporte">
+      <img src="/icons/buscar.png" alt="Buscar" />
+      <input type="text" [(ngModel)]="filtroCodigo" (ngModelChange)="aplicarFiltros()" placeholder="Buscar por código" />
+    </div>
+
+    <div class="filtro-item">
+      <label>Estado</label>
+      <select [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()">
+        <option value="">Todos</option>
+        <option value="R">Recibido</option>
+        <option value="ER">En revisión</option>
+        <option value="AT">Atendido</option>
+      </select>
+    </div>
+
+    <div class="filtro-item">
+      <label>Urgencia</label>
+      <select [(ngModel)]="filtroUrgencia" (ngModelChange)="aplicarFiltros()">
+        <option value="">Todas</option>
+        <option value="AL">Alta</option>
+        <option value="ME">Media</option>
+        <option value="BA">Baja</option>
+      </select>
+    </div>
+
+    <div class="filtro-item">
+      <label>Distrito</label>
+      <select [(ngModel)]="filtroDistrito" (ngModelChange)="aplicarFiltros()">
+        <option value="">Todos</option>
+        <option value="San Miguel">San Miguel</option>
+        <option value="Miraflores">Miraflores</option>
+        <option value="Lince">Lince</option>
+        <option value="Santiago de Surco">Santiago de Surco</option>
+        <option value="Jesús María">Jesús María</option>
+        <option value="Pueblo Libre">Pueblo Libre</option>
+      </select>
+    </div>
+
+    <button type="button" class="btn-limpiar-filtros" (click)="limpiarFiltros()">Limpiar filtros</button>
+  </section>
+
+  <!-- TABLA DE REPORTES -->
+  <section class="tabla-reportes-card">
+    <table class="tabla-reportes">
+      <thead>
+      <tr>
+        <th>Código</th>
+        <th>Distrito</th>
+        <th>Urgencia</th>
+        <th>Estado</th>
+        <th>Fecha</th>
+        <th>Acción</th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (rep of reportesFiltrados; track rep.idReporte) {
+          <tr>
+            <td>HA-00{{ rep.idReporte }}</td>
+            <td>{{ rep.ubicacion?.distrito }}</td>
+
+            <td>
+              @if(rep.nivelUrgencia === 'AL'){ <span class="badge urgencia-alta">Alta</span> }
+              @if(rep.nivelUrgencia === 'ME'){ <span class="badge urgencia-media">Media</span> }
+              @if(rep.nivelUrgencia === 'BA'){ <span class="badge urgencia-baja">Baja</span> }
+            </td>
+
+            <td>
+              @if(rep.estado === 'R'){ <span class="badge estado-recibido">Recibido</span> }
+              @if(rep.estado === 'ER'){ <span class="badge estado-revision">En Revisión</span> }
+              @if(rep.estado === 'AT'){ <span class="badge estado-atendido">Atendido</span> }
+            </td>
+
+            <td>{{ rep.fechaReporte | date:'dd MMM yyyy' }}</td>
+
+            <td>
+              <a [routerLink]="['/seguimiento-reporte', rep.idReporte]" class="btn-detalle">
+                Ver detalle
+                <img src="/icons/flecha-verde.png" alt="Ver detalle" />
+              </a>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="mensaje-vacio">No se encontraron reportes con esos filtros.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+    <div class="footer-compacto-brand">
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+      <p>© 2026 Huellas de Auxilio. Todos<br />los derechos reservados.</p>
+    </div>
+    <div class="footer-compacto-links">
+      <a routerLink="/ayuda">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank">Política de Privacidad</a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank">Términos y condiciones</a>
+    </div>
+    <div class="footer-social">
+      <a href="#"><img src="/icons/facebook.png" alt="Facebook" /></a>
+      <a href="#"><img src="/icons/x.png" alt="X" /></a>
+      <a href="#"><img src="/icons/instagram.png" alt="Instagram" /></a>
+    </div>
+  </div>
+</footer>
