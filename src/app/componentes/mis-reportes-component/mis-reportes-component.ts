@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -18,17 +18,16 @@ export class MisReportesComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly reporteService = inject(ReporteService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef); // <-- Arregla el bug visual
 
   menuMobileAbierto: boolean = false;
   nombreUsuario: string = 'Ciudadano';
 
   resumen: ResumenReportes = { total: 0, enRevision: 0, atendidos: 0 };
 
-  // Listas de datos
   reportesOriginales: Reporte[] = [];
   reportesFiltrados: Reporte[] = [];
 
-  // Variables para filtros (ngModel)
   filtroCodigo: string = '';
   filtroEstado: string = '';
   filtroUrgencia: string = '';
@@ -39,26 +38,41 @@ export class MisReportesComponent implements OnInit {
       this.router.navigateByUrl('/login');
       return;
     }
-    this.nombreUsuario = this.auth.nombreCiudadano();
-    this.cargarDatos();
+
+    // Obtenemos el perfil real antes de cargar la tabla
+    this.auth.obtenerPerfilCiudadanoDB().subscribe({
+      next: (ciudadano) => {
+        if (ciudadano && ciudadano.idCiudadano) {
+          this.auth.guardarDatosCiudadano(
+            ciudadano.idCiudadano,
+            ciudadano.nombreCompleto || 'Ciudadano',
+          );
+          this.nombreUsuario = this.auth.nombreCiudadano();
+          this.cargarDatos();
+        }
+      },
+      error: () => this.cargarDatos(),
+    });
   }
 
   cargarDatos(): void {
     const id = this.auth.idCiudadano();
 
-    // Cargar tarjetas superiores
     this.reporteService.obtenerResumenCiudadano(id).subscribe({
       next: (datos) => {
-        if (datos) this.resumen = datos;
+        if (datos) {
+          this.resumen = datos;
+          this.cdr.detectChanges(); // <-- Obligamos a pintar
+        }
       },
     });
 
-    // Cargar tabla (solo reportes de ESTE usuario)
     this.reporteService.listarPorCiudadano(id).subscribe({
       next: (lista) => {
         if (lista) {
           this.reportesOriginales = lista;
           this.reportesFiltrados = lista;
+          this.cdr.detectChanges(); // <-- Obligamos a pintar
         }
       },
     });
@@ -68,24 +82,19 @@ export class MisReportesComponent implements OnInit {
     const txtBuscar = this.filtroCodigo.toLowerCase().trim();
 
     this.reportesFiltrados = this.reportesOriginales.filter((r) => {
-      // 1. Filtro Código
       const cod = `ha-00${r.idReporte}`.toLowerCase();
       const coincideCodigo = cod.includes(txtBuscar);
-
-      // 2. Filtro Estado
       const coincideEstado = this.filtroEstado === '' || r.estado === this.filtroEstado;
-
-      // 3. Filtro Urgencia
       const coincideUrgencia =
         this.filtroUrgencia === '' || r.nivelUrgencia === this.filtroUrgencia;
-
-      // 4. Filtro Distrito
       const coincideDistrito =
         this.filtroDistrito === '' ||
         r.ubicacion?.distrito.toLowerCase() === this.filtroDistrito.toLowerCase();
 
       return coincideCodigo && coincideEstado && coincideUrgencia && coincideDistrito;
     });
+
+    this.cdr.detectChanges(); // <-- Obligamos a pintar al filtrar
   }
 
   limpiarFiltros(): void {
@@ -94,6 +103,7 @@ export class MisReportesComponent implements OnInit {
     this.filtroUrgencia = '';
     this.filtroDistrito = '';
     this.reportesFiltrados = [...this.reportesOriginales];
+    this.cdr.detectChanges(); // <-- Obligamos a pintar al limpiar
   }
 
   abrirMenu(): void {
