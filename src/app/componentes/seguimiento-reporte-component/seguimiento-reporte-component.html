@@ -1,1 +1,248 @@
-<p>seguimiento-reporte-component works!</p>
+<header class="header-ciudadano">
+  <nav class="navbar">
+    <button class="btn-menu" (click)="abrirMenu()" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
+    </button>
+    <a routerLink="/home-ciudadano" class="logo">
+      <img src="/img/logo.png" alt="Huellas de Auxilio" />
+    </a>
+    <ul class="nav-links">
+      <li><a routerLink="/home-ciudadano" class="nav-link">Inicio</a></li>
+      <li><a routerLink="/mis-reportes" class="nav-link activo">Mis reportes</a></li>
+      <li><a routerLink="/directorio" class="nav-link">Directorio</a></li>
+      <li><a routerLink="/adopciones" class="nav-link">Adopciones</a></li>
+      <li><a routerLink="/ayuda" class="nav-link">Ayuda</a></li>
+    </ul>
+    <div class="header-actions">
+      <a routerLink="/reportar" class="btn-reportar">Reportar</a>
+      <a routerLink="/notificaciones" class="btn-campana"><img src="/icons/campana.png" alt="Notificaciones" /></a>
+      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
+        <img src="/icons/user-circle.png" alt="Mi cuenta" /><span>Mi cuenta</span>
+      </a>
+      <button type="button" class="btn-salir" (click)="cerrarSesion()" title="Cerrar sesión">Salir</button>
+    </div>
+    <a routerLink="/reportar" class="btn-reporte-mobile">Reporte</a>
+  </nav>
+
+  <div class="menu-mobile" [class.activo]="menuMobileAbierto">
+    <div class="menu-mobile-top">
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+        <div><h3>{{ nombreUsuario }}</h3><a routerLink="/mi-cuenta-ciudadano" (click)="cerrarMenu()">Ver mi perfil</a></div>
+      </div>
+      <button class="btn-cerrar-menu" (click)="cerrarMenu()">×</button>
+    </div>
+    <div class="menu-mobile-links">
+      <a routerLink="/home-ciudadano" (click)="cerrarMenu()">Inicio</a>
+      <a routerLink="/mis-reportes" class="activo" (click)="cerrarMenu()">Mis reportes</a>
+      <a routerLink="/directorio" (click)="cerrarMenu()">Directorio</a>
+      <a routerLink="/adopciones" (click)="cerrarMenu()">Adopciones</a>
+      <a routerLink="/ayuda" (click)="cerrarMenu()">Ayuda</a>
+      <a (click)="cerrarSesion(); cerrarMenu()" style="color: #c94040; cursor:pointer;">Cerrar sesión</a>
+    </div>
+  </div>
+</header>
+
+<main class="seguimiento-page">
+  <section class="seguimiento-header">
+    <div class="titulo-con-volver">
+      <a routerLink="/mis-reportes" class="btn-volver">
+        <img src="/icons/flecha-volver.png" alt="Volver" />
+      </a>
+      <h1>Seguimiento del Reporte</h1>
+    </div>
+    <p>Aquí puedes ver el estado actual y el progreso de tu caso.</p>
+  </section>
+
+  @if (cargando) {
+    <p style="text-align: center; margin-top: 50px;">Cargando información del reporte...</p>
+  } @else if (errorCarga || !reporte) {
+    <p style="text-align: center; margin-top: 50px; color: red; font-weight: bold;">
+      No se pudo cargar el reporte o no te pertenece.
+    </p>
+  } @else {
+    <!-- BANNER SUPERIOR RESUMEN -->
+    <section class="resumen-superior">
+      <article class="resumen-item">
+        <div class="resumen-icono"><img src="/icons/documento-verde.png" alt="Código" /></div>
+        <div><h3>Código del caso</h3><strong>HA-00{{ reporte.idReporte }}</strong></div>
+      </article>
+
+      <article class="resumen-item">
+        <div class="resumen-icono azul"><img src="/icons/reloj-verde.png" alt="Estado" /></div>
+        <div>
+          <h3>Estado actual</h3>
+          @if(reporte.estado === 'R'){ <span class="badge estado-recibido">Recibido</span> }
+          @if(reporte.estado === 'ER'){ <span class="badge estado-revision">En Revisión</span> }
+          @if(reporte.estado === 'AT'){ <span class="badge estado-atendido">Atendido</span> }
+        </div>
+      </article>
+
+      <article class="resumen-item">
+        <div class="resumen-icono naranja"><img src="/icons/alerta-naranja.png" alt="Urgencia" /></div>
+        <div>
+          <h3>Urgencia</h3>
+          @if(reporte.nivelUrgencia === 'AL'){ <span class="badge urgencia-alta">Alta</span> }
+          @if(reporte.nivelUrgencia === 'ME'){ <span class="badge urgencia-media">Media</span> }
+          @if(reporte.nivelUrgencia === 'BA'){ <span class="badge urgencia-baja">Baja</span> }
+        </div>
+      </article>
+
+      <article class="resumen-item">
+        <div class="resumen-icono"><img src="/icons/ubicacion-verde.png" alt="Ubicación" /></div>
+        <div><h3>Ubicación</h3><p>{{ reporte.ubicacion?.distrito }}, Lima</p></div>
+      </article>
+
+      <article class="resumen-item">
+        <div class="resumen-icono"><img src="/icons/calendario-verde.png" alt="Fecha" /></div>
+        <div><h3>Fecha</h3><p>{{ reporte.fechaReporte | date:'dd MMM yyyy' }}</p></div>
+      </article>
+
+      <article class="resumen-item">
+        <div class="resumen-icono"><img src="/icons/edificio-verde.png" alt="Entidad" /></div>
+        <div>
+          <h3>Entidad asignada</h3>
+          <p>{{ reporte.entidad?.nombreEntidad || 'Pendiente' }}</p>
+        </div>
+      </article>
+    </section>
+
+    <!-- DETALLES Y TIMELINE -->
+    <section class="seguimiento-grid">
+      <section class="columna-izquierda">
+        <div class="fila-cards">
+
+          <article class="card-seguimiento descripcion-card">
+            <div class="card-titulo">
+              <div class="mini-icono"><img src="/icons/documento-verde.png" alt="Descripción" /></div>
+              <h2>Descripción del caso</h2>
+            </div>
+            <p>{{ reporte.descripcion }}</p>
+          </article>
+
+          <article class="card-seguimiento ubicacion-card">
+            <div class="card-titulo">
+              <div class="mini-icono"><img src="/icons/ubicacion-verde.png" alt="Ubicación" /></div>
+              <h2>Ubicación de reporte</h2>
+            </div>
+            <div class="mapa-mini">
+              <img src="/img/mapa.png" alt="Mapa estático" />
+              <span class="pin-mapa"></span>
+            </div>
+            <div class="mapa-footer">
+              <span>{{ reporte.ubicacion?.direccion }}, {{ reporte.ubicacion?.distrito }}</span>
+            </div>
+          </article>
+        </div>
+
+        <!-- LÍNEA DE TIEMPO (TIMELINE) DINÁMICA -->
+        <article class="card-seguimiento progreso-card">
+          <div class="card-titulo">
+            <div class="mini-icono"><img src="/icons/reloj-verde.png" alt="Progreso" /></div>
+            <h2>Progreso del reporte</h2>
+          </div>
+
+          <div class="progreso-linea">
+            <!-- PASO 1: Creado/Recibido (Siempre marcado) -->
+            <div class="paso-progreso completado">
+              <div class="circulo-paso">
+                <img src="/icons/check-relleno-verde.png" alt="Completado" />
+              </div>
+              <h3>Recibido</h3>
+              <span>{{ reporte.fechaReporte | date:'dd MMM yyyy' }}</span>
+              <p>La entidad recibió el caso</p>
+            </div>
+
+            <!-- Línea hacia Revisión -->
+            <div [class]="reporte.estado === 'ER' || reporte.estado === 'AT' ? 'linea-verde' : 'linea-gris'"></div>
+
+            <!-- PASO 2: En Revisión -->
+            <div class="paso-progreso" [class.completado]="reporte.estado === 'AT'" [class.activo]="reporte.estado === 'ER'" [class.pendiente]="reporte.estado === 'R'">
+              @if (reporte.estado === 'AT') {
+                <div class="circulo-paso"><img src="/icons/check-relleno-verde.png" alt="Completado" /></div>
+              } @else if (reporte.estado === 'ER') {
+                <div class="circulo-paso naranja"></div>
+              } @else {
+                <div class="circulo-paso gris"></div>
+              }
+              <h3>En revisión</h3>
+              <p>La entidad está evaluando la información</p>
+            </div>
+
+            <!-- Línea hacia Atendido -->
+            <div [class]="reporte.estado === 'AT' ? 'linea-verde' : 'linea-gris'"></div>
+
+            <!-- PASO 3: Atendido -->
+            <div class="paso-progreso" [class.activo]="reporte.estado === 'AT'" [class.pendiente]="reporte.estado !== 'AT'">
+              @if (reporte.estado === 'AT') {
+                <div class="circulo-paso"><img src="/icons/check-relleno-verde.png" alt="Completado" /></div>
+              } @else {
+                <div class="circulo-paso gris"></div>
+              }
+              <h3>Atendido</h3>
+              <p>El caso ha sido solucionado o cerrado</p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- COLUMNA DERECHA: EVIDENCIA Y ALERTAS -->
+      <aside class="columna-derecha">
+        <article class="card-seguimiento evidencia-card">
+          <div class="card-titulo">
+            <div class="mini-icono"><img src="/icons/camara-verde.png" alt="Evidencia" /></div>
+            <h2>Evidencia del ciudadano</h2>
+          </div>
+
+          <div class="evidencias-mini">
+            <!-- Simulamos que consumimos la foto desde el Backend, aquí podrías conectar el array real luego -->
+            <img src="/img/evidencia-foto-1.png" alt="Evidencia" />
+          </div>
+
+          <div class="card-titulo actualizacion-titulo" style="margin-top: 30px;">
+            <div class="mini-icono"><img src="/icons/campana.png" alt="Actualización" /></div>
+            <h2>Actualizaciones del caso</h2>
+          </div>
+
+          <div class="timeline-actualizacion">
+            @if (reporte.estado === 'ER' || reporte.estado === 'AT') {
+              <div class="evento naranja">
+                <strong>En Revisión</strong>
+                <p>La entidad está revisando las evidencias enviadas para planificar la ayuda.</p>
+              </div>
+            }
+            <div class="evento verde">
+              <strong>{{ reporte.fechaReporte | date:'dd MMM yyyy' }}</strong>
+              <p>Reporte derivado automáticamente a {{ reporte.entidad?.nombreEntidad }}.</p>
+            </div>
+            <div class="evento verde">
+              <strong>Reporte Creado</strong>
+              <p>El caso fue registrado exitosamente en el sistema.</p>
+            </div>
+          </div>
+
+          <h3 class="mensaje-final">Te notificaremos cuando el estado cambie</h3>
+        </article>
+      </aside>
+    </section>
+  }
+</main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+    <div class="footer-compacto-brand">
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+      <p>© 2026 Huellas de Auxilio. Todos<br />los derechos reservados.</p>
+    </div>
+    <div class="footer-compacto-links">
+      <a routerLink="/ayuda">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank">Política de Privacidad</a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank">Términos y condiciones</a>
+    </div>
+    <div class="footer-social">
+      <a href="#"><img src="/icons/facebook.png" alt="Facebook" /></a>
+      <a href="#"><img src="/icons/x.png" alt="X" /></a>
+      <a href="#"><img src="/icons/instagram.png" alt="Instagram" /></a>
+    </div>
+  </div>
+</footer>
