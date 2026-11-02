@@ -125,9 +125,9 @@
               <div class="mini-icono"><img src="/icons/ubicacion-verde.png" alt="Ubicación" /></div>
               <h2>Ubicación de reporte</h2>
             </div>
+            <!-- MAPA REAL DE LEAFLET -->
             <div class="mapa-mini">
-              <img src="/img/mapa.png" alt="Mapa estático" />
-              <span class="pin-mapa"></span>
+              <div id="mapaVisualizacion" style="width: 100%; height: 100%;"></div>
             </div>
             <div class="mapa-footer">
               <span>{{ reporte.ubicacion?.direccion }}, {{ reporte.ubicacion?.distrito }}</span>
@@ -135,7 +135,6 @@
           </article>
         </div>
 
-        <!-- LÍNEA DE TIEMPO (TIMELINE) DINÁMICA -->
         <article class="card-seguimiento progreso-card">
           <div class="card-titulo">
             <div class="mini-icono"><img src="/icons/reloj-verde.png" alt="Progreso" /></div>
@@ -143,20 +142,17 @@
           </div>
 
           <div class="progreso-linea">
-            <!-- PASO 1: Creado/Recibido (Siempre marcado) -->
+            <!-- Creado -->
             <div class="paso-progreso completado">
-              <div class="circulo-paso">
-                <img src="/icons/check-relleno-verde.png" alt="Completado" />
-              </div>
+              <div class="circulo-paso"><img src="/icons/check-relleno-verde.png" alt="Completado" /></div>
               <h3>Recibido</h3>
               <span>{{ reporte.fechaReporte | date:'dd MMM yyyy' }}</span>
               <p>La entidad recibió el caso</p>
             </div>
 
-            <!-- Línea hacia Revisión -->
             <div [class]="reporte.estado === 'ER' || reporte.estado === 'AT' ? 'linea-verde' : 'linea-gris'"></div>
 
-            <!-- PASO 2: En Revisión -->
+            <!-- Revisión -->
             <div class="paso-progreso" [class.completado]="reporte.estado === 'AT'" [class.activo]="reporte.estado === 'ER'" [class.pendiente]="reporte.estado === 'R'">
               @if (reporte.estado === 'AT') {
                 <div class="circulo-paso"><img src="/icons/check-relleno-verde.png" alt="Completado" /></div>
@@ -166,13 +162,12 @@
                 <div class="circulo-paso gris"></div>
               }
               <h3>En revisión</h3>
-              <p>La entidad está evaluando la información</p>
+              <p>Evaluando la información</p>
             </div>
 
-            <!-- Línea hacia Atendido -->
             <div [class]="reporte.estado === 'AT' ? 'linea-verde' : 'linea-gris'"></div>
 
-            <!-- PASO 3: Atendido -->
+            <!-- Atendido -->
             <div class="paso-progreso" [class.activo]="reporte.estado === 'AT'" [class.pendiente]="reporte.estado !== 'AT'">
               @if (reporte.estado === 'AT') {
                 <div class="circulo-paso"><img src="/icons/check-relleno-verde.png" alt="Completado" /></div>
@@ -180,13 +175,12 @@
                 <div class="circulo-paso gris"></div>
               }
               <h3>Atendido</h3>
-              <p>El caso ha sido solucionado o cerrado</p>
+              <p>Caso cerrado/solucionado</p>
             </div>
           </div>
         </article>
       </section>
 
-      <!-- COLUMNA DERECHA: EVIDENCIA Y ALERTAS -->
       <aside class="columna-derecha">
         <article class="card-seguimiento evidencia-card">
           <div class="card-titulo">
@@ -194,9 +188,13 @@
             <h2>Evidencia del ciudadano</h2>
           </div>
 
+          <!-- FOTOS REALES DEL BACKEND -->
           <div class="evidencias-mini">
-            <!-- Simulamos que consumimos la foto desde el Backend, aquí podrías conectar el array real luego -->
-            <img src="/img/evidencia-foto-1.png" alt="Evidencia" />
+            @for (ev of evidencias; track ev.idEvidencia) {
+              <img [src]="ev.urlEvidencia" alt="Evidencia" (error)="imagenError($event)" />
+            } @empty {
+              <img src="/img/evidencia-foto-1.png" alt="Sin evidencia" />
+            }
           </div>
 
           <div class="card-titulo actualizacion-titulo" style="margin-top: 30px;">
@@ -205,23 +203,23 @@
           </div>
 
           <div class="timeline-actualizacion">
+            @if (reporte.estado === 'AT') {
+              <div class="evento verde">
+                <strong>Caso Atendido</strong>
+                <p>La entidad ha solucionado y cerrado el caso con éxito.</p>
+              </div>
+            }
             @if (reporte.estado === 'ER' || reporte.estado === 'AT') {
               <div class="evento naranja">
                 <strong>En Revisión</strong>
-                <p>La entidad está revisando las evidencias enviadas para planificar la ayuda.</p>
+                <p>La entidad está revisando las evidencias enviadas.</p>
               </div>
             }
             <div class="evento verde">
               <strong>{{ reporte.fechaReporte | date:'dd MMM yyyy' }}</strong>
-              <p>Reporte derivado automáticamente a {{ reporte.entidad?.nombreEntidad }}.</p>
-            </div>
-            <div class="evento verde">
-              <strong>Reporte Creado</strong>
-              <p>El caso fue registrado exitosamente en el sistema.</p>
+              <p>Reporte derivado a {{ reporte.entidad?.nombreEntidad }}.</p>
             </div>
           </div>
-
-          <h3 class="mensaje-final">Te notificaremos cuando el estado cambie</h3>
         </article>
       </aside>
     </section>
