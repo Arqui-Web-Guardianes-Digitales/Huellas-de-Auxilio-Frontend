@@ -69,4 +69,12 @@ export class ReporteService {
       { headers: this.getHeaders() }
     );
   }
+
+  // Obtener evidencias de un reporte
+  obtenerEvidencias(idReporte: number): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.url}/evidenciareporte/reporte/${idReporte}`,
+      { headers: this.getHeaders() }
+    );
+  }
 }

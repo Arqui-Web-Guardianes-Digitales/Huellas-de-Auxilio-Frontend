@@ -155,7 +155,7 @@
     <h2>Seguimiento reciente</h2>
 
     <article class="caso-card">
-      <img [src]="ultimoReporte?.ubicacion ? 'http://localhost:8088/api/evidenciareporte/reporte/' + ultimoReporte?.idReporte : '/img/evidencia-foto-3.png'" alt="Caso reciente" class="caso-img" (error)="imagenError($event)" />
+      <img [src]="fotoReciente" alt="Caso reciente" class="caso-img" (error)="imagenError($event)" />
 
       <div class="caso-info">
         <div class="caso-header">

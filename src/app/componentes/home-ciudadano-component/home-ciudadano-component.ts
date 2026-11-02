@@ -46,8 +46,10 @@ export class HomeCiudadanoComponent implements OnInit {
     });
   }
 
+  fotoReciente: string = '/img/evidencia-foto-3.png'; // Foto por defecto
+
   cargarEstadisticas(): void {
-    const idCiudadano = this.auth.idCiudadano(); // Ahora sí tiene el ID correcto
+    const idCiudadano = this.auth.idCiudadano();
 
     this.reporteService.obtenerResumenCiudadano(idCiudadano).subscribe({
       next: (datos) => {
@@ -62,7 +64,12 @@ export class HomeCiudadanoComponent implements OnInit {
       next: (reportes) => {
         if (reportes && reportes.length > 0) {
           this.ultimoReporte = reportes[0];
-          this.cdr.detectChanges();
+          this.reporteService.obtenerEvidencias(this.ultimoReporte.idReporte!).subscribe((evs) => {
+            if (evs && evs.length > 0) {
+              this.fotoReciente = evs[0].urlEvidencia; // Sacamos la URL real del JSON
+            }
+            this.cdr.detectChanges();
+          });
         }
       },
     });
