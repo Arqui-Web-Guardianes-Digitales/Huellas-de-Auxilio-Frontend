@@ -62,4 +62,11 @@ export class ReporteService {
     };
     return this.http.post(`${this.url}/evidenciareporte`, payload, { headers: this.getHeaders() });
   }
+
+  obtenerReportePorId(idReporte: number, idCiudadano: number): Observable<Reporte> {
+    return this.http.get<Reporte>(
+      `${this.url}/reporte/${idReporte}/ciudadano/${idCiudadano}`,
+      { headers: this.getHeaders() }
+    );
+  }
 }
