@@ -78,4 +78,8 @@ export class HomeCiudadanoComponent implements OnInit {
     this.auth.cerrarSesion();
     this.router.navigateByUrl('/login');
   }
+
+  imagenError(event: any): void {
+    event.target.src = '/img/evidencia-foto-3.png';
+  }
 }
