@@ -63,10 +63,13 @@ export class HomeCiudadanoComponent implements OnInit {
     this.reporteService.listarPorCiudadano(idCiudadano).subscribe({
       next: (reportes) => {
         if (reportes && reportes.length > 0) {
-          this.ultimoReporte = reportes[0];
+          // ORDENAMIENTO EN FRONTEND: tomamos el reporte con ID más alto
+          const listaOrdenada = reportes.sort((a, b) => (b.idReporte || 0) - (a.idReporte || 0));
+          this.ultimoReporte = listaOrdenada[0]; // Ahora sí, el índice 0 es 100% el más nuevo
+
           this.reporteService.obtenerEvidencias(this.ultimoReporte.idReporte!).subscribe((evs) => {
             if (evs && evs.length > 0) {
-              this.fotoReciente = evs[0].urlEvidencia; // Sacamos la URL real del JSON
+              this.fotoReciente = evs[0].urlEvidencia;
             }
             this.cdr.detectChanges();
           });
