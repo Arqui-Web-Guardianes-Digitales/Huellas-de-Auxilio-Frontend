@@ -57,10 +57,14 @@ export class ReporteService {
   // E13: Registrar evidencia fotográfica asociada al reporte
   guardarEvidencia(idReporte: number, urlEvidencia: string): Observable<any> {
     const payload = {
-      reporte: { idReporte: idReporte },
-      urlEvidencia: urlEvidencia,
+      idReporte: idReporte, // <--- AHORA SÍ COINCIDE EXACTO CON TU DTO DE JAVA
+      urlEvidencia: urlEvidencia
     };
-    return this.http.post(`${this.url}/evidenciareporte`, payload, { headers: this.getHeaders() });
+    return this.http.post(
+      `${this.url}/evidenciareporte`,
+      payload,
+      { headers: this.getHeaders() }
+    );
   }
 
   obtenerReportePorId(idReporte: number, idCiudadano: number): Observable<Reporte> {
