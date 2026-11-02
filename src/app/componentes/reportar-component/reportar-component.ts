@@ -89,7 +89,7 @@ export class ReportarComponent implements OnInit, AfterViewInit {
         if (this.marker) {
           this.marker.setLatLng(e.latlng);
         }
-        
+
         fetch(
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${this.latitud}&lon=${this.longitud}`,
         )
@@ -178,62 +178,64 @@ export class ReportarComponent implements OnInit, AfterViewInit {
     this.enviandoReporte = true;
     this.errorEnvio = '';
 
-    // Guardar Ubicación
+    // 1. Guardar Ubicación
     const nuevaUbicacion: Ubicacion = {
       direccion: this.direccion,
       distrito: this.distrito,
       referencia: this.referencia,
       latitud: this.latitud,
-      longitud: this.longitud,
+      longitud: this.longitud
     };
 
     this.reporteService.crearUbicacion(nuevaUbicacion).subscribe({
       next: (ubCreada) => {
-        // Guardar Reporte con ciudadano dinámico de la sesión
         const idCiudadanoSesion = this.auth.idCiudadano();
 
+        // 2. Guardar Reporte
         const payloadReporte = {
           ubicacion: { idUbicacion: ubCreada.idUbicacion },
           ciudadano: { idCiudadano: idCiudadanoSesion },
           fechaReporte: new Date().toISOString().split('T')[0],
           tipoCaso: this.tipoCaso.substring(0, 1).toUpperCase(),
-          nivelUrgencia:
-            this.nivelUrgencia === 'Alta' ? 'AL' : this.nivelUrgencia === 'Media' ? 'ME' : 'BA',
+          nivelUrgencia: this.nivelUrgencia === 'Alta' ? 'AL' : this.nivelUrgencia === 'Media' ? 'ME' : 'BA',
           descripcion: this.descripcion,
-          estado: 'R',
+          estado: 'R'
         };
 
         this.reporteService.crearReporte(payloadReporte).subscribe({
           next: (repCreado) => {
             this.codigoReporteGenerado = `HA-00${repCreado.idReporte}`;
 
+            // 3. Guardar Evidencia Y ESPERAR a que termine para ir al Paso 3
             if (this.urlFotoSubida && repCreado.idReporte) {
-              this.reporteService
-                .guardarEvidencia(repCreado.idReporte, this.urlFotoSubida)
-                .subscribe({
-                  next: () => {},
-                  error: () => {},
-                });
+              this.reporteService.guardarEvidencia(repCreado.idReporte, this.urlFotoSubida).subscribe({
+                next: () => this.finalizarReporteExitoso(),
+                error: () => this.finalizarReporteExitoso() // Si falla la foto, igual terminamos el reporte
+              });
+            } else {
+              this.finalizarReporteExitoso();
             }
-
-            this.enviandoReporte = false;
-            this.pasoActual = 3; // Mostrar pantalla de confirmación exitosa
-            this.cdr.detectChanges();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
           },
           error: () => {
             this.enviandoReporte = false;
             this.errorEnvio = 'Ocurrió un error al registrar el reporte.';
             this.cdr.detectChanges();
-          },
+          }
         });
       },
       error: () => {
         this.enviandoReporte = false;
         this.errorEnvio = 'No se pudo conectar con el servidor para guardar la ubicación.';
         this.cdr.detectChanges();
-      },
+      }
     });
+  }
+
+  finalizarReporteExitoso(): void {
+    this.enviandoReporte = false;
+    this.pasoActual = 3;
+    this.cdr.detectChanges();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   imagenError(event: any): void {

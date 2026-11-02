@@ -46,8 +46,10 @@ export class HomeCiudadanoComponent implements OnInit {
     });
   }
 
+  fotoReciente: string = '/img/evidencia-foto-3.png'; // Foto por defecto
+
   cargarEstadisticas(): void {
-    const idCiudadano = this.auth.idCiudadano(); // Ahora sí tiene el ID correcto
+    const idCiudadano = this.auth.idCiudadano();
 
     this.reporteService.obtenerResumenCiudadano(idCiudadano).subscribe({
       next: (datos) => {
@@ -61,8 +63,16 @@ export class HomeCiudadanoComponent implements OnInit {
     this.reporteService.listarPorCiudadano(idCiudadano).subscribe({
       next: (reportes) => {
         if (reportes && reportes.length > 0) {
-          this.ultimoReporte = reportes[0];
-          this.cdr.detectChanges();
+          // ORDENAMIENTO EN FRONTEND: tomamos el reporte con ID más alto
+          const listaOrdenada = reportes.sort((a, b) => (b.idReporte || 0) - (a.idReporte || 0));
+          this.ultimoReporte = listaOrdenada[0]; // Ahora sí, el índice 0 es 100% el más nuevo
+
+          this.reporteService.obtenerEvidencias(this.ultimoReporte.idReporte!).subscribe((evs) => {
+            if (evs && evs.length > 0) {
+              this.fotoReciente = evs[0].urlEvidencia;
+            }
+            this.cdr.detectChanges();
+          });
         }
       },
     });

@@ -70,9 +70,12 @@ export class MisReportesComponent implements OnInit {
     this.reporteService.listarPorCiudadano(id).subscribe({
       next: (lista) => {
         if (lista) {
-          this.reportesOriginales = lista;
-          this.reportesFiltrados = lista;
-          this.cdr.detectChanges(); // <-- Obligamos a pintar
+          // aqui se ordena del ID más alto al más bajo
+          const listaOrdenada = lista.sort((a, b) => (b.idReporte || 0) - (a.idReporte || 0));
+
+          this.reportesOriginales = listaOrdenada;
+          this.reportesFiltrados = listaOrdenada;
+          this.cdr.detectChanges();
         }
       },
     });
