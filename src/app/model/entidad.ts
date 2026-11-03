@@ -5,6 +5,13 @@ export class Entidad {
   tipoEntidad!: string;
   zonaAtencion!: string;
   idUsuario!: number;
+
+  sitioWeb?: string;
+  fechaAtencionInicio?: string;
+  fechaAtencionFinal?: string;
+  diasAtencion?: string;
+  latitud?: number;
+  longitud?: number;
 }
 
 // Datos del primer paso del formulario del prototipo.

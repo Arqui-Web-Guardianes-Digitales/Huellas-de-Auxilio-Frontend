@@ -163,281 +163,71 @@
     </button>
   </section>
 
+  @if (cargando) {
+    <p class="angular-info" role="status">
+      Cargando mascotas disponibles...
+    </p>
+  }
+
+  @if (error) {
+    <p class="angular-error" role="alert">
+      {{ error }}
+    </p>
+  }
+
   <section class="mascotas-grid" id="contenedorMascotas">
-    <article
-      class="mascota-card"
-      data-nombre="max"
-      data-especie="perro"
-      data-edad="adulto"
-      data-distrito="miraflores">
+    @for (mascota of mascotas; track mascota.idMascota) {
+      <article class="mascota-card">
+        <img
+          [src]="mascota.urlFoto"
+          [alt]="mascota.nombre"
+          class="mascota-img" />
 
-      <img src="/img/max-perro.png" alt="Max" class="mascota-img" />
+        <div class="mascota-info">
+          <div class="mascota-header">
+            <h3>{{ mascota.nombre }}</h3>
+            <span>{{ mascota.especie }}</span>
+          </div>
 
-      <div class="mascota-info">
-        <div class="mascota-header">
-          <h3>Max</h3>
-          <span>Perro</span>
-        </div>
+          <div class="mascota-datos">
+            <p>
+              <img src="/icons/calendario.png" alt="Edad" />
+              {{ mascota.edad }}
+            </p>
 
-        <div class="mascota-datos">
-          <p>
-            <img src="/icons/calendario.png" alt="Edad" />
-            2 años
+            <p>
+              <img src="/icons/map.png" alt="Distrito" />
+              {{ mascota.distrito }}
+            </p>
+          </div>
+
+          <p class="descripcion">
+            {{ mascota.descripcion }}
           </p>
 
-          <p>
-            <img src="/icons/map.png" alt="Distrito" />
-            Miraflores
-          </p>
+          <div class="mascota-botones">
+            <a
+              [routerLink]="['/detalle-mascota', mascota.idMascota]"
+              class="btn-detalle">
+              Ver detalle
+            </a>
+
+            <a
+              [routerLink]="['/solicitud-adopcion', mascota.idMascota]"
+              class="btn-solicitar">
+              Solicitar adopción
+            </a>
+          </div>
         </div>
-
-        <p class="descripcion">
-          Cariñoso y juguetón, le encanta correr y recibir caricias.
-        </p>
-
-        <div class="mascota-botones">
-          <a routerLink="/detalle-mascota-component" class="btn-detalle">
-            Ver detalle
-          </a>
-
-          <a
-            routerLink="/solicitud-adopcion-component"
-            class="btn-solicitar">
-            Solicitar adopción
-          </a>
-        </div>
-      </div>
-    </article>
-
-    <article
-      class="mascota-card"
-      data-nombre="fifi"
-      data-especie="gato"
-      data-edad="joven"
-      data-distrito="san borja">
-
-      <img src="/img/fifi-gato.png" alt="Fifi" class="mascota-img" />
-
-      <div class="mascota-info">
-        <div class="mascota-header">
-          <h3>Fifi</h3>
-          <span>Gato</span>
-        </div>
-
-        <div class="mascota-datos">
-          <p>
-            <img src="/icons/calendario.png" alt="Edad" />
-            1 año
-          </p>
-
-          <p>
-            <img src="/icons/map.png" alt="Distrito" />
-            San Borja
-          </p>
-        </div>
-
-        <p class="descripcion">
-          Tranquila y observadora, ideal para un hogar calmado.
-        </p>
-
-        <div class="mascota-botones">
-          <a routerLink="/detalle-mascota-component" class="btn-detalle">
-            Ver detalle
-          </a>
-
-          <a
-            routerLink="/solicitud-adopcion-component"
-            class="btn-solicitar">
-            Solicitar adopción
-          </a>
-        </div>
-      </div>
-    </article>
-
-    <article
-      class="mascota-card"
-      data-nombre="simba"
-      data-especie="perro"
-      data-edad="cachorro"
-      data-distrito="surco">
-
-      <img src="/img/simba-perro.png" alt="Simba" class="mascota-img" />
-
-      <div class="mascota-info">
-        <div class="mascota-header">
-          <h3>Simba</h3>
-          <span>Perro</span>
-        </div>
-
-        <div class="mascota-datos">
-          <p>
-            <img src="/icons/calendario.png" alt="Edad" />
-            6 meses
-          </p>
-
-          <p>
-            <img src="/icons/map.png" alt="Distrito" />
-            Surco
-          </p>
-        </div>
-
-        <p class="descripcion">
-          Cachorro lleno de energía, busca una familia activa.
-        </p>
-
-        <div class="mascota-botones">
-          <a routerLink="/detalle-mascota-component" class="btn-detalle">
-            Ver detalle
-          </a>
-
-          <a
-            routerLink="/solicitud-adopcion-component"
-            class="btn-solicitar">
-            Solicitar adopción
-          </a>
-        </div>
-      </div>
-    </article>
-
-    <article
-      class="mascota-card"
-      data-nombre="luna"
-      data-especie="gato"
-      data-edad="adulto"
-      data-distrito="jesus maria">
-
-      <img src="/img/luna-gato.png" alt="Luna" class="mascota-img" />
-
-      <div class="mascota-info">
-        <div class="mascota-header">
-          <h3>Luna</h3>
-          <span>Gato</span>
-        </div>
-
-        <div class="mascota-datos">
-          <p>
-            <img src="/icons/calendario.png" alt="Edad" />
-            2 años
-          </p>
-
-          <p>
-            <img src="/icons/map.png" alt="Distrito" />
-            Jesús María
-          </p>
-        </div>
-
-        <p class="descripcion">
-          Muy afectuosa y sociable, le encantan las siestas al sol.
-        </p>
-
-        <div class="mascota-botones">
-          <a routerLink="/detalle-mascota-component" class="btn-detalle">
-            Ver detalle
-          </a>
-
-          <a
-            routerLink="/solicitud-adopcion-component"
-            class="btn-solicitar">
-            Solicitar adopción
-          </a>
-        </div>
-      </div>
-    </article>
-
-    <article
-      class="mascota-card"
-      data-nombre="toby"
-      data-especie="perro"
-      data-edad="adulto"
-      data-distrito="pueblo libre">
-
-      <img src="/img/toby-perro.png" alt="Toby" class="mascota-img" />
-
-      <div class="mascota-info">
-        <div class="mascota-header">
-          <h3>Toby</h3>
-          <span>Perro</span>
-        </div>
-
-        <div class="mascota-datos">
-          <p>
-            <img src="/icons/calendario.png" alt="Edad" />
-            3 años
-          </p>
-
-          <p>
-            <img src="/icons/map.png" alt="Distrito" />
-            Pueblo Libre
-          </p>
-        </div>
-
-        <p class="descripcion">
-          Pequeño y leal, siempre listo para acompañarte.
-        </p>
-
-        <div class="mascota-botones">
-          <a routerLink="/detalle-mascota-component" class="btn-detalle">
-            Ver detalle
-          </a>
-
-          <a
-            routerLink="/solicitud-adopcion-component"
-            class="btn-solicitar">
-            Solicitar adopción
-          </a>
-        </div>
-      </div>
-    </article>
-
-    <article
-      class="mascota-card"
-      data-nombre="mia"
-      data-especie="gato"
-      data-edad="adulto"
-      data-distrito="lince">
-
-      <img src="/img/mia-gato.png" alt="Mia" class="mascota-img" />
-
-      <div class="mascota-info">
-        <div class="mascota-header">
-          <h3>Mia</h3>
-          <span>Gato</span>
-        </div>
-
-        <div class="mascota-datos">
-          <p>
-            <img src="/icons/calendario.png" alt="Edad" />
-            4 años
-          </p>
-
-          <p>
-            <img src="/icons/map.png" alt="Distrito" />
-            Lince
-          </p>
-        </div>
-
-        <p class="descripcion">
-          Tierna y curiosa, está aprendiendo a conocer el mundo.
-        </p>
-
-        <div class="mascota-botones">
-          <a routerLink="/detalle-mascota-component" class="btn-detalle">
-            Ver detalle
-          </a>
-
-          <a
-            routerLink="/solicitud-adopcion-component"
-            class="btn-solicitar">
-            Solicitar adopción
-          </a>
-        </div>
-      </div>
-    </article>
+      </article>
+    }
   </section>
 
-  <p class="mensaje-vacio" id="mensajeVacio">
-    No se encontraron mascotas con esos filtros.
-  </p>
+  @if (!cargando && !error && mascotas.length === 0) {
+    <p class="angular-info">
+      No hay mascotas disponibles.
+    </p>
+  }
 
   <section class="paginacion">
     <button class="pagina activa" type="button">1</button>

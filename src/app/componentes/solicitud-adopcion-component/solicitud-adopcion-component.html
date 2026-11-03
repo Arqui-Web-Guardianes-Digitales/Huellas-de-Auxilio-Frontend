@@ -1,1 +1,253 @@
-<p>solicitud-adopcion-component works!</p>
+@if (solicitudEnviada; as enviada) {
+  <main class="confirmacion-page">
+    <section class="confirmacion-card">
+      <h1>¡Solicitud enviada!</h1>
+
+      <p class="mensaje-confirmacion">
+        Tu solicitud de adopción fue registrada correctamente.
+      </p>
+
+      <div class="resumen-solicitud">
+        <div class="resumen-item">
+          <p>Código</p>
+          <h3>SOL-{{ enviada.idSolicitud }}</h3>
+        </div>
+
+        <div class="resumen-item">
+          <p>Mascota</p>
+          <h3>{{ mascota?.nombre }}</h3>
+        </div>
+
+        <div class="resumen-item">
+          <p>Fecha</p>
+          <h3>
+            {{ enviada.fechaSolicitud | date:'dd/MM/yyyy HH:mm' }}
+          </h3>
+        </div>
+
+        <div class="resumen-item">
+          <p>Estado</p>
+          <h3>
+            {{
+              enviada.estadoSolicitud === 'EN_REVISION'
+                ? 'En revisión'
+                : enviada.estadoSolicitud
+            }}
+          </h3>
+        </div>
+      </div>
+
+      <p class="texto-extra">
+        La entidad responsable revisará tu solicitud.
+      </p>
+
+      <div class="acciones-confirmacion">
+        <a routerLink="/mis-solicitudes" class="btn-principal">
+          Ir a mis solicitudes
+        </a>
+
+        <a routerLink="/adopciones" class="btn-secundario">
+          Volver a mascotas disponibles
+        </a>
+      </div>
+    </section>
+  </main>
+} @else {
+  <main class="solicitud-page">
+    <section class="titulo-solicitud">
+      <a
+        routerLink="/adopciones"
+        class="btn-volver"
+        aria-label="Volver a mascotas disponibles">
+        <img src="/icons/flecha-volver.png" alt="" />
+      </a>
+
+      <div>
+        <h1>Solicitud de adopción</h1>
+        <p>Completa el formulario para iniciar el proceso.</p>
+      </div>
+    </section>
+
+    @if (cargando) {
+      <p class="angular-info" role="status">
+        Cargando tus datos y la mascota seleccionada...
+      </p>
+    }
+
+    @if (error) {
+      <p class="angular-error" role="alert">
+        {{ error }}
+      </p>
+    }
+
+    @if (mascota; as m) {
+      @if (ciudadano; as c) {
+        <section class="solicitud-contenido">
+          <form
+            class="formulario-solicitud"
+            (ngSubmit)="enviarSolicitud()"
+            #formulario="ngForm">
+
+            <h2>Tus datos</h2>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="nombre">Nombre completo</label>
+                <input
+                  id="nombre"
+                  type="text"
+                  [value]="c.nombreCompleto || ''"
+                  readonly />
+              </div>
+
+              <div class="form-group">
+                <label for="dni">DNI</label>
+                <input
+                  id="dni"
+                  type="text"
+                  [value]="c.dni"
+                  readonly />
+              </div>
+
+              <div class="form-group">
+                <label for="correo">Correo electrónico</label>
+                <input
+                  id="correo"
+                  type="email"
+                  [value]="correo"
+                  readonly />
+              </div>
+
+              <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input
+                  id="telefono"
+                  type="text"
+                  [value]="telefono"
+                  readonly />
+              </div>
+
+              <div class="form-group">
+                <label for="distrito">Distrito</label>
+                <input
+                  id="distrito"
+                  type="text"
+                  [value]="c.distrito"
+                  readonly />
+              </div>
+
+              <div class="form-group">
+                <label for="vivienda">Tipo de vivienda</label>
+
+                <select
+                  id="vivienda"
+                  name="tipoVivienda"
+                  [(ngModel)]="solicitud.tipoVivienda"
+                  [disabled]="enviando"
+                  required>
+
+                  <option [ngValue]="undefined">
+                    Selecciona el tipo de vivienda
+                  </option>
+
+                  <option value="casa">Casa</option>
+                  <option value="departamento">Departamento</option>
+                  <option value="habitacion">Habitación</option>
+                </select>
+              </div>
+
+              <div class="form-group experiencia">
+                <label>¿Tienes experiencia con mascotas?</label>
+
+                <div class="radio-group">
+                  <label>
+                    <input
+                      type="radio"
+                      name="experiencia"
+                      [value]="true"
+                      [(ngModel)]="solicitud.experiencia"
+                      [disabled]="enviando"
+                      required />
+                    Sí
+                  </label>
+
+                  <label>
+                    <input
+                      type="radio"
+                      name="experiencia"
+                      [value]="false"
+                      [(ngModel)]="solicitud.experiencia"
+                      [disabled]="enviando"
+                      required />
+                    No
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="motivo">Motivo de adopción</label>
+
+                <textarea
+                  id="motivo"
+                  name="motivo"
+                  placeholder="Cuéntanos por qué deseas adoptar"
+                  [(ngModel)]="solicitud.motivo"
+                  [disabled]="enviando"
+                  required>
+                </textarea>
+              </div>
+            </div>
+
+            <div class="terminos">
+              <input
+                id="terminos"
+                type="checkbox"
+                name="aceptoTerminos"
+                [(ngModel)]="aceptoTerminos"
+                [disabled]="enviando"
+                required />
+
+              <label for="terminos">
+                Acepto los términos de adopción responsable
+                y me comprometo a brindar cuidado, respeto
+                y bienestar al animal.
+              </label>
+            </div>
+
+            <div class="linea-form"></div>
+
+            <div class="acciones-form">
+              <button
+                type="submit"
+                class="btn-enviar"
+                [disabled]="enviando || formulario.invalid">
+                {{ enviando ? 'Enviando...' : 'Enviar solicitud' }}
+              </button>
+
+              @if (!enviando) {
+                <a routerLink="/adopciones" class="btn-cancelar">
+                  Cancelar
+                </a>
+              }
+            </div>
+          </form>
+
+          <aside class="mascota-seleccionada">
+            <h2>Mascota seleccionada</h2>
+
+            <div class="mascota-resumen">
+              <img [src]="m.urlFoto" [alt]="m.nombre" />
+
+              <div class="mascota-info">
+                <h3>{{ m.nombre }}</h3>
+                <span>{{ m.especie }}</span>
+                <p>{{ m.edad }}</p>
+                <p>{{ m.distrito }}</p>
+              </div>
+            </div>
+          </aside>
+        </section>
+      }
+    }
+  </main>
+}

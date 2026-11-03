@@ -20,6 +20,8 @@ import { AdopcionesComponent } from './componentes/adopciones-component/adopcion
 import { AyudaComponent } from './componentes/ayuda-component/ayuda-component';
 import { NotificacionesComponent } from './componentes/notificaciones-component/notificaciones-component';
 import { MiCuentaCiudadanoComponent } from './componentes/mi-cuenta-ciudadano-component/mi-cuenta-ciudadano-component';
+import { DetalleMascotaComponent } from './componentes/detalle-mascota-component/detalle-mascota-component';
+import { SolicitudAdopcionComponent } from './componentes/solicitud-adopcion-component/solicitud-adopcion-component';
 import { GuiaAyudaComponent } from './componentes/guia-ayuda-component/guia-ayuda-component';
 
 export const routes: Routes = [
@@ -49,6 +51,8 @@ export const routes: Routes = [
   { path: 'notificaciones', component: NotificacionesComponent },
   { path: 'mi-cuenta-ciudadano', component: MiCuentaCiudadanoComponent },
   { path: 'guia-ayuda', component: GuiaAyudaComponent },
+  { path: 'detalle-mascota/:idMascota', component: DetalleMascotaComponent, },
+  { path: 'solicitud-adopcion/:idMascota', component: SolicitudAdopcionComponent, },
 
   // Flujo Entidad
   { path: 'home-entidad', component: HomeEntidadComponent },
