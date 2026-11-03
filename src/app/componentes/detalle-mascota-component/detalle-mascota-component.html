@@ -1,1 +1,158 @@
-<p>detalle-mascota-component works!</p>
+<main class="detalle-page">
+  <section class="titulo-detalle">
+    <a
+      routerLink="/adopciones"
+      class="btn-volver"
+      aria-label="Volver a mascotas disponibles">
+      <img src="/icons/flecha-volver.png" alt="" />
+    </a>
+
+    <h1>Detalle de mascota</h1>
+  </section>
+
+  @if (cargando) {
+    <p class="angular-info" role="status">
+      Cargando información de la mascota...
+    </p>
+  }
+
+  @if (error) {
+    <p class="angular-error" role="alert">
+      {{ error }}
+    </p>
+  }
+
+  @if (mascota; as m) {
+    <section class="detalle-principal">
+      <div class="detalle-imagen">
+        <img [src]="m.urlFoto" [alt]="m.nombre" />
+      </div>
+
+      <article class="datos-card">
+        <h2>{{ m.nombre }}</h2>
+
+        <div class="dato-fila">
+          <p>Especie</p>
+          <span>{{ m.especie }}</span>
+        </div>
+
+        <div class="dato-fila">
+          <p>Edad</p>
+          <span>{{ m.edad }}</span>
+        </div>
+
+        <div class="dato-fila">
+          <p>Sexo</p>
+          <span>{{ m.sexo }}</span>
+        </div>
+
+        <div class="dato-fila">
+          <p>Distrito</p>
+          <span>{{ m.distrito }}</span>
+        </div>
+
+        <div class="dato-fila">
+          <p>Tamaño</p>
+          <span>{{ m['tamaño'] }}</span>
+        </div>
+
+        <div class="dato-fila">
+          <p>Entidad responsable</p>
+          <span>
+            {{ entidad?.nombreEntidad || 'Información no disponible' }}
+          </span>
+        </div>
+      </article>
+    </section>
+
+    <section class="detalle-info-grid">
+      <article class="info-card">
+        <h3>Descripción</h3>
+        <p>{{ m.descripcion }}</p>
+      </article>
+
+      <article class="info-card">
+        <h3>Requisitos generales</h3>
+
+        <ul>
+          <li>Ser mayor de edad.</li>
+          <li>Contar con un espacio seguro para la mascota.</li>
+          <li>
+            Comprometerse a brindar alimentación, cuidado
+            y atención veterinaria.
+          </li>
+          <li>
+            Consultar con la entidad responsable las condiciones
+            específicas de adopción.
+          </li>
+        </ul>
+      </article>
+    </section>
+
+    @if (errorEntidad) {
+      <p class="angular-error" role="alert">
+        {{ errorEntidad }}
+      </p>
+    }
+
+    @if (entidad; as e) {
+      <section class="refugio-card">
+        <div class="refugio-icono">
+          <img src="/icons/casita.png" alt="" />
+        </div>
+
+        <div class="refugio-info">
+          <h3>{{ e.nombreEntidad }}</h3>
+
+          <div class="refugio-contacto">
+            <p>
+              <strong>Tipo:</strong>
+              {{ e.tipoEntidad }}
+            </p>
+
+            <p>
+              <strong>Zona de atención:</strong>
+              {{ e.zonaAtencion }}
+            </p>
+
+            @if (e.diasAtencion) {
+              <p>
+                <strong>Días de atención:</strong>
+                {{ e.diasAtencion }}
+              </p>
+            }
+
+            @if (e.latitud != null && e.longitud != null) {
+              <p>
+                <strong>Coordenadas de ubicación:</strong>
+                {{ e.latitud }}, {{ e.longitud }}
+              </p>
+            }
+          </div>
+        </div>
+      </section>
+    }
+
+    @if (!m.estado) {
+      <p class="angular-info">
+        Esta mascota ya no está disponible para adopción.
+      </p>
+    }
+
+    <section class="acciones-detalle">
+      @if (m.estado) {
+        <a
+          [routerLink]="['/solicitud-adopcion', m.idMascota]"
+          class="btn-solicitar-detalle">
+          Solicitar adopción
+        </a>
+      }
+
+      <a
+        routerLink="/adopciones"
+        class="btn-volver-adopciones">
+        Volver a mascotas disponibles
+      </a>
+    </section>
+  }
+</main>

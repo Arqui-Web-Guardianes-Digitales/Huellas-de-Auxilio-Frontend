@@ -1,0 +1,756 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
+
+/* BASE DEL COMPONENTE */
+
+:host {
+  display: block;
+  min-height: 100vh;
+  min-width: 0;
+  background-color: #eaf3f2;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  color: #082f3d;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* BOTÓN VOLVER: COMPARTIDO */
+
+.btn-volver {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #d9dddd;
+  background-color: #ffffff;
+  border-radius: 50%;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-volver img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.btn-volver:hover {
+  background-color: #f7fbfa;
+}
+
+/* PÁGINA DE SOLICITUD */
+
+.solicitud-page {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 28px 50px 12px;
+}
+
+.titulo-solicitud {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 38px;
+}
+
+.titulo-solicitud > div {
+  min-width: 0;
+}
+
+.titulo-solicitud h1 {
+  font-size: 38px;
+  font-weight: 700;
+  color: #1b746f;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+.titulo-solicitud p {
+  font-size: 16px;
+  color: #676d68;
+}
+
+.solicitud-contenido {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+  gap: 34px;
+  align-items: flex-start;
+}
+
+/* FORMULARIO */
+
+.formulario-solicitud,
+.mascota-seleccionada {
+  min-width: 0;
+  background-color: #ffffff;
+  border: 3px solid #d9dddd;
+  border-radius: 14px;
+}
+
+.formulario-solicitud {
+  padding: 22px 34px 24px;
+}
+
+.formulario-solicitud h2,
+.mascota-seleccionada h2 {
+  color: #1b746f;
+  font-size: 21px;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  gap: 24px 54px;
+}
+
+.form-group {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  color: #676d68;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1.8px solid #d9dddd;
+  border-radius: 9px;
+  outline: none;
+  font-family: inherit;
+  font-size: 13px;
+  color: #263b3b;
+  background-color: #ffffff;
+}
+
+.form-group input,
+.form-group select {
+  height: 44px;
+  padding: 0 18px;
+}
+
+.form-group textarea {
+  min-height: 76px;
+  padding: 14px 18px;
+  resize: vertical;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #777777;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #007476;
+}
+
+/* DATOS PERSONALES NO EDITABLES */
+
+.form-group input[readonly] {
+  background-color: #f4f7f6;
+  color: #52625e;
+}
+
+/* CAMPOS DESHABILITADOS DURANTE EL ENVÍO */
+
+.form-group input:disabled,
+.form-group select:disabled,
+.form-group textarea:disabled {
+  background-color: #f4f7f6;
+  cursor: not-allowed;
+}
+
+/* EXPERIENCIA CON MASCOTAS */
+
+.radio-group {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  min-height: 44px;
+  flex-wrap: wrap;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.radio-group input {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  flex-shrink: 0;
+  accent-color: #007476;
+  cursor: pointer;
+}
+
+/* TÉRMINOS */
+
+.terminos {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 24px;
+  max-width: 670px;
+}
+
+.terminos input {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  accent-color: #007476;
+  cursor: pointer;
+}
+
+.terminos label {
+  font-size: 13px;
+  color: #676d68;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.terminos a {
+  color: #007476;
+  font-weight: 600;
+}
+
+/* ACCIONES DEL FORMULARIO */
+
+.linea-form {
+  height: 1px;
+  background-color: #d9dddd;
+  margin: 24px 0 14px;
+}
+
+.acciones-form {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.btn-enviar,
+.btn-cancelar {
+  width: 158px;
+  min-height: 46px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-enviar {
+  background-color: #007476;
+  color: #ffffff;
+  border: 2px solid #007476;
+  cursor: pointer;
+}
+
+.btn-enviar:not(:disabled):hover {
+  background-color: #005d60;
+}
+
+.btn-enviar:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.btn-cancelar {
+  background-color: #ffffff;
+  color: #1b746f;
+  border: 2px solid #007476;
+}
+
+.btn-cancelar:hover {
+  background-color: #eaf3f2;
+}
+
+/* RESUMEN DE LA MASCOTA */
+
+.mascota-seleccionada {
+  padding: 20px 24px 30px;
+}
+
+.mascota-resumen {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.mascota-resumen > img {
+  width: 165px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.mascota-info {
+  min-width: 0;
+}
+
+.mascota-info h3 {
+  font-size: 22px;
+  color: #1b746f;
+  font-weight: 700;
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+}
+
+.mascota-info > span {
+  min-width: 70px;
+  min-height: 24px;
+  padding: 2px 10px;
+  background-color: #e5f4df;
+  color: #1b746f;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.mascota-info > p,
+.mascota-datos p {
+  font-size: 14px;
+  color: #676d68;
+  margin-bottom: 7px;
+  overflow-wrap: anywhere;
+}
+
+.mascota-datos strong {
+  min-width: 78px;
+  display: inline-block;
+  color: #676d68;
+}
+
+/* PÁGINA DE CONFIRMACIÓN */
+
+.confirmacion-page {
+  width: 100%;
+  max-width: 1360px;
+  min-height: calc(100vh - 215px);
+  margin: 0 auto;
+  padding: 34px 58px 82px;
+  position: relative;
+}
+
+.confirmacion-card {
+  width: 100%;
+  max-width: 760px;
+  min-height: 580px;
+  background-color: #ffffff;
+  border: 3px solid #d9dddd;
+  border-radius: 14px;
+  margin: 20px auto 0;
+  padding: 36px 40px 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* ICONO DE CONFIRMACIÓN */
+
+.check-principal {
+  width: 84px;
+  height: 84px;
+  background-color: #dcebdd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 26px;
+  flex-shrink: 0;
+}
+
+.check-principal span {
+  width: 30px;
+  height: 16px;
+  border-left: 5px solid #0b5559;
+  border-bottom: 5px solid #0b5559;
+  transform: rotate(-45deg);
+  margin-top: -8px;
+}
+
+/* TEXTO DE CONFIRMACIÓN */
+
+.confirmacion-card h1 {
+  font-size: 30px;
+  font-weight: 700;
+  color: #1b746f;
+  margin-bottom: 12px;
+}
+
+.mensaje-confirmacion {
+  font-size: 16px;
+  color: #676d68;
+  margin-bottom: 34px;
+}
+
+/* RESUMEN DE LA SOLICITUD ENVIADA */
+
+.resumen-solicitud {
+  width: 100%;
+  border: 3px solid #d9dddd;
+  border-radius: 14px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 32px;
+}
+
+.resumen-item {
+  min-width: 0;
+  min-height: 120px;
+  padding: 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1.5px solid #d9dddd;
+}
+
+.resumen-item:last-child {
+  border-right: none;
+}
+
+.resumen-icono {
+  width: 45px;
+  height: 45px;
+  background-color: #dcebdd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.resumen-icono img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.resumen-item p {
+  font-size: 14px;
+  color: #676d68;
+  margin-bottom: 10px;
+}
+
+.resumen-item h3 {
+  max-width: 100%;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1b746f;
+  overflow-wrap: anywhere;
+}
+
+.texto-extra {
+  font-size: 16px;
+  color: #676d68;
+  margin-bottom: 36px;
+}
+
+/* BOTONES DE CONFIRMACIÓN */
+
+.acciones-confirmacion {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+}
+
+.btn-principal,
+.btn-secundario {
+  width: 275px;
+  max-width: 100%;
+  min-height: 50px;
+  padding: 10px 14px;
+  border-radius: 7px;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-principal {
+  background-color: #0b5559;
+  color: #ffffff;
+  border: 2px solid #0b5559;
+}
+
+.btn-principal:hover {
+  background-color: #004a4d;
+}
+
+.btn-secundario {
+  background-color: #ffffff;
+  color: #0b5559;
+  border: 2px solid #0b5559;
+}
+
+.btn-secundario:hover {
+  background-color: #eaf3f2;
+}
+
+/* FOCO PARA NAVEGACIÓN CON TECLADO */
+
+.btn-volver:focus-visible,
+.btn-enviar:focus-visible,
+.btn-cancelar:focus-visible,
+.btn-principal:focus-visible,
+.btn-secundario:focus-visible {
+  outline: 3px solid #007476;
+  outline-offset: 3px;
+}
+
+/* PANTALLAS MEDIANAS */
+
+@media (max-width: 1180px) {
+  .solicitud-page {
+    padding: 28px 32px 22px;
+  }
+
+  .solicitud-contenido {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mascota-seleccionada {
+    width: 100%;
+    max-width: 520px;
+  }
+}
+
+/* TABLETS */
+
+@media (max-width: 960px) {
+  .solicitud-page {
+    padding: 24px;
+  }
+
+  .titulo-solicitud h1 {
+    font-size: 34px;
+  }
+
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+  }
+
+  .confirmacion-page {
+    padding: 26px 24px 60px;
+  }
+
+  .confirmacion-card {
+    padding: 32px 28px 40px;
+  }
+
+  .resumen-solicitud {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .resumen-item {
+    padding: 18px 10px;
+  }
+
+  .resumen-item:nth-child(2n) {
+    border-right: none;
+  }
+
+  .resumen-item:nth-child(1),
+  .resumen-item:nth-child(2) {
+    border-bottom: 1.5px solid #d9dddd;
+  }
+}
+
+/* FORMULARIO EN CELULARES */
+
+@media (max-width: 700px) {
+  .solicitud-page {
+    padding: 22px 18px;
+  }
+
+  .titulo-solicitud {
+    margin-bottom: 24px;
+  }
+
+  .titulo-solicitud h1 {
+    font-size: 29px;
+  }
+
+  .titulo-solicitud p {
+    font-size: 14px;
+  }
+
+  .formulario-solicitud {
+    padding: 22px 22px 24px;
+  }
+
+  .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .radio-group {
+    min-height: 0;
+  }
+
+  .acciones-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-enviar,
+  .btn-cancelar {
+    width: 100%;
+  }
+
+  .mascota-resumen {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .mascota-resumen > img {
+    width: 100%;
+    height: 230px;
+  }
+}
+
+/* CONFIRMACIÓN EN CELULARES */
+
+@media (max-width: 600px) {
+  .confirmacion-page {
+    padding: 22px 18px 50px;
+  }
+
+  .confirmacion-page .btn-volver {
+    width: 42px;
+    height: 42px;
+  }
+
+  .confirmacion-page .btn-volver img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .confirmacion-card {
+    min-height: 0;
+    margin-top: 18px;
+    padding: 28px 20px 34px;
+  }
+
+  .check-principal {
+    width: 74px;
+    height: 74px;
+  }
+
+  .confirmacion-card h1 {
+    font-size: 25px;
+  }
+
+  .mensaje-confirmacion,
+  .texto-extra {
+    font-size: 14px;
+  }
+
+  .resumen-solicitud {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0;
+  }
+
+  .resumen-item {
+    border-right: none;
+    border-bottom: 1.5px solid #d9dddd;
+  }
+
+  .resumen-item:last-child {
+    border-bottom: none;
+  }
+
+  .acciones-confirmacion {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .btn-principal,
+  .btn-secundario {
+    width: 100%;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 430px) {
+  .solicitud-page .btn-volver {
+    width: 42px;
+    height: 42px;
+  }
+
+  .solicitud-page .btn-volver img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .titulo-solicitud h1 {
+    font-size: 25px;
+  }
+
+  .formulario-solicitud h2,
+  .mascota-seleccionada h2 {
+    font-size: 19px;
+  }
+
+  .terminos label {
+    font-size: 12px;
+  }
+
+  .confirmacion-card h1 {
+    font-size: 23px;
+  }
+
+  .resumen-item h3 {
+    font-size: 16px;
+  }
+
+  .resumen-item p {
+    font-size: 13px;
+  }
+}
