@@ -63,7 +63,7 @@ export class AuthService {
     const correo = this.correo();
     const headers = new HttpHeaders({ Authorization: `Bearer ${this.token()}` });
 
-    // Primero buscamos el Usuario por correo, luego el Ciudadano por idUsuario
+    // chicos aquí primero se busca el Usuario por correo, luego el Ciudadano por idUsuario
     return this.http
       .get<Usuario>(`${this.url}/usuario/correo/${correo}`, { headers })
       .pipe(

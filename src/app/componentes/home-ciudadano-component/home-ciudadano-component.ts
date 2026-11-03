@@ -28,7 +28,7 @@ export class HomeCiudadanoComponent implements OnInit {
       return;
     }
 
-    // MAGIA: Traemos los datos REALES del ciudadano logueado
+    // se trae los datos reales del ciudadano logueado
     this.auth.obtenerPerfilCiudadanoDB().subscribe({
       next: (ciudadano) => {
         if (ciudadano && ciudadano.idCiudadano) {
@@ -41,7 +41,7 @@ export class HomeCiudadanoComponent implements OnInit {
         }
       },
       error: () => {
-        this.cargarEstadisticas(); // Fallback por si acaso
+        this.cargarEstadisticas(); // fallback por si acaso
       },
     });
   }
@@ -63,9 +63,9 @@ export class HomeCiudadanoComponent implements OnInit {
     this.reporteService.listarPorCiudadano(idCiudadano).subscribe({
       next: (reportes) => {
         if (reportes && reportes.length > 0) {
-          // ORDENAMIENTO EN FRONTEND: tomamos el reporte con ID más alto
+          // Ordenamiento en frontend: tomamos el reporte con ID más alto
           const listaOrdenada = reportes.sort((a, b) => (b.idReporte || 0) - (a.idReporte || 0));
-          this.ultimoReporte = listaOrdenada[0]; // Ahora sí, el índice 0 es 100% el más nuevo
+          this.ultimoReporte = listaOrdenada[0]; // ahora sí, el primero es el mas nuevo
 
           this.reporteService.obtenerEvidencias(this.ultimoReporte.idReporte!).subscribe((evs) => {
             if (evs && evs.length > 0) {
