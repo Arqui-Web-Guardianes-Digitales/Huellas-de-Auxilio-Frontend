@@ -53,6 +53,12 @@ export class SolicitudService {
     });
   }
 
+  listarPorEntidad(idEntidad: number): Observable<Solicitud[] | null> {
+    return this.http.get<Solicitud[] | null>(`${this.url}/solicitudes/entidad/${idEntidad}`, {
+      headers: this.getHeaders(),
+    });
+  }
+
   buscarPorCodigoYCiudadano(
     idSolicitud: number,
     idCiudadano: number,
