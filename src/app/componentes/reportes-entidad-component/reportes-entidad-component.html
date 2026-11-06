@@ -1,0 +1,330 @@
+<header class="header-entidad">
+  <nav class="navbar">
+
+    <!-- Botón de menú móvil -->
+    <button
+      type="button"
+      class="btn-menu"
+      aria-label="Abrir menú"
+      (click)="abrirMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- Logo -->
+    <a routerLink="/home-entidad" class="logo">
+      <img src="/img/logo.png" alt="Huellas de Auxilio">
+    </a>
+
+    <!-- Navegación de escritorio -->
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/home-entidad" class="nav-link">
+          Inicio
+        </a>
+      </li>
+      <li>
+        <a routerLink="/reportes-entidad" class="nav-link activo">Reportes</a>
+      </li>
+      <li>
+        <span class="nav-link ruta-pendiente">Adopciones</span>
+      </li>
+      <li>
+        <span class="nav-link ruta-pendiente">Red de apoyo</span>
+      </li>
+      <li>
+        <span class="nav-link ruta-pendiente">Ayuda</span>
+      </li>
+    </ul>
+
+    <!-- Acciones de escritorio -->
+    <div class="header-actions">
+      <span class="btn-campana" title="Notificaciones: integración pendiente" aria-disabled="true">
+        <img src="/icons/campana.png" alt="Notificaciones">
+      </span>
+
+      <span class="btn-cuenta" title="Mi cuenta: integración pendiente" aria-disabled="true">
+        <img src="/icons/user-circle.png" alt="Mi cuenta">
+        <span>Mi cuenta</span>
+      </span>
+
+    </div>
+    <span class="btn-campana-mobile" title="Notificaciones: integración pendiente" aria-disabled="true">
+      <img src="/icons/campana.png" alt="Notificaciones">
+    </span>
+  </nav>
+
+  <!-- Menú móvil -->
+  <div class="menu-mobile" [class.activo]="menuMobileAbierto">
+    <div class="menu-mobile-top">
+
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+
+        <div>
+          <h3>{{ nombreEntidad }}</h3>
+          <span>Ver mi perfil</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar-menu"
+        aria-label="Cerrar menú"
+        (click)="cerrarMenu()">
+        ×
+      </button>
+    </div>
+
+    <div class="menu-mobile-links">
+      <a
+        routerLink="/home-entidad"
+        (click)="cerrarMenu()">
+        Inicio
+      </a>
+
+      <a routerLink="/reportes-entidad" class="activo" aria-current="page" (click)="cerrarMenu()">Reportes</a>
+      <span>Adopciones</span>
+      <span>Red de apoyo</span>
+      <span>Ayuda</span>
+
+    </div>
+  </div>
+</header>
+
+<main class="reportes-entidad-page">
+      <section class="reportes-header">
+        <div class="titulo-con-volver">
+          <a routerLink="/home-entidad" class="btn-volver">
+            <img src="/icons/flecha-volver.png" alt="Volver" />
+          </a>
+
+          <h1>Reportes asignados</h1>
+        </div>
+
+        <p>Revisa, filtra y gestiona los casos recibidos por tu entidad</p>
+      </section>
+
+      <section class="resumen-reportes-entidad">
+        <article class="card-resumen">
+          <div class="icono-resumen">
+            <img src="/icons/documento-verde.png" alt="Reportes recibidos" />
+          </div>
+
+          <div>
+            <h3>Reportes recibidos</h3>
+            <strong>{{ resumen?.recibidos ?? '—' }}</strong>
+          </div>
+        </article>
+
+        <article class="card-resumen">
+          <div class="icono-resumen azul">
+            <img src="/icons/reloj-verde.png" alt="En revisión" />
+          </div>
+
+          <div>
+            <h3>En revisión</h3>
+            <strong>{{ resumen?.enRevision ?? '—' }}</strong>
+          </div>
+        </article>
+
+        <article class="card-resumen">
+          <div class="icono-resumen verde-claro">
+            <img src="/icons/check-verde.png" alt="Atendidos" />
+          </div>
+
+          <div>
+            <h3>Atendidos</h3>
+            <strong class="verde-numero">{{ resumen?.atendidos ?? '—' }}</strong>
+          </div>
+        </article>
+
+        <article class="card-resumen">
+          <div class="icono-resumen">
+            <img src="/icons/ticket-verde.png" alt="Total" />
+          </div>
+
+          <div>
+            <h3>Total</h3>
+            <strong>{{ resumen?.total ?? '—' }}</strong>
+          </div>
+        </article>
+      </section>
+
+      @if (cargando) {
+        <p class="angular-info" role="status">Cargando los reportes de tu entidad...</p>
+      }
+      @if (error) {
+        <p class="angular-error" role="alert">{{ error }}</p>
+      }
+
+      <section class="filtros-reportes-entidad">
+        <div class="buscador-reporte">
+          <img src="/icons/buscar.png" alt="Buscar" />
+          <input type="text" id="buscarReporteEntidad" aria-label="Buscar por código" placeholder="Buscar por código" [(ngModel)]="filtroCodigo" (ngModelChange)="aplicarFiltros()" [disabled]="cargando || !!error" />
+        </div>
+
+        <div class="filtro-item">
+          <label for="filtroEstadoEntidad">Estado</label>
+          <select id="filtroEstadoEntidad" [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()" [disabled]="cargando || !!error">
+            <option value="">Todos</option>
+            <option value="R">Recibido</option>
+            <option value="ER">En revisión</option>
+            <option value="AT">Atendido</option>
+          </select>
+        </div>
+
+        <div class="filtro-item">
+          <label for="filtroUrgenciaEntidad">Urgencia</label>
+          <select id="filtroUrgenciaEntidad" [(ngModel)]="filtroUrgencia" (ngModelChange)="aplicarFiltros()" [disabled]="cargando || !!error">
+            <option value="">Todas</option>
+            <option value="AL">Alta</option>
+            <option value="ME">Media</option>
+            <option value="BA">Baja</option>
+          </select>
+        </div>
+
+        <div class="filtro-item">
+          <label for="filtroDistritoEntidad">Distrito</label>
+          <select id="filtroDistritoEntidad" [(ngModel)]="filtroDistrito" (ngModelChange)="aplicarFiltros()" [disabled]="cargando || !!error">
+            <option value="">Todos</option>
+            @for (distrito of distritos; track distrito) {
+              <option [value]="distrito">{{ distrito }}</option>
+            }
+          </select>
+        </div>
+
+        <button type="button" class="btn-limpiar" id="btnLimpiarFiltrosEntidad" (click)="limpiarFiltros()" [disabled]="cargando || !!error">
+          Limpiar filtros
+        </button>
+      </section>
+
+      <section class="tabla-card">
+        <table class="tabla-reportes-entidad">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Distrito</th>
+              <th>Urgencia</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (reporte of reportesPagina; track reporte.idReporte) {
+              <tr>
+                <td>HA-00{{ reporte.idReporte }}</td>
+                <td>{{ reporte.ubicacion?.distrito || '—' }}</td>
+                <td>
+                  <span class="badge" [class.urgencia-alta]="reporte.nivelUrgencia === 'AL'" [class.urgencia-media]="reporte.nivelUrgencia === 'ME'" [class.urgencia-baja]="reporte.nivelUrgencia === 'BA'">
+                    {{ reporte.nivelUrgencia === 'AL' ? 'Alta' : reporte.nivelUrgencia === 'ME' ? 'Media' : reporte.nivelUrgencia === 'BA' ? 'Baja' : (reporte.nivelUrgencia || '—') }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" [class.estado-recibido]="reporte.estado === 'R'" [class.estado-revision]="reporte.estado === 'ER'" [class.estado-atendido]="reporte.estado === 'AT'">
+                    {{ reporte.estado === 'R' ? 'Recibido' : reporte.estado === 'ER' ? 'En revisión' : reporte.estado === 'AT' ? 'Atendido' : (reporte.estado || '—') }}
+                  </span>
+                </td>
+                <td>{{ reporte.fechaReporte ? (reporte.fechaReporte | date:'dd/MM/yyyy':'UTC') : '—' }}</td>
+                <td>
+                  <span class="btn-detalle" aria-disabled="true" title="Detalle pendiente de integración (HU26)">
+                    Ver detalle
+                    <img src="/icons/flecha-verde.png" alt="">
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        @if (!cargando && !error && !reportesFiltrados.length) {
+          <p class="mensaje-vacio" role="status">
+            {{ reportesOriginales.length ? 'No se encontraron reportes con esos filtros.' : 'No tienes reportes asignados por el momento.' }}
+          </p>
+        }
+      </section>
+
+      @if (!cargando && !error) {
+        <section class="paginacion-reportes">
+          <mat-paginator class="paginador-entidad"
+            [length]="reportesFiltrados.length"
+            [pageIndex]="paginaActual - 1"
+            [pageSize]="porPagina"
+            [hidePageSize]="true"
+            (page)="cambiarPagina($event)"
+            aria-label="Paginación de reportes de la entidad">
+          </mat-paginator>
+          <div class="por-pagina">
+            <select aria-label="Reportes por página" [(ngModel)]="porPagina" (ngModelChange)="cambiarPorPagina()">
+              <option [ngValue]="6">6</option>
+              <option [ngValue]="12">12</option>
+            </select>
+            <span>por página</span>
+          </div>
+        </section>
+      }
+    </main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+
+    <!-- Logo y derechos -->
+    <div class="footer-compacto-brand">
+      <img
+        src="/img/logo-blanco.png"
+        alt="Logo Huellas de Auxilio">
+
+      <p>
+        © 2026 Huellas de Auxilio. Todos<br>
+        los derechos reservados.
+      </p>
+    </div>
+
+    <!-- Enlaces -->
+    <div class="footer-compacto-links">
+      <span>Soporte</span>
+
+      <a
+        href="/documentos/politica-privacidad.pdf"
+        target="_blank"
+        rel="noopener noreferrer">
+        Política de Privacidad
+      </a>
+
+      <a
+        href="/documentos/terminos-condiciones.pdf"
+        target="_blank"
+        rel="noopener noreferrer">
+        Términos y condiciones
+      </a>
+    </div>
+
+    <!-- Redes sociales -->
+    <div class="footer-social">
+      <a
+        href="https://www.facebook.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/facebook.png" alt="Facebook">
+      </a>
+
+      <a
+        href="https://x.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/x.png" alt="X">
+      </a>
+
+      <a
+        href="https://www.instagram.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/instagram.png" alt="Instagram">
+      </a>
+    </div>
+
+  </div>
+</footer>
