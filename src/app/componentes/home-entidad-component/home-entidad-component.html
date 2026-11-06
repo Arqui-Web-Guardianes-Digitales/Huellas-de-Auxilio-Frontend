@@ -29,7 +29,7 @@
         </a>
       </li>
       <li>
-        <span class="nav-link ruta-pendiente">Reportes</span>
+        <a routerLink="/reportes-entidad" class="nav-link">Reportes</a>
       </li>
       <li>
         <span class="nav-link ruta-pendiente">Adopciones</span>
@@ -89,7 +89,7 @@
         Inicio
       </a>
 
-      <span>Reportes</span>
+      <a routerLink="/reportes-entidad" (click)="cerrarMenu()">Reportes</a>
       <span>Adopciones</span>
       <span>Red de apoyo</span>
       <span>Ayuda</span>
@@ -129,10 +129,10 @@
       </p>
 
       <div class="hero-botones">
-        <span class="btn-principal">
+        <a routerLink="/reportes-entidad" class="btn-principal">
           <img src="/icons/documento-blanco.png" alt="">
           Ver reportes pendientes
-        </span>
+        </a>
 
         <span class="btn-secundario">
           <img src="/icons/corazon-verde.png" alt="">

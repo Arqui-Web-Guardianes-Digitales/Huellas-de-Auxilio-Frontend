@@ -56,6 +56,11 @@ export const routes: Routes = [
 
   // Flujo Entidad
   { path: 'home-entidad', component: HomeEntidadComponent },
+  {
+    path: 'reportes-entidad',
+    loadComponent: () => import('./componentes/reportes-entidad-component/reportes-entidad-component')
+      .then((componente) => componente.ReportesEntidadComponent),
+  },
 
   // Comodín para redirigir si no existe la ruta
   { path: '**', redirectTo: '', pathMatch: 'full' },
