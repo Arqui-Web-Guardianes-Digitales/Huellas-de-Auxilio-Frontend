@@ -39,6 +39,12 @@ export class ReporteService {
     });
   }
 
+  obtenerReporteEntidadPorId(idReporte: number): Observable<Reporte | null> {
+    return this.http.get<Reporte | null>(`${this.url}/reportes_1/${idReporte}`, {
+      headers: this.getHeaders(),
+    });
+  }
+
   // E58: Subir imagen al servidor
   subirImagen(archivo: File): Observable<{ url: string }> {
     const formData = new FormData();

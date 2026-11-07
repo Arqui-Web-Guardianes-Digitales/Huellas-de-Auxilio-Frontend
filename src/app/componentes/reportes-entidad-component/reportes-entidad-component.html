@@ -230,10 +230,10 @@
                 </td>
                 <td>{{ reporte.fechaReporte ? (reporte.fechaReporte | date:'dd/MM/yyyy':'UTC') : '—' }}</td>
                 <td>
-                  <span class="btn-detalle" aria-disabled="true" title="Detalle pendiente de integración (HU26)">
+                  <a class="btn-detalle" [routerLink]="['/detalle-reporte-entidad', reporte.idReporte]" [queryParams]="{ codigo: filtroCodigo, estado: filtroEstado, urgencia: filtroUrgencia, distrito: filtroDistrito, pagina: paginaActual, porPagina: porPagina }">
                     Ver detalle
                     <img src="/icons/flecha-verde.png" alt="">
-                  </span>
+                  </a>
                 </td>
               </tr>
             }

@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth-service';
 import { ReporteService } from '../../services/reporte-service';
 import { Reporte } from '../../model/reporte';
@@ -37,6 +37,7 @@ export class ReportesEntidadComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly reporteService = inject(ReporteService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
   private tokenSesion: string | null = null;
@@ -137,7 +138,17 @@ export class ReportesEntidadComponent implements OnInit {
           }
         }
         this.distritos.sort((a, b) => a.localeCompare(b));
+        // Recuperar la selección al volver desde el detalle de un reporte.
+        const parametros = this.route.snapshot.queryParamMap;
+        this.filtroCodigo = parametros.get('codigo') || '';
+        this.filtroEstado = parametros.get('estado') || '';
+        this.filtroUrgencia = parametros.get('urgencia') || '';
+        this.filtroDistrito = parametros.get('distrito') || '';
+        this.porPagina = parametros.get('porPagina') === '12' ? 12 : 6;
         this.aplicarFiltros();
+        const pagina = Number(parametros.get('pagina'));
+        this.paginaActual = Number.isSafeInteger(pagina) && pagina > 0 ? pagina : 1;
+        this.actualizarPagina();
       },
       error: (error: HttpErrorResponse | Error) => this.mostrarError(error),
     });
