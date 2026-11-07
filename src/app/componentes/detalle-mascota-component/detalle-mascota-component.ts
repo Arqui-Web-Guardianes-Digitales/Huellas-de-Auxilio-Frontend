@@ -13,6 +13,14 @@ import { AuthService } from '../../services/auth-service';
   styleUrl: './detalle-mascota-component.css',
 })
 export class DetalleMascotaComponent implements OnInit {
+  urlFotoMascota(url?: string | null): string {
+    return this.mascotaService.urlFotoMascota(url);
+  }
+
+  mostrarFotoDeRespaldo(evento: Event): void {
+    this.mascotaService.mostrarFotoDeRespaldo(evento);
+  }
+
   private readonly mascotaService = inject(MascotaService);
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
