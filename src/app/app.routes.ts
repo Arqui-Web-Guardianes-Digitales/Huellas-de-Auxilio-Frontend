@@ -22,6 +22,8 @@ import { NotificacionesComponent } from './componentes/notificaciones-component/
 import { MiCuentaCiudadanoComponent } from './componentes/mi-cuenta-ciudadano-component/mi-cuenta-ciudadano-component';
 import { DetalleMascotaComponent } from './componentes/detalle-mascota-component/detalle-mascota-component';
 import { SolicitudAdopcionComponent } from './componentes/solicitud-adopcion-component/solicitud-adopcion-component';
+import { MisSolicitudesComponent } from './componentes/mis-solicitudes-component/mis-solicitudes-component';
+import { DetalleSolicitudComponent } from './componentes/detalle-solicitud-component/detalle-solicitud-component';
 import { GuiaAyudaComponent } from './componentes/guia-ayuda-component/guia-ayuda-component';
 
 export const routes: Routes = [
@@ -51,21 +53,29 @@ export const routes: Routes = [
   { path: 'notificaciones', component: NotificacionesComponent },
   { path: 'mi-cuenta-ciudadano', component: MiCuentaCiudadanoComponent },
   { path: 'guia-ayuda', component: GuiaAyudaComponent },
-  { path: 'detalle-mascota/:idMascota', component: DetalleMascotaComponent, },
-  { path: 'solicitud-adopcion/:idMascota', component: SolicitudAdopcionComponent, },
+  { path: 'detalle-mascota/:idMascota', component: DetalleMascotaComponent },
+  { path: 'solicitud-adopcion/:idMascota', component: SolicitudAdopcionComponent },
+
+  //Flujo Solicitud
+  { path: 'mis-solicitudes', component: MisSolicitudesComponent },
+  { path: 'detalle-solicitud/:idSolicitud', component: DetalleSolicitudComponent },
 
   // Flujo Entidad
   { path: 'home-entidad', component: HomeEntidadComponent },
   {
     path: 'reportes-entidad',
-    loadComponent: () => import('./componentes/reportes-entidad-component/reportes-entidad-component')
-      .then((componente) => componente.ReportesEntidadComponent),
+    loadComponent: () =>
+      import('./componentes/reportes-entidad-component/reportes-entidad-component').then(
+        (componente) => componente.ReportesEntidadComponent,
+      ),
   },
 
   {
     path: 'detalle-reporte-entidad/:id',
-    loadComponent: () => import('./componentes/detalle-reporte-entidad-component/detalle-reporte-entidad-component')
-      .then((componente) => componente.DetalleReporteEntidadComponent),
+    loadComponent: () =>
+      import('./componentes/detalle-reporte-entidad-component/detalle-reporte-entidad-component').then(
+        (componente) => componente.DetalleReporteEntidadComponent,
+      ),
   },
 
   // Comodín para redirigir si no existe la ruta
