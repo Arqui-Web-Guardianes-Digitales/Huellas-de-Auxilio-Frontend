@@ -1,0 +1,344 @@
+<header class="header-entidad">
+  <nav class="navbar">
+
+    <!-- Botón de menú móvil -->
+    <button
+      type="button"
+      class="btn-menu"
+      aria-label="Abrir menú"
+      (click)="abrirMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- Logo -->
+    <a routerLink="/home-entidad" class="logo">
+      <img src="/img/logo.png" alt="Huellas de Auxilio">
+    </a>
+
+    <!-- Navegación de escritorio -->
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/home-entidad" class="nav-link">
+          Inicio
+        </a>
+      </li>
+      <li>
+        <a routerLink="/reportes-entidad" class="nav-link activo">Reportes</a>
+      </li>
+      <li>
+        <span class="nav-link ruta-pendiente">Adopciones</span>
+      </li>
+      <li>
+        <span class="nav-link ruta-pendiente">Red de apoyo</span>
+      </li>
+      <li>
+        <span class="nav-link ruta-pendiente">Ayuda</span>
+      </li>
+    </ul>
+
+    <!-- Acciones de escritorio -->
+    <div class="header-actions">
+      <span class="btn-campana" title="Notificaciones: integración pendiente" aria-disabled="true">
+        <img src="/icons/campana.png" alt="Notificaciones">
+      </span>
+
+      <span class="btn-cuenta" title="Mi cuenta: integración pendiente" aria-disabled="true">
+        <img src="/icons/user-circle.png" alt="Mi cuenta">
+        <span>Mi cuenta</span>
+      </span>
+
+    </div>
+    <span class="btn-campana-mobile" title="Notificaciones: integración pendiente" aria-disabled="true">
+      <img src="/icons/campana.png" alt="Notificaciones">
+    </span>
+  </nav>
+
+  <!-- Menú móvil -->
+  <div class="menu-mobile" [class.activo]="menuMobileAbierto">
+    <div class="menu-mobile-top">
+
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+
+        <div>
+          <h3>{{ nombreEntidad }}</h3>
+          <span>Ver mi perfil</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar-menu"
+        aria-label="Cerrar menú"
+        (click)="cerrarMenu()">
+        ×
+      </button>
+    </div>
+
+    <div class="menu-mobile-links">
+      <a
+        routerLink="/home-entidad"
+        (click)="cerrarMenu()">
+        Inicio
+      </a>
+
+      <a routerLink="/reportes-entidad" class="activo" aria-current="page" (click)="cerrarMenu()">Reportes</a>
+      <span>Adopciones</span>
+      <span>Red de apoyo</span>
+      <span>Ayuda</span>
+
+    </div>
+  </div>
+</header>
+
+    <main class="detalle-reporte-entidad-page">
+      <section class="detalle-header">
+        <div class="titulo-con-volver">
+          <a routerLink="/reportes-entidad" [queryParams]="parametrosRegreso" class="btn-volver">
+            <img src="/icons/flecha-volver.png" alt="Volver" />
+          </a>
+
+          <h1>Detalle del reporte</h1>
+        </div>
+      </section>
+
+      @if (cargando) { <p class="mensaje-datos" role="status">Cargando el detalle del reporte...</p> }
+      @if (error) { <p class="mensaje-error" role="alert">{{ error }}</p> }
+      @if (reporte && !error && !cargando) {
+      <section class="detalle-contenido">
+        <section class="detalle-columna-principal">
+          <article class="resumen-reporte-card">
+            <div class="resumen-top">
+              <div class="bloque-resumen">
+                <span>Código del reporte</span>
+                <div class="codigo-copia">
+                  <strong #codigoReporte>HA-00{{ reporte.idReporte }}</strong>
+                  <button type="button" aria-label="Copiar código del reporte" title="Copiar código"
+                    (click)="copiarCodigo(codigoReporte.textContent)">
+                    <img src="/icons/copiar.png" alt="" />
+                  </button>
+                </div>
+                <small role="status">{{ mensajeCopia }}</small>
+              </div>
+
+              <div class="bloque-resumen">
+                <span>Estado actual</span>
+                <strong class="estado-actual-badge" [class.estado-recibido]="reporte.estado === 'R'" [class.estado-atendido]="reporte.estado === 'AT'">{{ nombreEstado(reporte.estado) }}</strong>
+              </div>
+
+              <div class="bloque-resumen">
+                <span>Urgencia</span>
+                <strong class="urgencia-media" [class.urgencia-alta]="reporte.nivelUrgencia === 'AL'" [class.urgencia-baja]="reporte.nivelUrgencia === 'BA'">
+                  <span></span>
+                  {{ nombreUrgencia(reporte.nivelUrgencia) }}
+                </strong>
+              </div>
+            </div>
+
+            <div class="resumen-bottom">
+              <div class="dato-resumen">
+                <img src="/icons/user-verde.png" alt="" />
+                <div>
+                  <span>Nombre del ciudadano</span>
+                  <strong>{{ reporte.ciudadano?.nombreCompleto || 'No disponible' }}</strong>
+                </div>
+              </div>
+
+              <div class="dato-resumen">
+                <img src="/icons/ubicacion-verde.png" alt="Distrito" />
+                <div>
+                  <span>Distrito</span>
+                  <strong>{{ reporte.ubicacion?.distrito || 'No disponible' }}</strong>
+                </div>
+              </div>
+
+              <div class="dato-resumen">
+                <img src="/icons/calendario-verde.png" alt="Fecha" />
+                <div>
+                  <span>Fecha del reporte</span>
+                  <strong>{{ fechaReporte ? (fechaReporte | date:'dd/MM/yyyy':'UTC') : 'No disponible' }}</strong>
+                </div>
+              </div>
+
+              <div class="dato-resumen">
+                <img src="/icons/edificio-verde.png" alt="Entidad" />
+                <div>
+                  <span>Entidad asignada</span>
+                  <strong>{{ nombreEntidad }}</strong>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <section class="cards-detalle-grid">
+            <article class="card-detalle descripcion-card">
+              <div class="card-titulo">
+                <img src="/icons/documento-verde.png" alt="Descripción" />
+                <h2>Descripción del caso</h2>
+              </div>
+
+              <p><strong>Tipo de caso:</strong> {{ nombreTipoCaso(reporte.tipoCaso) }}</p>
+              <p>{{ reporte.descripcion || 'No disponible' }}</p>
+            </article>
+
+            <article class="card-detalle ubicacion-card">
+              <div class="card-titulo">
+                <img src="/icons/ubicacion-verde.png" alt="Ubicación" />
+                <h2>Ubicación del reporte</h2>
+              </div>
+
+              @if (tieneCoordenadas) {
+                <div #mapaReporte class="mapa-reporte" role="region" aria-label="Ubicación del reporte en el mapa"></div>
+                <p class="coordenadas">{{ reporte.ubicacion?.latitud }}, {{ reporte.ubicacion?.longitud }}</p>
+              } @else {
+                <p class="mensaje-datos">Este reporte no tiene coordenadas válidas para mostrar el mapa.</p>
+              }
+              @if (errorMapa) { <p class="mensaje-error" role="status">{{ errorMapa }}</p> }
+              <div class="mapa-info"><div><img src="/icons/ubicacion-verde.png" alt=""><span>{{ reporte.ubicacion?.direccion || 'Dirección no disponible' }}</span></div></div>
+              <p class="referencia">Referencia: {{ reporte.ubicacion?.referencia || 'No registrada' }}</p>
+            </article>
+
+            <article class="card-detalle evidencia-card">
+              <div class="card-titulo">
+                <img src="/icons/camara-verde.png" alt="Evidencias" />
+                <h2>Evidencias del ciudadano</h2>
+              </div>
+
+              @if (cargandoEvidencias) { <p class="mensaje-datos" role="status">Cargando evidencias...</p> }
+              @if (errorEvidencias) { <p class="mensaje-error" role="alert">{{ errorEvidencias }}</p> }
+              @if (!cargandoEvidencias && !errorEvidencias) {
+                @if (!evidencias.length) { <p class="mensaje-datos">El reporte no tiene evidencias adjuntas.</p> }
+                <div class="evidencias-grid">
+                  @for (evidencia of evidencias; track evidencia.idEvidencia; let indice = $index) {
+                    @if (evidencia.noDisponible) {
+                      <p class="evidencia-inaccesible" role="status">No se pudo cargar la evidencia {{ indice + 1 }}.</p>
+                    } @else {
+                      <a [href]="evidencia.urlEvidencia" target="_blank" rel="noopener noreferrer">
+                        <img [src]="evidencia.urlEvidencia" [alt]="'Evidencia del reporte ' + (indice + 1)" (error)="imagenNoDisponible(evidencia)">
+                      </a>
+                    }
+                  }
+                </div>
+                <p class="contador-evidencia"><img src="/icons/imagen-verde.png" alt="">{{ evidencias.length }} fotos adjuntas</p>
+              }
+            </article>
+          </section>
+
+          <article class="progreso-card">
+            <div class="card-titulo">
+              <img src="/icons/reloj-verde.png" alt="Progreso" />
+              <h2>Progreso del reporte</h2>
+            </div>
+
+            <p class="mensaje-datos pendiente-historial">El historial de cambios estará disponible al integrar HU06.</p>
+          </article>
+        </section>
+
+        <aside class="detalle-columna-lateral">
+          <article class="actualizar-card">
+            <div class="actualizar-titulo">
+              <img src="/icons/actualizar-verde.png" alt="Actualizar" />
+              <h2>Actualizar estado del reporte</h2>
+            </div>
+
+            <label for="estadoReporte">Estado actual</label>
+
+            <div class="select-estado-box">
+              <select id="estadoReporte" disabled aria-describedby="pendienteHU06"><option>{{ nombreEstado(reporte.estado) }}</option></select>
+            </div>
+
+            <div class="opciones-estado">
+              <button type="button" class="opcion-estado" [class.activo]="reporte.estado === 'R'" disabled>
+                <span class="circulo gris"></span>
+                Recibido
+              </button>
+
+              <button type="button" class="opcion-estado" [class.activo]="reporte.estado === 'ER'" disabled>
+                <span class="circulo azul"></span>
+                En revisión
+                @if (reporte.estado === 'ER') { <img src="/icons/check-azul.png" alt="Seleccionado"> }
+              </button>
+
+              <button type="button" class="opcion-estado" [class.activo]="reporte.estado === 'AT'" disabled>
+                <span class="circulo verde"></span>
+                Atendido
+              </button>
+            </div>
+
+            <button type="button" class="btn-actualizar" disabled aria-describedby="pendienteHU06">
+              Actualizar estado
+            </button>
+
+            <div class="aviso-actualizacion">
+              <img src="/icons/info-verde.png" alt="Información" />
+              <p id="pendienteHU06">Actualización de estado pendiente de HU06. Estos controles todavía no realizan cambios.</p>
+            </div>
+          </article>
+
+        </aside>
+      </section>
+      }
+    </main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+
+    <!-- Logo y derechos -->
+    <div class="footer-compacto-brand">
+      <img
+        src="/img/logo-blanco.png"
+        alt="Logo Huellas de Auxilio">
+
+      <p>
+        © 2026 Huellas de Auxilio. Todos<br>
+        los derechos reservados.
+      </p>
+    </div>
+
+    <!-- Enlaces -->
+    <div class="footer-compacto-links">
+      <span>Soporte</span>
+
+      <a
+        href="/documentos/politica-privacidad.pdf"
+        target="_blank"
+        rel="noopener noreferrer">
+        Política de Privacidad
+      </a>
+
+      <a
+        href="/documentos/terminos-condiciones.pdf"
+        target="_blank"
+        rel="noopener noreferrer">
+        Términos y condiciones
+      </a>
+    </div>
+
+    <!-- Redes sociales -->
+    <div class="footer-social">
+      <a
+        href="https://www.facebook.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/facebook.png" alt="Facebook">
+      </a>
+
+      <a
+        href="https://x.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/x.png" alt="X">
+      </a>
+
+      <a
+        href="https://www.instagram.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/instagram.png" alt="Instagram">
+      </a>
+    </div>
+
+  </div>
+</footer>

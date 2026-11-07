@@ -246,10 +246,10 @@
               </span>
             </div>
             <div>
-              <span class="link-detalle" aria-disabled="true" title="Detalle pendiente de integración (HU26)">
+              <a class="link-detalle" [routerLink]="['/detalle-reporte-entidad', reporte.idReporte]">
                 Ver detalle
                 <img src="/icons/flecha-verde.png" alt="">
-              </span>
+              </a>
             </div>
           </div>
         } @empty {

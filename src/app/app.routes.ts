@@ -62,6 +62,12 @@ export const routes: Routes = [
       .then((componente) => componente.ReportesEntidadComponent),
   },
 
+  {
+    path: 'detalle-reporte-entidad/:id',
+    loadComponent: () => import('./componentes/detalle-reporte-entidad-component/detalle-reporte-entidad-component')
+      .then((componente) => componente.DetalleReporteEntidadComponent),
+  },
+
   // Comodín para redirigir si no existe la ruta
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];

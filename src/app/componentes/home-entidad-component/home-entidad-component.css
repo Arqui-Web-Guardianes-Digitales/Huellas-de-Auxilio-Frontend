@@ -15,21 +15,28 @@
 }
 
 /* HEADER Y NAVEGACIÓN */
+.header-entidad,
+.header-entidad * {
+  margin: 0;
+}
+
+/* Dimensiones de Home Ciudadano; navegación del rol ENTIDAD. */
 .header-entidad {
   width: 100%;
   background-color: #ffffff;
+  border-bottom: 1px solid #edf0f0;
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
 .navbar {
+  width: 100%;
   height: 72px;
   padding: 0 58px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
 }
 
 .logo img {
@@ -50,8 +57,9 @@
   text-decoration: none;
   font-size: 13px;
   font-weight: 600;
-  padding: 8px;
+  padding: 8px 9px;
   border-radius: 8px;
+  transition: color 0.2s ease, background-color 0.2s ease;
 }
 
 .nav-link:hover {
@@ -76,31 +84,196 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  text-decoration: none;
 }
 
 .btn-campana img {
   width: 24px;
   height: 24px;
+  object-fit: contain;
+}
+
+.btn-campana:hover {
+  background-color: #eaf3f2;
+  border-radius: 50%;
 }
 
 .btn-cuenta {
-  min-width: 145px;
-  height: 46px;
+  min-width: 130px;
+  height: 42px;
   border: 2px solid #d9dddd;
   border-radius: 18px;
+  text-decoration: none;
   color: #253b3b;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: 8px;
   font-weight: 700;
-  font-size: 14px;
-  text-decoration: none;
+  font-size: 13px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-cuenta:hover {
+  background-color: #eaf3f2;
+  border-color: #007476;
 }
 
 .btn-cuenta img {
-  width: 35px;
-  height: 35px;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.btn-menu {
+  display: none;
+  width: 32px;
+  height: 28px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0;
+}
+
+.btn-menu span {
+  width: 100%;
+  height: 3px;
+  background-color: #082f3d;
+  border-radius: 8px;
+  display: block;
+}
+
+.btn-campana-mobile,
+.menu-mobile {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .navbar {
+    height: 72px;
+    padding: 0 20px;
+    position: relative;
+    justify-content: center;
+  }
+
+  .navbar .nav-links,
+  .navbar .header-actions {
+    display: none;
+  }
+
+  .btn-menu {
+    display: flex;
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .btn-campana-mobile {
+    display: flex;
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-campana-mobile img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+
+  .menu-mobile {
+    width: 85%;
+    max-width: 310px;
+    min-height: calc(100vh - 72px);
+    background-color: #ffffff;
+    position: fixed;
+    top: 72px;
+    left: -100%;
+    z-index: 400;
+    display: block;
+    transition: left 0.25s ease;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .menu-mobile.activo {
+    left: 0;
+  }
+
+  .menu-mobile-top {
+    height: 85px;
+    padding: 18px 20px;
+    border-bottom: 1px solid #edf0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .menu-user {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .menu-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #e5f1f0;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .menu-user h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0b5559;
+    margin-bottom: 4px;
+    overflow-wrap: anywhere;
+  }
+
+  .menu-user > div > span {
+    color: #007476;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .btn-cerrar-menu {
+    border: none;
+    padding: 0;
+    background-color: transparent;
+    font-size: 36px;
+    cursor: pointer;
+    color: #666666;
+  }
+
+  .menu-mobile-links {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 20px;
+  }
+
+  .menu-mobile-links a,
+  .menu-mobile-links > span {
+    color: #0b5559;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 12px 0;
+    border-bottom: 1px solid #f5f5f5;
+  }
+
+  .menu-mobile-links a:hover,
+  .menu-mobile-links a.activo {
+    color: #007476;
+  }
 }
 
 .integracion-pendiente {
@@ -110,12 +283,6 @@
 
 .ruta-pendiente {
   cursor: default;
-}
-
-.btn-menu,
-.menu-mobile,
-.btn-campana-mobile {
-  display: none;
 }
 
 /* CONTENIDO PRINCIPAL */
@@ -623,13 +790,6 @@
 
 /* RESPONSIVE - TABLET */
 @media (max-width: 1180px) {
-  .navbar {
-    padding: 0 30px;
-  }
-
-  .nav-links {
-    gap: 14px;
-  }
 
   .home-entidad {
     padding: 0 28px 24px;
@@ -656,130 +816,6 @@
 
 /* RESPONSIVE - MÓVIL */
 @media (max-width: 960px) {
-  .navbar {
-    height: 72px;
-    padding: 0 20px;
-    position: relative;
-    justify-content: center;
-  }
-
-  .navbar .nav-links,
-  .navbar .header-actions {
-    display: none;
-  }
-
-  .btn-menu {
-    display: flex;
-    position: absolute;
-    left: 20px;
-    top: 22px;
-    width: 32px;
-    height: 28px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    flex-direction: column;
-    justify-content: space-between;
-    cursor: pointer;
-  }
-
-  .btn-menu span {
-    width: 100%;
-    height: 3px;
-    background-color: #082f3d;
-    border-radius: 8px;
-  }
-
-  .btn-campana-mobile {
-    display: flex;
-    position: absolute;
-    right: 22px;
-    width: 36px;
-    height: 36px;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .btn-campana-mobile img {
-    width: 25px;
-    height: 25px;
-    object-fit: contain;
-  }
-
-  .menu-mobile {
-    display: block;
-    position: fixed;
-    top: 72px;
-    left: -100%;
-    width: 85%;
-    max-width: 310px;
-    height: calc(100vh - 72px);
-    background: #ffffff;
-    z-index: 400;
-    transition: left 0.25s ease;
-    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
-  }
-
-  .menu-mobile.activo {
-    left: 0;
-  }
-
-  .menu-mobile-top {
-    padding: 18px;
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #edf0f0;
-  }
-
-  .menu-user {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .menu-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #e5f1f0;
-  }
-
-  .menu-user h3 {
-    font-size: 14px;
-    margin: 0;
-  }
-
-  .menu-user a {
-    color: #007476;
-    font-size: 12px;
-  }
-
-  .btn-cerrar-menu {
-    border: none;
-    background: transparent;
-    font-size: 34px;
-    cursor: pointer;
-  }
-
-  .menu-mobile-links {
-    display: flex;
-    flex-direction: column;
-    padding: 12px 20px;
-    gap: 6px;
-  }
-
-  .menu-mobile-links a,
-  .menu-mobile-links > span {
-    padding: 12px 0;
-    border: none;
-    border-bottom: 1px solid #edf0f0;
-    background: transparent;
-    color: #0b5559;
-    text-align: left;
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 700;
-  }
 
   .hero-entidad {
     flex-direction: column;
