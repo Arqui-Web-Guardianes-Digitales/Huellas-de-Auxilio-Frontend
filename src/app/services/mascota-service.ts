@@ -15,6 +15,32 @@ export class MascotaService {
   private readonly auth = inject(AuthService);
   private readonly url = environment.apiURL;
 
+  private readonly fotoRespaldo = '/icons/huella-verde.png';
+
+  urlFotoMascota(url?: string | null): string {
+    const valor = url?.trim();
+    if (!valor) return this.fotoRespaldo;
+
+    if (/^https?:\/\//i.test(valor)) return valor;
+
+    if (/^\/?imagenes\//i.test(valor)) {
+      return new URL('/' + valor.replace(/^\//, ''), this.url).href;
+    }
+
+    if (/^\/?img\//i.test(valor)) {
+      return '/' + valor.replace(/^\//, '');
+    }
+
+    return this.fotoRespaldo;
+  }
+
+  mostrarFotoDeRespaldo(evento: Event): void {
+    const imagen = evento.currentTarget;
+    if (imagen instanceof HTMLImageElement && imagen.getAttribute('src') !== this.fotoRespaldo) {
+      imagen.src = this.fotoRespaldo;
+    }
+  }
+
   private getHeaders(): HttpHeaders {
     return new HttpHeaders({
       Authorization: `Bearer ${this.auth.token()}`,

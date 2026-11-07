@@ -6,31 +6,31 @@
             aria-label="Abrir menú"
             aria-controls="menuMobile"
             [attr.aria-expanded]="menuAbierto"
-            (click)="menuAbierto = !menuAbierto">>
+            (click)="menuAbierto = !menuAbierto">
       <span></span>
       <span></span>
       <span></span>
     </button>
 
-    <a routerLink="/home-ciudadano-component" class="logo">
+    <a routerLink="/home-ciudadano" class="logo">
       <img src="/img/logo.png" alt="Huellas de Auxilio" />
     </a>
 
     <ul class="nav-links">
       <li>
-        <a routerLink="/home-ciudadano-component" class="nav-link">
+        <a routerLink="/home-ciudadano" class="nav-link">
           Inicio
         </a>
       </li>
 
       <li>
-        <a routerLink="/mis-reportes-component" class="nav-link">
+        <a routerLink="/mis-reportes" class="nav-link">
           Mis reportes
         </a>
       </li>
 
       <li>
-        <a routerLink="/directorio-component" class="nav-link">
+        <a routerLink="/directorio" class="nav-link">
           Directorio
         </a>
       </li>
@@ -42,28 +42,28 @@
       </li>
 
       <li>
-        <a routerLink="/ayuda-component" class="nav-link">
+        <a routerLink="/ayuda" class="nav-link">
           Ayuda
         </a>
       </li>
     </ul>
 
     <div class="header-actions">
-      <a routerLink="/reportar-component" class="btn-reportar">
+      <a routerLink="/reportar" class="btn-reportar">
         Reportar
       </a>
 
-      <a routerLink="/notificaciones-component" class="btn-campana">
+      <a routerLink="/notificaciones" class="btn-campana">
         <img src="/icons/campana.png" alt="Notificaciones" />
       </a>
 
-      <a routerLink="/mi-cuenta-ciudadano-component" class="btn-cuenta">
+      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
         <img src="/icons/user-circle.png" alt="Mi cuenta" />
         <span>Mi cuenta</span>
       </a>
     </div>
 
-    <a routerLink="/reportar-component" class="btn-reporte-mobile">
+    <a routerLink="/reportar" class="btn-reporte-mobile">
       Reporte
     </a>
   </nav>
@@ -74,8 +74,8 @@
         <div class="menu-avatar"></div>
 
         <div>
-          <h3>HuellaAmiga247</h3>
-          <a routerLink="/mi-cuenta-ciudadano-component">
+          <h3>{{ nombreCiudadano }}</h3>
+          <a routerLink="/mi-cuenta-ciudadano">
             Ver mi perfil
           </a>
         </div>
@@ -92,12 +92,12 @@
     </div>
 
     <div class="menu-mobile-links">
-      <a routerLink="/home-ciudadano-component">Inicio</a>
-      <a routerLink="/mis-reportes-component">Mis Reportes</a>
-      <a routerLink="/directorio-component">Directorio</a>
-      <a routerLink="/adopciones-component" class="activo">Adopciones</a>
-      <a routerLink="/ayuda-component">Ayuda</a>
-      <a routerLink="/notificaciones-component">Notificaciones</a>
+      <a routerLink="/home-ciudadano">Inicio</a>
+      <a routerLink="/mis-reportes">Mis Reportes</a>
+      <a routerLink="/directorio">Directorio</a>
+      <a routerLink="/adopciones" class="activo">Adopciones</a>
+      <a routerLink="/ayuda">Ayuda</a>
+      <a routerLink="/notificaciones">Notificaciones</a>
     </div>
   </div>
 </header>
@@ -115,7 +115,7 @@
   </section>
 
   <section class="tabs-adopciones">
-    <a routerLink="/adopciones-component" class="tab activo">
+    <a routerLink="/adopciones" class="tab activo">
       <img src="/icons/huella-verde.png" alt="Mascotas" />
       Mascotas disponibles
     </a>
@@ -126,42 +126,43 @@
     </a>
   </section>
 
-  <section class="filtros-adopciones">
+  <form class="filtros-adopciones" (ngSubmit)="buscarMascotas()">
     <div class="buscar-box">
-      <img src="/icons/buscar.png" alt="Buscar" />
-      <input
-        type="text"
-        id="buscarMascota"
-        placeholder="Buscar mascota" />
+      <button class="btn-buscar" type="submit" aria-label="Buscar mascotas">
+        <img src="/icons/buscar.png" alt="" />
+      </button>
+      <input type="search" id="buscarMascota" name="nombre" aria-label="Nombre de la mascota"
+             placeholder="Buscar mascota" [(ngModel)]="filtros.nombre" />
     </div>
 
-    <select id="filtroEspecie">
+    <select id="filtroEspecie" name="especie" aria-label="Especie"
+            [ngModel]="filtros.especie" (ngModelChange)="cambiarFiltro('especie', $event)">
       <option value="">Especie</option>
-      <option value="perro">Perro</option>
-      <option value="gato">Gato</option>
+      @for (especie of especies; track especie) {
+        <option [value]="especie">{{ especie }}</option>
+      }
     </select>
 
-    <select id="filtroEdad">
+    <select id="filtroEdad" name="edad" aria-label="Edad"
+            [ngModel]="filtros.edad" (ngModelChange)="cambiarFiltro('edad', $event)">
       <option value="">Edad</option>
-      <option value="cachorro">Cachorro</option>
-      <option value="joven">Joven</option>
-      <option value="adulto">Adulto</option>
+      @for (edad of edades; track edad) {
+        <option [value]="edad">{{ edad }}</option>
+      }
     </select>
 
-    <select id="filtroDistrito">
+    <select id="filtroDistrito" name="distrito" aria-label="Distrito"
+            [ngModel]="filtros.distrito" (ngModelChange)="cambiarFiltro('distrito', $event)">
       <option value="">Distrito</option>
-      <option value="miraflores">Miraflores</option>
-      <option value="san borja">San Borja</option>
-      <option value="surco">Surco</option>
-      <option value="jesus maria">Jesús María</option>
-      <option value="pueblo libre">Pueblo Libre</option>
-      <option value="lince">Lince</option>
+      @for (distrito of distritos; track distrito) {
+        <option [value]="distrito">{{ distrito }}</option>
+      }
     </select>
 
-    <button class="btn-limpiar" id="btnLimpiar" type="button">
+    <button class="btn-limpiar" id="btnLimpiar" type="button" (click)="limpiarFiltros()">
       Limpiar filtros
     </button>
-  </section>
+  </form>
 
   @if (cargando) {
     <p class="angular-info" role="status">
@@ -175,68 +176,73 @@
     </p>
   }
 
-  <section class="mascotas-grid" id="contenedorMascotas">
-    @for (mascota of mascotas; track mascota.idMascota) {
-      <article class="mascota-card">
-        <img
-          [src]="mascota.urlFoto"
-          [alt]="mascota.nombre"
-          class="mascota-img" />
+  @if (!cargando && !error) {
+    <section class="mascotas-grid" id="contenedorMascotas">
+      @for (mascota of mascotasVisibles; track mascota.idMascota) {
+        <article class="mascota-card">
+          <img
+            [src]="urlFotoMascota(mascota.urlFoto)"
+            (error)="mostrarFotoDeRespaldo($event)"
+            [alt]="mascota.nombre"
+            class="mascota-img" />
 
-        <div class="mascota-info">
-          <div class="mascota-header">
-            <h3>{{ mascota.nombre }}</h3>
-            <span>{{ mascota.especie }}</span>
-          </div>
+          <div class="mascota-info">
+            <div class="mascota-header">
+              <h3>{{ mascota.nombre }}</h3>
+              <span>{{ mascota.especie }}</span>
+            </div>
 
-          <div class="mascota-datos">
-            <p>
-              <img src="/icons/calendario.png" alt="Edad" />
-              {{ mascota.edad }}
+            <div class="mascota-datos">
+              <p>
+                <img src="/icons/calendario.png" alt="Edad" />
+                {{ mascota.edad }}
+              </p>
+
+              <p>
+                <img src="/icons/map.png" alt="Distrito" />
+                {{ mascota.distrito }}
+              </p>
+            </div>
+
+            <p class="descripcion">
+              {{ mascota.descripcion }}
             </p>
 
-            <p>
-              <img src="/icons/map.png" alt="Distrito" />
-              {{ mascota.distrito }}
-            </p>
+            <div class="mascota-botones">
+              <a
+                [routerLink]="['/detalle-mascota', mascota.idMascota]"
+                class="btn-detalle">
+                Ver detalle
+              </a>
+
+              <a
+                [routerLink]="['/solicitud-adopcion', mascota.idMascota]"
+                class="btn-solicitar">
+                Solicitar adopción
+              </a>
+            </div>
           </div>
+        </article>
+      }
+    </section>
 
-          <p class="descripcion">
-            {{ mascota.descripcion }}
-          </p>
-
-          <div class="mascota-botones">
-            <a
-              [routerLink]="['/detalle-mascota', mascota.idMascota]"
-              class="btn-detalle">
-              Ver detalle
-            </a>
-
-            <a
-              [routerLink]="['/solicitud-adopcion', mascota.idMascota]"
-              class="btn-solicitar">
-              Solicitar adopción
-            </a>
-          </div>
-        </div>
-      </article>
-    }
-  </section>
+  }
 
   @if (!cargando && !error && mascotas.length === 0) {
     <p class="angular-info">
-      No hay mascotas disponibles.
+      {{ filtrosAplicados ? 'No se encontraron mascotas con esos filtros.' : 'No hay mascotas disponibles.' }}
     </p>
   }
 
-  <section class="paginacion">
-    <button class="pagina activa" type="button">1</button>
-    <button class="pagina" type="button">2</button>
-    <button class="pagina" type="button">3</button>
-    <span>...</span>
-    <button class="pagina" type="button">4</button>
-    <button class="pagina" type="button">›</button>
-  </section>
+  @if (!cargando && !error && totalPaginas > 1) {
+    <nav class="paginacion" aria-label="Páginas del catálogo">
+      <button class="pagina" type="button" [disabled]="pagina === 1"
+              (click)="cambiarPagina(pagina - 1)" aria-label="Página anterior">‹</button>
+      <span>Página {{ pagina }} de {{ totalPaginas }}</span>
+      <button class="pagina" type="button" [disabled]="pagina === totalPaginas"
+              (click)="cambiarPagina(pagina + 1)" aria-label="Página siguiente">›</button>
+    </nav>
+  }
 </main>
 
 <footer class="footer-compacto">
@@ -251,7 +257,7 @@
     </div>
 
     <div class="footer-compacto-links">
-      <a href="#">Soporte</a>
+      <a routerLink="/ayuda">Soporte</a>
 
       <a href="/documentos/politica-privacidad.pdf" target="_blank">
         Política de Privacidad

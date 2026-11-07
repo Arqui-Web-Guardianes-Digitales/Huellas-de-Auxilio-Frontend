@@ -25,7 +25,7 @@
   @if (mascota; as m) {
     <section class="detalle-principal">
       <div class="detalle-imagen">
-        <img [src]="m.urlFoto" [alt]="m.nombre" />
+        <img [src]="urlFotoMascota(m.urlFoto)" (error)="mostrarFotoDeRespaldo($event)" [alt]="m.nombre" />
       </div>
 
       <article class="datos-card">

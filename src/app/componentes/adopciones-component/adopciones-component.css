@@ -937,3 +937,22 @@
     font-size: 13px;
   }
 }
+
+/* Buscador conectado al catálogo */
+.btn-buscar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.buscar-box:focus-within,
+.filtros-adopciones select:focus-visible,
+.btn-buscar:focus-visible,
+.btn-limpiar:focus-visible {
+  outline: 2px solid #1b746f;
+  outline-offset: 2px;
+}
