@@ -1,1 +1,210 @@
-<p>mis-solicitudes-component works!</p>
+<header class="header-ciudadano">
+  <nav class="navbar">
+    <button type="button" class="btn-menu" aria-label="Abrir menú" aria-controls="menuMobile" [attr.aria-expanded]="menuAbierto" (click)="menuAbierto = !menuAbierto">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <a routerLink="/home-ciudadano" class="logo">
+      <img src="/img/logo.png" alt="Huellas de Auxilio" />
+    </a>
+
+    <ul class="nav-links">
+      <li><a routerLink="/home-ciudadano" class="nav-link">Inicio</a></li>
+      <li><a routerLink="/mis-reportes" class="nav-link">Mis reportes</a></li>
+      <li><a routerLink="/directorio" class="nav-link">Directorio</a></li>
+      <li><a routerLink="/adopciones" class="nav-link activo">Adopciones</a></li>
+      <li><a routerLink="/ayuda" class="nav-link">Ayuda</a></li>
+    </ul>
+
+    <div class="header-actions">
+      <a routerLink="/reportar" class="btn-reportar">Reportar</a>
+
+      <a routerLink="/notificaciones" class="btn-campana">
+        <img src="/icons/campana.png" alt="Notificaciones" />
+      </a>
+
+      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
+        <img src="/icons/user-circle.png" alt="Mi cuenta" />
+        <span>Mi cuenta</span>
+      </a>
+    </div>
+
+    <a routerLink="/reportar" class="btn-reporte-mobile">Reporte</a>
+  </nav>
+
+  <div class="menu-mobile" id="menuMobile" [class.activo]="menuAbierto">
+    <div class="menu-mobile-top">
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+
+        <div>
+          <h3>{{ nombreCiudadano }}</h3>
+          <a routerLink="/mi-cuenta-ciudadano">Ver mi perfil</a>
+        </div>
+      </div>
+
+      <button type="button" class="btn-cerrar-menu" aria-label="Cerrar menú" (click)="menuAbierto = false">
+        ×
+      </button>
+    </div>
+
+    <div class="menu-mobile-links">
+      <a routerLink="/home-ciudadano">Inicio</a>
+      <a routerLink="/mis-reportes">Mis Reportes</a>
+      <a routerLink="/directorio">Directorio</a>
+      <a routerLink="/adopciones" class="activo">Adopciones</a>
+      <a routerLink="/ayuda">Ayuda</a>
+      <a routerLink="/notificaciones">Notificaciones</a>
+    </div>
+  </div>
+</header>
+
+<main class="mis-solicitudes-page">
+  <section class="hero-solicitudes">
+    <div class="hero-img">
+      <img src="/img/banner-ciudadano.png" alt="Mascotas" />
+    </div>
+
+    <div class="hero-text">
+      <h1>Mis solicitudes</h1>
+      <p>Conoce el estado de tus postulaciones de adopción</p>
+    </div>
+  </section>
+
+  <section class="tabs-solicitudes">
+    <a routerLink="/adopciones" class="tab">
+      <img src="/icons/huella-verde.png" alt="Mascotas" />
+      Mascotas disponibles
+    </a>
+
+    <a routerLink="/mis-solicitudes" class="tab activo" aria-current="page">
+      <img src="/icons/documento-verde.png" alt="Solicitudes" />
+      Mis solicitudes
+    </a>
+  </section>
+
+  <form class="filtros-solicitudes" (ngSubmit)="cargarSolicitudes()">
+    <div class="buscar-box">
+      <button type="submit" class="btn-buscar" aria-label="Buscar solicitudes"
+              [disabled]="cargando || idCiudadano === null">
+        <img src="/icons/buscar.png" alt="" />
+      </button>
+      <input type="search" name="nombreMascota" placeholder="Buscar mascota"
+             aria-label="Nombre de la mascota" [(ngModel)]="nombreMascota"
+             [disabled]="cargando || idCiudadano === null" />
+    </div>
+    <select name="estado" aria-label="Filtrar por estado"
+            [ngModel]="estado" (ngModelChange)="estado = $event; cargarSolicitudes()"
+            [disabled]="cargando || idCiudadano === null">
+      <option value="">Estado</option>
+      <option value="ENVIADA">Enviada</option>
+      <option value="EN_REVISION">En revisión</option>
+      <option value="RECHAZADA">Rechazada</option>
+      <option value="APROBADA">Aprobada</option>
+    </select>
+    @if (nombreMascota || estado) {
+      <button type="button" class="btn-limpiar" (click)="limpiarFiltros()"
+              [disabled]="cargando || idCiudadano === null">
+        Limpiar filtros
+      </button>
+    }
+  </form>
+
+  @if (cargando) {
+    <p class="angular-info" role="status">Cargando solicitudes…</p>
+  } @else if (error) {
+    <p class="angular-error" role="alert">{{ error }}</p>
+  } @else if (filas.length === 0) {
+    <p class="angular-info">No se encontraron solicitudes.</p>
+  } @else {
+    <section class="tabla-solicitudes" role="table" aria-label="Solicitudes de adopción">
+      <div class="tabla-header" role="row">
+        <p role="columnheader">Mascota</p>
+        <p role="columnheader">Código</p>
+        <p role="columnheader">Entidad</p>
+        <p role="columnheader">Fecha</p>
+        <p role="columnheader">Estado</p>
+        <p role="columnheader">Acción</p>
+      </div>
+
+      @for (fila of filas; track fila.solicitud.idSolicitud) {
+        <div class="tabla-fila" role="row">
+          <div class="mascota-col" role="cell">
+            @if (fila.fotoMascota; as foto) {
+              <img [src]="foto" alt="" (error)="fila.fotoMascota = null" />
+            } @else {
+              <div class="foto-respaldo" aria-hidden="true">
+                <img src="/icons/huella-verde.png" alt="" />
+              </div>
+            }
+            <span>{{ fila.nombreMascota }}</span>
+          </div>
+          <p role="cell">SOL-{{ fila.solicitud.idSolicitud }}</p>
+          <p role="cell">{{ fila.nombreEntidad }}</p>
+          <p role="cell">{{ (fila.solicitud.fechaSolicitud | date:'dd MMM yyyy') || '—' }}</p>
+          <div role="cell">
+                <span class="estado"
+                      [class.estado-revision]="fila.solicitud.estadoSolicitud === 'EN_REVISION'"
+                      [class.estado-aprobado]="fila.solicitud.estadoSolicitud === 'APROBADA'"
+                      [class.estado-rechazado]="fila.solicitud.estadoSolicitud === 'RECHAZADA'">
+                  {{ etiquetaEstado(fila.solicitud.estadoSolicitud) }}
+                </span>
+          </div>
+          <div class="accion-col" role="cell">
+            @if (fila.solicitud.idSolicitud; as id) {
+              <a class="btn-detalle" [routerLink]="['/detalle-solicitud', id]">
+                Ver detalle
+                <img src="/icons/flecha-verde.png" alt="" />
+              </a>
+            }
+          </div>
+        </div>
+      }
+    </section>
+  }
+
+
+  <section class="aviso-solicitudes">
+    <div class="aviso-icono">!</div>
+    <p>Desde esta sección puedes revisar el avance de tu solicitud de adopción.</p>
+  </section>
+</main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+    <div class="footer-compacto-brand">
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+
+      <p>
+        © 2026 Huellas de Auxilio. Todos<br />
+        los derechos reservados.
+      </p>
+    </div>
+
+    <div class="footer-compacto-links">
+      <a routerLink="/ayuda">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank">
+        Política de Privacidad
+      </a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank">
+        Términos y condiciones
+      </a>
+    </div>
+
+    <div class="footer-social">
+      <a href="https://www.facebook.com/">
+        <img src="/icons/facebook.png" alt="Facebook" />
+      </a>
+
+      <a href="https://x.com/">
+        <img src="/icons/x.png" alt="X" />
+      </a>
+
+      <a href="https://www.instagram.com/">
+        <img src="/icons/instagram.png" alt="Instagram" />
+      </a>
+    </div>
+  </div>
+</footer>

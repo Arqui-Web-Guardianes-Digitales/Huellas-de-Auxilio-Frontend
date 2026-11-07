@@ -1,1 +1,70 @@
-<p>detalle-solicitud-component works!</p>
+<main class="detalle-solicitud-page">
+  <a routerLink="/mis-solicitudes" class="btn-volver">← Volver a mis solicitudes</a>
+  <h1>Detalle de solicitud</h1>
+
+  @if (cargando) {
+    <p class="angular-info" role="status">Cargando detalle…</p>
+  }
+  @if (error) {
+    <p class="angular-error" role="alert">{{ error }}</p>
+  }
+
+  @if (solicitud; as s) {
+    <dl class="resumen-superior">
+      <div><dt>Código</dt><dd>SOL-{{ s.idSolicitud }}</dd></div>
+      <div><dt>Fecha de envío</dt><dd>{{ (s.fechaSolicitud | date:'dd/MM/yyyy HH:mm') || '—' }}</dd></div>
+      <div><dt>Entidad</dt><dd>{{ nombreEntidad }}</dd></div>
+      <div><dt>Estado actual</dt><dd aria-live="polite">{{ etiquetaEstado }}</dd></div>
+    </dl>
+
+    @if (aviso) {
+      <p class="angular-info" role="status">{{ aviso }}</p>
+    }
+
+    <div class="detalle-contenido">
+      <section class="mascota-card">
+        @if (mascota; as m) {
+          @if (m.urlFoto && !fotoNoDisponible) {
+            <img class="mascota-img" [src]="m.urlFoto" [alt]="m.nombre"
+                 (error)="fotoNoDisponible = true" />
+          }
+          <h2>{{ m.nombre }}</h2>
+          <p>{{ m.especie }} · {{ m.edad }} · {{ m.distrito }}</p>
+          <p>{{ m.descripcion }}</p>
+          <a [routerLink]="['/detalle-mascota', m.idMascota]">Ver ficha de la mascota</a>
+        } @else {
+          <h2>Mascota de la solicitud</h2>
+          <p>Información de la mascota no disponible.</p>
+        }
+        <dl class="datos-solicitud">
+          <div><dt>Tipo de vivienda</dt><dd>{{ s.tipoVivienda }}</dd></div>
+          <div><dt>Motivo</dt><dd>{{ s.motivo }}</dd></div>
+          <div><dt>Experiencia con mascotas</dt>
+            <dd>{{ s.experiencia == null ? 'No indicada' : (s.experiencia ? 'Sí' : 'No') }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="estado-card" aria-label="Progreso de la solicitud">
+        <h2>Progreso de la solicitud</h2>
+        <ol class="progreso-solicitud">
+          <li [class.completo]="pasoActual > 1" [class.actual]="pasoActual === 1"
+              [attr.aria-current]="pasoActual === 1 ? 'step' : null">
+            <strong>Solicitud enviada</strong>
+            <span>{{ pasoActual > 1 ? 'Completado' : (pasoActual === 1 ? 'Actual' : 'Pendiente') }}</span>
+          </li>
+          <li [class.completo]="pasoActual > 2" [class.actual]="pasoActual === 2"
+              [attr.aria-current]="pasoActual === 2 ? 'step' : null">
+            <strong>En revisión</strong>
+            <span>{{ pasoActual > 2 ? 'Completado' : (pasoActual === 2 ? 'Actual' : 'Pendiente') }}</span>
+          </li>
+          <li [class.actual]="pasoActual === 3" [class.rechazado]="s.estadoSolicitud === 'RECHAZADA'"
+              [attr.aria-current]="pasoActual === 3 ? 'step' : null">
+            <strong>{{ pasoActual === 3 ? etiquetaEstado : 'Resultado final' }}</strong>
+            <span>{{ pasoActual === 3 ? 'Finalizado' : 'Pendiente' }}</span>
+          </li>
+        </ol>
+      </section>
+    </div>
+  }
+</main>

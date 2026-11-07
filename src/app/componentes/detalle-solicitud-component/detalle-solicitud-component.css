@@ -1,0 +1,26 @@
+:host { display: block; }
+.detalle-solicitud-page { max-width: 1180px; margin: 0 auto; padding: 24px clamp(16px, 4vw, 48px); }
+h1, h2 { color: #1b746f; }
+.btn-volver { color: #005d60; font-weight: 600; }
+.resumen-superior { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.resumen-superior > div { background: #eaf3f2; padding: 14px; border-radius: 10px; min-width: 0; }
+dt { font-weight: 700; color: #0b5559; }
+dd { margin: 4px 0 0; overflow-wrap: anywhere; }
+.detalle-contenido { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.mascota-card, .estado-card { background: white; padding: 20px; border: 1px solid #d9dddd; border-radius: 12px; }
+.mascota-img { width: 100%; max-height: 240px; object-fit: cover; border-radius: 9px; }
+.mascota-card a { color: #005d60; }
+.datos-solicitud > div { margin-top: 12px; }
+.progreso-solicitud { list-style: none; margin: 0; padding: 0; }
+.progreso-solicitud li {
+  border-left: 4px solid #d9dddd; background: #f7faf9; border-radius: 6px;
+  display: grid; gap: 4px; padding: 12px 14px; margin-bottom: 10px;
+}
+.progreso-solicitud span { font-size: 0.88rem; }
+.progreso-solicitud .completo { border-color: #4b8e70; }
+.progreso-solicitud .actual { border-color: #007476; background: #eaf3f2; }
+.progreso-solicitud .rechazado { border-color: #a82330; background: #fff1f2; }
+@media (max-width: 760px) {
+  .resumen-superior { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .detalle-contenido { grid-template-columns: minmax(0, 1fr); }
+}
