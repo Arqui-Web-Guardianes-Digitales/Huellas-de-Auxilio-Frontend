@@ -287,10 +287,35 @@
 
 /* Gráficos estadísticos con CHART.JS */
 .graficos-entidad { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; margin-bottom: 28px; }
-.grafico-card-entidad { background-color: #ffffff; border: 3px solid #d9dddd; border-radius: 16px; padding: 20px 24px; }
+.grafico-card-entidad { min-width: 0; display: flex; flex-direction: column; background-color: #ffffff; border: 3px solid #d9dddd; border-radius: 16px; padding: 20px 24px; }
 .grafico-card-entidad h3 { font-size: 16px; font-weight: 700; color: #263b3b; margin: 0 0 14px; }
-.canvas-wrapper-entidad { position: relative; height: 220px; width: 100%; }
-.grafico-vacio-entidad { color: #676d68; font-size: 14px; text-align: center; padding: 60px 10px; margin: 0; }
+.canvas-wrapper-entidad { flex-shrink: 0; position: relative; height: 220px; width: 100%; }
+.grafico-vacio-entidad { flex: 1; display: grid; place-content: center; min-height: 220px; color: #676d68; font-size: 14px; text-align: center; padding: 20px 10px; margin: 0; }
+.grafico-error { color: #a82330; }
+.cantidades-grafico { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 12px 0 0; text-align: center; }
+.cantidades-grafico > div { min-width: 0; border-top: 3px solid currentColor; padding-top: 6px; }
+.cantidades-grafico dt { color: #263b3b; font-size: 12px; }
+.cantidades-grafico dd { font-size: 20px; font-weight: 700; margin: 4px 0 0; }
+.cantidad-recibidos { color: #007476; }
+.cantidad-revision { color: #005aa0; }
+.cantidad-atendidos { color: #7da766; }
+.cantidad-aprobadas { color: #2d8a65; }
+.cantidad-rechazadas { color: #e23737; }
+.total-dona {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  color: #263b3b;
+}
+.total-dona strong { font-size: 32px; line-height: 1.2; }
+.total-dona span { max-width: 110px; text-align: center; font-size: 12px; line-height: 1.4; }
+.leyenda-solicitudes dt { min-height: 2.8em; display: grid; place-content: center; }
+.porcentaje-solicitudes { display: block; color: #676d68; font-size: 12px; font-weight: 500; margin-top: 2px; }
+
 
 @media (max-width: 960px) {
   .graficos-entidad { grid-template-columns: 1fr; }

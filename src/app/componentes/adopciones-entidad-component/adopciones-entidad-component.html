@@ -1,0 +1,236 @@
+<header class="header-entidad">
+  <nav class="navbar">
+
+    <!-- Botón de menú móvil -->
+    <button
+      type="button"
+      class="btn-menu"
+      aria-label="Abrir menú"
+      (click)="abrirMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- Logo -->
+    <a routerLink="/home-entidad" class="logo">
+      <img src="/img/logo.png" alt="Huellas de Auxilio">
+    </a>
+
+    <!-- Navegación de escritorio -->
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/home-entidad" class="nav-link">
+          Inicio
+        </a>
+      </li>
+      <li>
+        <a routerLink="/reportes-entidad" class="nav-link">Reportes</a>
+      </li>
+      <li>
+        <a routerLink="/adopciones-entidad" class="nav-link activo" aria-current="page">Adopciones</a>
+      </li>
+      <li>
+        <span class="nav-link ruta-pendiente">Red de apoyo</span>
+      </li>
+      <li>
+        <span class="nav-link ruta-pendiente">Ayuda</span>
+      </li>
+    </ul>
+
+    <!-- Acciones de escritorio -->
+    <div class="header-actions">
+      <span class="btn-campana" title="Notificaciones: integración pendiente" aria-disabled="true">
+        <img src="/icons/campana.png" alt="Notificaciones">
+      </span>
+
+      <span class="btn-cuenta" title="Mi cuenta: integración pendiente" aria-disabled="true">
+        <img src="/icons/user-circle.png" alt="Mi cuenta">
+        <span>Mi cuenta</span>
+      </span>
+
+    </div>
+    <span class="btn-campana-mobile" title="Notificaciones: integración pendiente" aria-disabled="true">
+      <img src="/icons/campana.png" alt="Notificaciones">
+    </span>
+  </nav>
+
+  <!-- Menú móvil -->
+  <div class="menu-mobile" [class.activo]="menuMobileAbierto">
+    <div class="menu-mobile-top">
+
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+
+        <div>
+          <h3>{{ nombreEntidad }}</h3>
+          <span>Ver mi perfil</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar-menu"
+        aria-label="Cerrar menú"
+        (click)="cerrarMenu()">
+        ×
+      </button>
+    </div>
+
+    <div class="menu-mobile-links">
+      <a
+        routerLink="/home-entidad"
+        (click)="cerrarMenu()">
+        Inicio
+      </a>
+
+      <a routerLink="/reportes-entidad" (click)="cerrarMenu()">Reportes</a>
+      <a routerLink="/adopciones-entidad" class="activo" aria-current="page" (click)="cerrarMenu()">Adopciones</a>
+      <span>Red de apoyo</span>
+      <span>Ayuda</span>
+
+    </div>
+  </div>
+</header>
+
+<main class="adopciones-entidad-page">
+  <section class="hero-adopciones-entidad">
+    <div class="hero-img"><img src="/img/banner-ciudadano.png" alt="Mascotas"></div>
+    <div class="hero-text">
+      <h1>Adopciones</h1>
+      <p>Gestiona las mascotas publicadas y revisa las solicitudes recibidas.</p>
+    </div>
+  </section>
+
+  <section class="barra-superior">
+    <div class="tabs-adopciones-entidad">
+      <a routerLink="/adopciones-entidad" class="tab activo" aria-current="page">
+        <img src="/icons/huella-verde.png" alt="">Mascotas publicadas
+      </a>
+      <button type="button" class="tab" disabled title="Solicitudes de adopción: pendiente de HU30/HU31">
+        <img src="/icons/documento-verde.png" alt="">Solicitudes de adopción
+      </button>
+    </div>
+    <button type="button" class="btn-publicar" disabled title="Publicar mascota: pendiente de HU28">Publicar mascota</button>
+  </section>
+
+  @if (cargando) { <p class="angular-info" role="status">Cargando las mascotas de tu entidad...</p> }
+  @if (error) { <p class="angular-error" role="alert">{{ error }}</p> }
+
+  <form [formGroup]="filtrosForm" (ngSubmit)="aplicarFiltros()">
+    <fieldset class="filtros-entidad" [disabled]="cargando || !!error">
+      <div class="buscar-box">
+        <img src="/icons/buscar.png" alt="">
+        <input type="search" formControlName="nombre" placeholder="Buscar mascota" aria-label="Buscar por nombre de mascota">
+      </div>
+      <select formControlName="especie" aria-label="Filtrar por especie">
+        <option value="">Especie</option>
+        <option value="perro">Perro</option>
+        <option value="gato">Gato</option>
+      </select>
+      <select formControlName="edad" aria-label="Filtrar por edad">
+        <option value="">Edad</option>
+        <option value="cachorro">Cachorro</option>
+        <option value="joven">Joven</option>
+        <option value="adulto">Adulto</option>
+      </select>
+      <button class="btn-limpiar" type="button" (click)="limpiarFiltros()">Limpiar filtros</button>
+    </fieldset>
+  </form>
+
+  <section class="mascotas-grid" aria-label="Mascotas disponibles publicadas por tu entidad">
+    @for (mascota of mascotasPagina; track mascota.idMascota) {
+      <article class="mascota-card">
+        <img class="mascota-img" [src]="mascotaService.urlFotoMascota(mascota.urlFoto)" [alt]="mascota.nombre"
+          (error)="mascotaService.mostrarFotoDeRespaldo($event)">
+        <div class="mascota-info">
+          <div class="mascota-header"><h3>{{ mascota.nombre }}</h3><span>{{ mascota.especie }}</span></div>
+          <div class="mascota-datos">
+            <p><img src="/icons/calendario.png" alt="Edad">{{ mascota.edad }}</p>
+            <p><img src="/icons/map.png" alt="Distrito">{{ mascota.distrito || '—' }}</p>
+          </div>
+          <p class="descripcion">{{ mascota.descripcion || 'Sin descripción registrada.' }}</p>
+          <div class="mascota-botones">
+            <button type="button" class="btn-editar" disabled title="Editar mascota: pendiente de HU29">Editar</button>
+            <button type="button" class="btn-solicitudes" disabled title="Ver solicitudes: pendiente de HU30">Ver solicitudes</button>
+          </div>
+        </div>
+      </article>
+    }
+  </section>
+  @if (!cargando && !error && !mascotasFiltradas.length) {
+    <p class="mensaje-vacio" role="status">{{ mascotas.length ? 'No se encontraron mascotas con esos filtros.' : 'Tu entidad no tiene mascotas disponibles publicadas por el momento.' }}</p>
+  }
+  @if (!cargando && !error && paginas.length > 1) {
+    <nav class="paginacion" aria-label="Páginas de mascotas publicadas">
+      <button type="button" class="pagina" aria-label="Página anterior" [disabled]="paginaActual === 1" (click)="cambiarPagina(paginaActual - 1)">‹</button>
+      @for (pagina of paginas; track pagina) {
+        <button type="button" class="pagina" [class.activa]="pagina === paginaActual"
+          [attr.aria-current]="pagina === paginaActual ? 'page' : null" [attr.aria-label]="'Página ' + pagina"
+          (click)="cambiarPagina(pagina)">{{ pagina }}</button>
+      }
+      <button type="button" class="pagina" aria-label="Página siguiente" [disabled]="paginaActual === paginas.length" (click)="cambiarPagina(paginaActual + 1)">›</button>
+    </nav>
+  }
+</main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+
+    <!-- Logo y derechos -->
+    <div class="footer-compacto-brand">
+      <img
+        src="/img/logo-blanco.png"
+        alt="Logo Huellas de Auxilio">
+
+      <p>
+        © 2026 Huellas de Auxilio. Todos<br>
+        los derechos reservados.
+      </p>
+    </div>
+
+    <!-- Enlaces -->
+    <div class="footer-compacto-links">
+      <span>Soporte</span>
+
+      <a
+        href="/documentos/politica-privacidad.pdf"
+        target="_blank"
+        rel="noopener noreferrer">
+        Política de Privacidad
+      </a>
+
+      <a
+        href="/documentos/terminos-condiciones.pdf"
+        target="_blank"
+        rel="noopener noreferrer">
+        Términos y condiciones
+      </a>
+    </div>
+
+    <!-- Redes sociales -->
+    <div class="footer-social">
+      <a
+        href="https://www.facebook.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/facebook.png" alt="Facebook">
+      </a>
+
+      <a
+        href="https://x.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/x.png" alt="X">
+      </a>
+
+      <a
+        href="https://www.instagram.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/instagram.png" alt="Instagram">
+      </a>
+    </div>
+
+  </div>
+</footer>

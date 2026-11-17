@@ -53,6 +53,12 @@ export class MascotaService {
     });
   }
 
+  listarPorEntidad(idEntidad: number): Observable<Mascota[]> {
+    return this.http.get<Mascota[]>(`${this.url}/mascotas/entidad/${idEntidad}`, {
+      headers: this.getHeaders(),
+    });
+  }
+
   buscarPorId(idMascota: number): Observable<Mascota | null> {
     return this.http.get<Mascota | null>(`${this.url}/mascota/${idMascota}`, {
       headers: this.getHeaders(),

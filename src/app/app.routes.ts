@@ -78,6 +78,14 @@ export const routes: Routes = [
       ),
   },
 
+  {
+    path: 'adopciones-entidad',
+    loadComponent: () =>
+      import('./componentes/adopciones-entidad-component/adopciones-entidad-component').then(
+        (componente) => componente.AdopcionesEntidadComponent,
+      ),
+  },
+
   // Comodín para redirigir si no existe la ruta
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];

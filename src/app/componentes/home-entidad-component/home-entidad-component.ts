@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, DestroyRef, ViewChild, ElementRef, } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PercentPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
@@ -17,11 +18,11 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-home-entidad-component',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, PercentPipe],
   templateUrl: './home-entidad-component.html',
   styleUrl: './home-entidad-component.css',
 })
-export class HomeEntidadComponent implements OnInit {
+export class HomeEntidadComponent implements OnInit, OnDestroy {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -55,6 +56,8 @@ export class HomeEntidadComponent implements OnInit {
   errorSolicitudes = '';
   solicitudesPendientes: number | null = null;
   solicitudesRecientes: { solicitud: Solicitud; mascota: Mascota | null }[] = [];
+
+  resumenSolicitudes: { enRevision: number; aprobadas: number; rechazadas: number } | null = null;
 
   tieneReportesEntidad: boolean = false;
   tieneSolicitudesEntidad: boolean = false;
@@ -130,6 +133,9 @@ export class HomeEntidadComponent implements OnInit {
     this.errorSolicitudes = '';
     this.cargandoSolicitudes = false;
     this.tieneSolicitudesEntidad = false;
+    this.resumenSolicitudes = null;
+    this.chartSolicitudes?.destroy();
+    this.chartSolicitudes = null;
     const idEntidad = this.idEntidad;
     const tokenSesion = this.auth.token();
     if (
@@ -202,6 +208,7 @@ export class HomeEntidadComponent implements OnInit {
             this.solicitudesPendientes = datos.cantidad;
             this.solicitudesRecientes = datos.recientes;
             this.tieneSolicitudesEntidad = datos.resumenSolicitudes.total > 0;
+            this.resumenSolicitudes = datos.resumenSolicitudes;
             this.renderizarGraficoSolicitudes(
               datos.resumenSolicitudes.enRevision,
               datos.resumenSolicitudes.aprobadas,
@@ -287,6 +294,8 @@ export class HomeEntidadComponent implements OnInit {
     this.reportesRecientes = [];
     this.errorReportes = '';
     this.tieneReportesEntidad = false;
+    this.chartReportes?.destroy();
+    this.chartReportes = null;
     const idEntidad = this.idEntidad;
     const tokenSesion = this.auth.token();
     if (
@@ -374,33 +383,39 @@ export class HomeEntidadComponent implements OnInit {
     enRevision: number,
     atendidos: number,
   ): void {
-    console.log('Datos gráfico reportes (Entidad):', { recibidos, enRevision, atendidos });
-    setTimeout(() => {
-      if (!this.chartEntidadReportesCanvas?.nativeElement) return;
-      this.chartReportes?.destroy();
-
-      this.chartReportes = new Chart(this.chartEntidadReportesCanvas.nativeElement, {
-        type: 'doughnut',
-        data: {
-          labels: ['Recibidos', 'En revisión', 'Atendidos'],
-          datasets: [
-            {
-              data: [recibidos, enRevision, atendidos],
-              backgroundColor: ['#007476', '#005aa0', '#7da766'],
-              borderWidth: 2,
-              borderColor: '#ffffff',
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom' },
+    if (!this.tieneReportesEntidad || this.idEntidad === null
+      || !this.sesionVigente(this.auth.token(), this.idEntidad)) return;
+    // Aplicar el cambio de [hidden] antes de medir el canvas.
+    this.cdr.detectChanges();
+    if (!this.chartEntidadReportesCanvas?.nativeElement) return;
+    this.chartReportes?.destroy();
+    this.chartReportes = new Chart(this.chartEntidadReportesCanvas.nativeElement, {
+      type: 'bar',
+      data: {
+        labels: ['Recibidos', 'En revisión', 'Atendidos'],
+        datasets: [{
+          label: 'Reportes',
+          data: [recibidos, enRevision, atendidos],
+          backgroundColor: ['#007476', '#005aa0', '#7da766'],
+          borderRadius: 6,
+          maxBarThickness: 64,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false } },
+          y: {
+            beginAtZero: true,
+            suggestedMax: 1,
+            ticks: { stepSize: 1, precision: 0 },
+            title: { display: true, text: 'Cantidad de reportes' },
           },
         },
-      });
-    }, 0);
+      },
+    });
   }
 
   private renderizarGraficoSolicitudes(
@@ -408,39 +423,42 @@ export class HomeEntidadComponent implements OnInit {
     aprobadas: number,
     rechazadas: number,
   ): void {
-    console.log('Datos gráfico solicitudes (Entidad):', { enRevision, aprobadas, rechazadas });
-    setTimeout(() => {
-      if (!this.chartEntidadSolicitudesCanvas?.nativeElement) return;
-      this.chartSolicitudes?.destroy();
+    if (!this.tieneSolicitudesEntidad || this.idEntidad === null
+      || !this.sesionVigente(this.auth.token(), this.idEntidad)) return;
+    this.cdr.detectChanges();
+    if (!this.chartEntidadSolicitudesCanvas?.nativeElement) return;
+    this.chartSolicitudes?.destroy();
+    this.chartSolicitudes = new Chart(this.chartEntidadSolicitudesCanvas.nativeElement, {
+      type: 'doughnut',
+      data: {
+        labels: ['En revisión', 'Aprobadas', 'Rechazadas'],
+        datasets: [{
+          label: 'Solicitudes',
+          data: [enRevision, aprobadas, rechazadas],
+          backgroundColor: ['#005aa0', '#2d8a65', '#e23737'],
+          borderRadius: 4,
+          borderWidth: 2,
+          borderColor: '#ffffff',
+          hoverOffset: 4,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        cutout: '72%',
+        layout: { padding: 6 },
+      },
+    });
+  }
 
-      this.chartSolicitudes = new Chart(this.chartEntidadSolicitudesCanvas.nativeElement, {
-        type: 'bar',
-        data: {
-          labels: ['En revisión', 'Aprobadas', 'Rechazadas'],
-          datasets: [
-            {
-              label: 'Solicitudes',
-              data: [enRevision, aprobadas, rechazadas],
-              backgroundColor: ['#005aa0', '#2d8a65', '#e23737'],
-              borderRadius: 8,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: { stepSize: 1 },
-            },
-          },
-        },
-      });
-    }, 0);
+  get totalSolicitudes(): number {
+    const cantidades = this.resumenSolicitudes;
+    return cantidades ? cantidades.enRevision + cantidades.aprobadas + cantidades.rechazadas : 0;
+  }
+
+  porcentajeSolicitudes(cantidad: number): number {
+    return this.totalSolicitudes > 0 ? cantidad / this.totalSolicitudes : 0;
   }
 
   abrirMenu(): void {
