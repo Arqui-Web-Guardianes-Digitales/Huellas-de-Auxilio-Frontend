@@ -232,7 +232,29 @@
               <h2>Progreso del reporte</h2>
             </div>
 
-            <p class="mensaje-datos pendiente-historial">El historial de cambios estará disponible al integrar HU06.</p>
+            @if (cargandoHistorial) { <p class="mensaje-datos pendiente-historial" role="status">Cargando historial...</p> }
+            @if (errorHistorial) {
+              <p class="mensaje-error pendiente-historial" role="alert">{{ errorHistorial }}</p>
+              <button type="button" class="btn-reintentar" (click)="cargarHistorial()">Reintentar historial</button>
+            }
+            @if (!cargandoHistorial && !errorHistorial) {
+              <div class="progreso-lista">
+                @for (actualizacion of historial; track actualizacion.idActualizacion; let primera = $first) {
+                  <div class="progreso-item" [class.activo]="primera">
+                    <span class="punto" [class.azul]="primera" [class.gris]="!primera"></span>
+                    <div class="texto-actualizacion">
+                      <strong>{{ cambioHistorial(actualizacion.descripcionActu) }}</strong>
+                      @if (observacionHistorial(actualizacion.descripcionActu); as observacion) {
+                        <p><span>Observación:</span> {{ observacion }}</p>
+                      }
+                    </div>
+                    <time>{{ actualizacion.fechaActualizacion | date:'dd/MM/yyyy HH:mm:ss' }}</time>
+                  </div>
+                } @empty {
+                  <p class="mensaje-datos pendiente-historial">Este reporte todavía no tiene actualizaciones registradas.</p>
+                }
+              </div>
+            }
           </article>
         </section>
 
@@ -243,37 +265,41 @@
               <h2>Actualizar estado del reporte</h2>
             </div>
 
-            <label for="estadoReporte">Estado actual</label>
-
-            <div class="select-estado-box">
-              <select id="estadoReporte" disabled aria-describedby="pendienteHU06"><option>{{ nombreEstado(reporte.estado) }}</option></select>
-            </div>
-
-            <div class="opciones-estado">
-              <button type="button" class="opcion-estado" [class.activo]="reporte.estado === 'R'" disabled>
-                <span class="circulo gris"></span>
-                Recibido
-              </button>
-
-              <button type="button" class="opcion-estado" [class.activo]="reporte.estado === 'ER'" disabled>
-                <span class="circulo azul"></span>
-                En revisión
-                @if (reporte.estado === 'ER') { <img src="/icons/check-azul.png" alt="Seleccionado"> }
-              </button>
-
-              <button type="button" class="opcion-estado" [class.activo]="reporte.estado === 'AT'" disabled>
-                <span class="circulo verde"></span>
-                Atendido
-              </button>
-            </div>
-
-            <button type="button" class="btn-actualizar" disabled aria-describedby="pendienteHU06">
-              Actualizar estado
-            </button>
-
+            <form [formGroup]="estadoForm" (ngSubmit)="abrirConfirmacion()">
+              <fieldset [disabled]="guardando">
+                <label for="estadoReporte">Nuevo estado</label>
+                <div class="select-estado-box">
+                  <select id="estadoReporte" formControlName="nuevoEstado">
+                    <option value="">Selecciona un estado</option>
+                    <option value="R" disabled>Recibido</option>
+                    <option value="ER" [disabled]="siguienteEstado() !== 'ER'">En revisión</option>
+                    <option value="AT" [disabled]="siguienteEstado() !== 'AT'">Atendido</option>
+                  </select>
+                </div>
+                <div class="opciones-estado">
+                  <button type="button" class="opcion-estado" [class.activo]="reporte.estado === 'R'" disabled>
+                    <span class="circulo gris"></span>Recibido
+                  </button>
+                  <button type="button" class="opcion-estado" [class.activo]="estadoForm.value.nuevoEstado === 'ER' || reporte.estado === 'ER'"
+                    [disabled]="siguienteEstado() !== 'ER'" (click)="seleccionarEstado('ER')">
+                    <span class="circulo azul"></span>En revisión
+                  </button>
+                  <button type="button" class="opcion-estado" [class.activo]="estadoForm.value.nuevoEstado === 'AT' || reporte.estado === 'AT'"
+                    [disabled]="siguienteEstado() !== 'AT'" (click)="seleccionarEstado('AT')">
+                    <span class="circulo verde"></span>Atendido
+                  </button>
+                </div>
+                <button type="submit" class="btn-actualizar" [disabled]="!siguienteEstado()">
+                  {{ guardando ? 'Guardando...' : 'Actualizar estado' }}
+                </button>
+              </fieldset>
+            </form>
+            @if (!siguienteEstado()) { <p class="mensaje-datos">El reporte no tiene nuevas transiciones disponibles.</p> }
+            @if (errorActualizacion) { <p class="mensaje-error" role="alert">{{ errorActualizacion }}</p> }
+            @if (mensajeActualizacion) { <p class="mensaje-exito" role="status">{{ mensajeActualizacion }}</p> }
             <div class="aviso-actualizacion">
-              <img src="/icons/info-verde.png" alt="Información" />
-              <p id="pendienteHU06">Actualización de estado pendiente de HU06. Estos controles todavía no realizan cambios.</p>
+              <img src="/icons/info-verde.png" alt="">
+              <p>Al guardar se registrará la fecha y hora de la actualización y se notificará al ciudadano.</p>
             </div>
           </article>
 
@@ -281,6 +307,31 @@
       </section>
       }
     </main>
+
+<dialog #confirmacion class="modal-confirmacion" aria-labelledby="tituloConfirmacion"
+  (cancel)="$event.preventDefault(); cerrarConfirmacion()">
+  <div class="modal-contenido">
+    <button type="button" class="btn-cerrar-modal" aria-label="Cerrar confirmación" [disabled]="guardando" (click)="cerrarConfirmacion()">×</button>
+    <h2 id="tituloConfirmacion">Confirmar actualización de estado</h2>
+    <p>El reporte cambiará de <strong>{{ nombreEstado(reporte?.estado || '') }}</strong> a
+      <strong>{{ nombreEstado(estadoForm.value.nuevoEstado) }}</strong>.</p>
+    <form [formGroup]="estadoForm" (ngSubmit)="confirmarActualizacion()">
+      <fieldset [disabled]="guardando">
+        <label for="observacionEstado">Observación (opcional)</label>
+        <textarea id="observacionEstado" formControlName="observacion" maxlength="150"></textarea>
+        <p class="mensaje-datos">Máximo 150 caracteres.</p>
+        @if (estadoForm.get('observacion')?.hasError('maxlength')) {
+          <p class="mensaje-error">La observación supera los 150 caracteres.</p>
+        }
+        <div class="acciones-modal">
+          <button type="button" class="btn-cancelar" (click)="cerrarConfirmacion()">Cancelar</button>
+          <button type="submit" class="btn-guardar" [disabled]="estadoForm.invalid">{{ guardando ? 'Guardando...' : 'Guardar cambios' }}</button>
+        </div>
+      </fieldset>
+    </form>
+    @if (errorActualizacion) { <p class="mensaje-error" role="alert">{{ errorActualizacion }}</p> }
+  </div>
+</dialog>
 
 <footer class="footer-compacto">
   <div class="footer-compacto-container">

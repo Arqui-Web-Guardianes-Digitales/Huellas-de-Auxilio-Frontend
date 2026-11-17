@@ -26,3 +26,10 @@ export interface ResumenReportes {
   enRevision: number;
   atendidos: number;
 }
+
+export interface ActualizarReporte {
+  idActualizacion: number;
+  descripcionActu: string;
+  fechaActualizacion: string;
+  reporteIdReporte: number;
+}

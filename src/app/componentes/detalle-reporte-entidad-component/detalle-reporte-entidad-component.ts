@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, DestroyRef, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -7,7 +8,7 @@ import { Subscription } from 'rxjs';
 import * as L from 'leaflet';
 import { AuthService } from '../../services/auth-service';
 import { ReporteService } from '../../services/reporte-service';
-import { Reporte } from '../../model/reporte';
+import { ActualizarReporte, Reporte } from '../../model/reporte';
 
 interface EvidenciaDetalle {
   idEvidencia: number;
@@ -18,7 +19,7 @@ interface EvidenciaDetalle {
 
 @Component({
   selector: 'app-detalle-reporte-entidad-component',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, ReactiveFormsModule],
   templateUrl: './detalle-reporte-entidad-component.html',
   styleUrl: './detalle-reporte-entidad-component.css',
 })
@@ -29,6 +30,19 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly fb = inject(FormBuilder);
+  private consultaHistorial?: Subscription;
+  @ViewChild('confirmacion') private confirmacion?: ElementRef<HTMLDialogElement>;
+  estadoForm: FormGroup = this.fb.group({
+    nuevoEstado: ['', Validators.required],
+    observacion: ['', Validators.maxLength(150)],
+  });
+  guardando = false;
+  errorActualizacion = '';
+  mensajeActualizacion = '';
+  historial: ActualizarReporte[] = [];
+  cargandoHistorial = false;
+  errorHistorial = '';
   private consultas = new Subscription();
   private mapa?: L.Map;
   private tokenSesion: string | null = null;
@@ -122,6 +136,7 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
               && typeof lng === 'number' && Number.isFinite(lng) && Math.abs(lng) <= 180;
             this.cargando = false;
             this.cargarEvidencias(idReporte);
+            this.cargarHistorial();
             this.cdr.markForCheck();
           },
           error: (error: HttpErrorResponse | Error) => this.mostrarError(error),
@@ -202,6 +217,15 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
   }
 
   private limpiarDetalle(): void {
+    this.consultaHistorial?.unsubscribe();
+    this.confirmacion?.nativeElement.close();
+    this.guardando = false;
+    this.estadoForm.reset({ nuevoEstado: '', observacion: '' });
+    this.errorActualizacion = '';
+    this.mensajeActualizacion = '';
+    this.historial = [];
+    this.cargandoHistorial = false;
+    this.errorHistorial = '';
     this.mensajeCopia = '';
     this.mapa?.remove();
     this.mapa = undefined;
@@ -229,8 +253,124 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
     }
   }
 
+  siguienteEstado(): string {
+    return this.reporte?.estado === 'R' ? 'ER' : this.reporte?.estado === 'ER' ? 'AT' : '';
+  }
+
+  seleccionarEstado(estado: string): void {
+    if (!this.guardando && estado === this.siguienteEstado()) {
+      this.estadoForm.patchValue({ nuevoEstado: estado });
+    }
+  }
+
+  abrirConfirmacion(): void {
+    if (this.guardando || !this.comprobarSesion()) return;
+    this.errorActualizacion = '';
+    this.mensajeActualizacion = '';
+    this.estadoForm.markAllAsTouched();
+    if (this.estadoForm.invalid || !this.siguienteEstado()
+      || this.estadoForm.value.nuevoEstado !== this.siguienteEstado()) {
+      this.errorActualizacion = 'Selecciona el siguiente estado permitido.';
+      return;
+    }
+    this.confirmacion?.nativeElement.showModal();
+  }
+
+  cerrarConfirmacion(): void {
+    if (!this.guardando) this.confirmacion?.nativeElement.close();
+  }
+
+  confirmarActualizacion(): void {
+    if (this.guardando || !this.reporte || !this.comprobarSesion()) return;
+    if (this.estadoForm.invalid || !this.siguienteEstado()
+      || this.estadoForm.value.nuevoEstado !== this.siguienteEstado()) return;
+    const idReporte = this.idReporte;
+    const estado = this.estadoForm.value.nuevoEstado as string;
+    const observacion = (this.estadoForm.value.observacion || '').trim();
+    this.guardando = true;
+    this.errorActualizacion = '';
+    this.consultas.add(this.reporteService.actualizarEstado(idReporte, estado, observacion).subscribe({
+      next: (reporte) => {
+        if (!this.comprobarSesion()) return;
+        this.guardando = false;
+        if (!reporte || reporte.idReporte !== idReporte || reporte.entidad?.idEntidad !== this.idEntidad
+          || reporte.estado !== estado) {
+          this.errorActualizacion = 'La respuesta no permite confirmar el cambio. Recarga el reporte antes de reintentar.';
+          this.cdr.markForCheck();
+          return;
+        }
+        this.reporte = reporte;
+        this.estadoForm.reset({ nuevoEstado: '', observacion: '' });
+        this.confirmacion?.nativeElement.close();
+        this.mensajeActualizacion = 'Estado actualizado correctamente.';
+        this.cargarHistorial();
+        this.cdr.markForCheck();
+      },
+      error: (error: HttpErrorResponse) => {
+        if (!this.comprobarSesion()) return;
+        this.guardando = false;
+        if (error.status === 400) {
+          this.errorActualizacion = 'Revisa el estado seleccionado y la observación (máximo 150 caracteres).';
+        } else if (error.status === 403) {
+          this.errorActualizacion = 'Tu cuenta no tiene permiso para actualizar este reporte.';
+        } else if (error.status === 404) {
+          this.errorActualizacion = 'El reporte ya no existe.';
+        } else if (error.status === 409) {
+          this.errorActualizacion = 'El estado cambió o la transición no está permitida. Recarga el reporte para consultar su estado actual.';
+        } else {
+          this.errorActualizacion = 'No se pudo confirmar la actualización. Recarga el reporte antes de reintentar.';
+        }
+        if (error.status === 401) {
+          this.auth.cerrarSesion();
+          void this.router.navigateByUrl('/login');
+        }
+        this.cdr.markForCheck();
+      },
+    }));
+  }
+
+  cargarHistorial(): void {
+    if (!this.reporte || !this.comprobarSesion()) return;
+    this.consultaHistorial?.unsubscribe();
+    this.cargandoHistorial = true;
+    this.errorHistorial = '';
+    const idReporte = this.idReporte;
+    this.consultaHistorial = this.reporteService.obtenerHistorial(idReporte).subscribe({
+      next: (lista) => {
+        if (!this.comprobarSesion()) return;
+        this.cargandoHistorial = false;
+        if (!Array.isArray(lista) || lista.some((item) => !item || item.reporteIdReporte !== idReporte
+          || !Number.isSafeInteger(item.idActualizacion) || typeof item.descripcionActu !== 'string'
+          || !item.fechaActualizacion || Number.isNaN(Date.parse(item.fechaActualizacion)))) {
+          this.errorHistorial = 'La API devolvió un historial incompleto.';
+        } else {
+          this.historial = [...lista].sort((a, b) => Date.parse(b.fechaActualizacion) - Date.parse(a.fechaActualizacion)
+            || b.idActualizacion - a.idActualizacion);
+        }
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        if (!this.comprobarSesion()) return;
+        this.cargandoHistorial = false;
+        this.errorHistorial = 'No se pudo cargar el historial del reporte.';
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
   nombreEstado(codigo: string): string {
     return codigo === 'R' ? 'Recibido' : codigo === 'ER' ? 'En revisión' : codigo === 'AT' ? 'Atendido' : codigo || 'No disponible';
+  }
+
+  cambioHistorial(descripcion: string): string {
+    const cambio = descripcion.match(/^Estado: (R|ER|AT) → (R|ER|AT)(?:\. Observación: |$)/);
+    if (!cambio) return descripcion;
+    return this.nombreEstado(cambio[1]) + ' → ' + this.nombreEstado(cambio[2]);
+  }
+
+  observacionHistorial(descripcion: string): string {
+    const cambio = descripcion.match(/^Estado: (R|ER|AT) → (R|ER|AT)\. Observación: /);
+    return cambio ? descripcion.slice(cambio[0].length) : '';
   }
 
   nombreUrgencia(codigo: string): string {
@@ -249,6 +389,7 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
   cerrarMenu(): void { this.menuMobileAbierto = false; }
 
   ngOnDestroy(): void {
+    this.consultaHistorial?.unsubscribe();
     this.consultas.unsubscribe();
     this.mapa?.remove();
   }
