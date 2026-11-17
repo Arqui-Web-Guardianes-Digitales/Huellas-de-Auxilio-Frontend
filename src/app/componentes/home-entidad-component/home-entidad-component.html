@@ -32,7 +32,7 @@
         <a routerLink="/reportes-entidad" class="nav-link">Reportes</a>
       </li>
       <li>
-        <span class="nav-link ruta-pendiente">Adopciones</span>
+        <a routerLink="/adopciones-entidad" class="nav-link">Adopciones</a>
       </li>
       <li>
         <span class="nav-link ruta-pendiente">Red de apoyo</span>
@@ -90,7 +90,7 @@
       </a>
 
       <a routerLink="/reportes-entidad" (click)="cerrarMenu()">Reportes</a>
-      <span>Adopciones</span>
+      <a routerLink="/adopciones-entidad" (click)="cerrarMenu()">Adopciones</a>
       <span>Red de apoyo</span>
       <span>Ayuda</span>
 
@@ -134,10 +134,10 @@
           Ver reportes pendientes
         </a>
 
-        <span class="btn-secundario">
+        <a routerLink="/adopciones-entidad" class="btn-secundario">
           <img src="/icons/corazon-verde.png" alt="">
           Gestionar adopciones
-        </span>
+        </a>
       </div>
     </div>
   </section>
@@ -206,22 +206,46 @@
   <!-- 2.5. GRÁFICOS ESTADÍSTICOS -->
   <section class="graficos-entidad" aria-label="Gráficos estadísticos de la entidad">
     <article class="grafico-card-entidad">
-      <h3>Reportes asignados por estado</h3>
-      <div class="canvas-wrapper-entidad" [hidden]="!tieneReportesEntidad">
-        <canvas #chartEntidadReportesCanvas></canvas>
+      <h3>Reportes por estado</h3>
+      <div class="canvas-wrapper-entidad" [hidden]="cargando || cargandoReportes || !!error || !!errorReportes || !tieneReportesEntidad">
+        <canvas #chartEntidadReportesCanvas role="img" aria-label="Reportes por estado. Cantidades detalladas debajo." aria-describedby="cantidadesReportesEntidad"></canvas>
       </div>
-      @if (!tieneReportesEntidad) {
-        <p class="grafico-vacio-entidad">Aún no hay reportes asignados para graficar.</p>
+      @if (cargando || cargandoReportes) {
+        <p class="grafico-vacio-entidad" role="status">Cargando reportes...</p>
+      } @else if (error || errorReportes) {
+        <p class="grafico-vacio-entidad grafico-error">No se pudo mostrar el gráfico de reportes. {{ error || errorReportes }}</p>
+      } @else if (!tieneReportesEntidad) {
+        <p class="grafico-vacio-entidad">Tu entidad todavía no tiene reportes asignados.</p>
+      } @else if (resumen; as cantidades) {
+        <dl class="cantidades-grafico" id="cantidadesReportesEntidad">
+          <div class="cantidad-recibidos"><dt>Recibidos</dt><dd>{{ cantidades.recibidos }}</dd></div>
+          <div class="cantidad-revision"><dt>En revisión</dt><dd>{{ cantidades.enRevision }}</dd></div>
+          <div class="cantidad-atendidos"><dt>Atendidos</dt><dd>{{ cantidades.atendidos }}</dd></div>
+        </dl>
       }
     </article>
 
     <article class="grafico-card-entidad">
       <h3>Solicitudes de adopción por estado</h3>
-      <div class="canvas-wrapper-entidad" [hidden]="!tieneSolicitudesEntidad">
-        <canvas #chartEntidadSolicitudesCanvas></canvas>
+      <div class="canvas-wrapper-entidad dona-solicitudes" [hidden]="cargando || cargandoSolicitudes || !!error || !!errorSolicitudes || !tieneSolicitudesEntidad">
+        <canvas #chartEntidadSolicitudesCanvas role="img" [attr.aria-label]="'Total: ' + totalSolicitudes + ' solicitudes. Cantidades y porcentajes por estado detallados debajo.'" aria-describedby="cantidadesSolicitudesEntidad"></canvas>
+        <div class="total-dona" aria-hidden="true">
+          <strong>{{ totalSolicitudes }}</strong>
+          <span>Total de solicitudes</span>
+        </div>
       </div>
-      @if (!tieneSolicitudesEntidad) {
-        <p class="grafico-vacio-entidad">Aún no hay solicitudes de adopción registradas.</p>
+      @if (cargando || cargandoSolicitudes) {
+        <p class="grafico-vacio-entidad" role="status">Cargando solicitudes...</p>
+      } @else if (error || errorSolicitudes) {
+        <p class="grafico-vacio-entidad grafico-error">No se pudo mostrar el gráfico de solicitudes. {{ error || errorSolicitudes }}</p>
+      } @else if (!tieneSolicitudesEntidad) {
+        <p class="grafico-vacio-entidad">Tu entidad todavía no tiene solicitudes de adopción.</p>
+      } @else if (resumenSolicitudes; as cantidades) {
+        <dl class="cantidades-grafico leyenda-solicitudes" id="cantidadesSolicitudesEntidad">
+          <div class="cantidad-revision"><dt>En revisión</dt><dd>{{ cantidades.enRevision }}<span class="porcentaje-solicitudes">{{ porcentajeSolicitudes(cantidades.enRevision) | percent:'1.0-1' }}</span></dd></div>
+          <div class="cantidad-aprobadas"><dt>Aprobadas</dt><dd>{{ cantidades.aprobadas }}<span class="porcentaje-solicitudes">{{ porcentajeSolicitudes(cantidades.aprobadas) | percent:'1.0-1' }}</span></dd></div>
+          <div class="cantidad-rechazadas"><dt>Rechazadas</dt><dd>{{ cantidades.rechazadas }}<span class="porcentaje-solicitudes">{{ porcentajeSolicitudes(cantidades.rechazadas) | percent:'1.0-1' }}</span></dd></div>
+        </dl>
       }
     </article>
   </section>
