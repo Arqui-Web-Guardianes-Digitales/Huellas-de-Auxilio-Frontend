@@ -102,6 +102,7 @@
         <option value="San Miguel">San Miguel</option>
         <option value="Miraflores">Miraflores</option>
         <option value="Lince">Lince</option>
+        <option value="Surco">Surco</option>
         <option value="Santiago de Surco">Santiago de Surco</option>
         <option value="Jesús María">Jesús María</option>
         <option value="Pueblo Libre">Pueblo Libre</option>
@@ -111,53 +112,75 @@
     <button type="button" class="btn-limpiar-filtros" (click)="limpiarFiltros()">Limpiar filtros</button>
   </section>
 
-  <!-- TABLA DE REPORTES -->
+  <!-- TABLA ANGULAR MATERIAL (mat-table + matSort + mat-paginator) -->
   <section class="tabla-reportes-card">
-    <table class="tabla-reportes">
-      <thead>
-      <tr>
-        <th>Código</th>
-        <th>Distrito</th>
-        <th>Urgencia</th>
-        <th>Estado</th>
-        <th>Fecha</th>
-        <th>Acción</th>
+    <table mat-table [dataSource]="dataSource" matSort class="tabla-reportes">
+
+      <!-- Columna Código -->
+      <ng-container matColumnDef="idReporte">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Código </th>
+        <td mat-cell *matCellDef="let rep"> HA-00{{ rep.idReporte }} </td>
+      </ng-container>
+
+      <!-- Columna Distrito -->
+      <ng-container matColumnDef="distrito">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Distrito </th>
+        <td mat-cell *matCellDef="let rep"> {{ rep.ubicacion?.distrito }} </td>
+      </ng-container>
+
+      <!-- Columna Urgencia -->
+      <ng-container matColumnDef="nivelUrgencia">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Urgencia </th>
+        <td mat-cell *matCellDef="let rep">
+          @if (rep.nivelUrgencia === 'AL') { <span class="badge urgencia-alta">Alta</span> }
+          @if (rep.nivelUrgencia === 'ME') { <span class="badge urgencia-media">Media</span> }
+          @if (rep.nivelUrgencia === 'BA') { <span class="badge urgencia-baja">Baja</span> }
+        </td>
+      </ng-container>
+
+      <!-- Columna Estado -->
+      <ng-container matColumnDef="estado">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Estado </th>
+        <td mat-cell *matCellDef="let rep">
+          @if (rep.estado === 'R') { <span class="badge estado-recibido">Recibido</span> }
+          @if (rep.estado === 'ER') { <span class="badge estado-revision">En Revisión</span> }
+          @if (rep.estado === 'AT') { <span class="badge estado-atendido">Atendido</span> }
+        </td>
+      </ng-container>
+
+      <!-- Columna Fecha -->
+      <ng-container matColumnDef="fechaReporte">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha </th>
+        <td mat-cell *matCellDef="let rep"> {{ rep.fechaReporte | date:'dd MMM yyyy' }} </td>
+      </ng-container>
+
+      <!-- Columna Acción -->
+      <ng-container matColumnDef="accion">
+        <th mat-header-cell *matHeaderCellDef> Acción </th>
+        <td mat-cell *matCellDef="let rep">
+          <a [routerLink]="['/seguimiento-reporte', rep.idReporte]" class="btn-detalle" (click)="logVerDetalle(rep.idReporte)">
+            Ver detalle
+            <img src="/icons/flecha-verde.png" alt="Ver detalle" />
+          </a>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <!-- Fila cuando no hay coincidencias -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell mensaje-vacio" colspan="6">
+          No se encontraron reportes con esos filtros.
+        </td>
       </tr>
-      </thead>
-      <tbody>
-        @for (rep of reportesFiltrados; track rep.idReporte) {
-          <tr>
-            <td>HA-00{{ rep.idReporte }}</td>
-            <td>{{ rep.ubicacion?.distrito }}</td>
-
-            <td>
-              @if(rep.nivelUrgencia === 'AL'){ <span class="badge urgencia-alta">Alta</span> }
-              @if(rep.nivelUrgencia === 'ME'){ <span class="badge urgencia-media">Media</span> }
-              @if(rep.nivelUrgencia === 'BA'){ <span class="badge urgencia-baja">Baja</span> }
-            </td>
-
-            <td>
-              @if(rep.estado === 'R'){ <span class="badge estado-recibido">Recibido</span> }
-              @if(rep.estado === 'ER'){ <span class="badge estado-revision">En Revisión</span> }
-              @if(rep.estado === 'AT'){ <span class="badge estado-atendido">Atendido</span> }
-            </td>
-
-            <td>{{ rep.fechaReporte | date:'dd MMM yyyy' }}</td>
-
-            <td>
-              <a [routerLink]="['/seguimiento-reporte', rep.idReporte]" class="btn-detalle">
-                Ver detalle
-                <img src="/icons/flecha-verde.png" alt="Ver detalle" />
-              </a>
-            </td>
-          </tr>
-        } @empty {
-          <tr>
-            <td colspan="6" class="mensaje-vacio">No se encontraron reportes con esos filtros.</td>
-          </tr>
-        }
-      </tbody>
     </table>
+
+    <mat-paginator
+      [pageSizeOptions]="[5, 10, 20]"
+      showFirstLastButtons
+      aria-label="Seleccionar página de reportes">
+    </mat-paginator>
   </section>
 </main>
 
