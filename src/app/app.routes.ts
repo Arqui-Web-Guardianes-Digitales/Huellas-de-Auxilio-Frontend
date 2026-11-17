@@ -63,6 +63,13 @@ export const routes: Routes = [
   // Flujo Entidad
   { path: 'home-entidad', component: HomeEntidadComponent },
   {
+    path: 'mi-cuenta-entidad',
+    loadComponent: () =>
+      import('./componentes/mi-cuenta-entidad-component/mi-cuenta-entidad-component').then(
+        (componente) => componente.MiCuentaEntidadComponent,
+      ),
+  },
+  {
     path: 'reportes-entidad',
     loadComponent: () =>
       import('./componentes/reportes-entidad-component/reportes-entidad-component').then(
