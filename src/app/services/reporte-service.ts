@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Reporte, ResumenReportes, Ubicacion } from '../model/reporte';
+import { ActualizarReporte, Reporte, ResumenReportes, Ubicacion } from '../model/reporte';
 import { AuthService } from './auth-service';
 
 @Injectable({
@@ -41,6 +41,18 @@ export class ReporteService {
 
   obtenerReporteEntidadPorId(idReporte: number): Observable<Reporte | null> {
     return this.http.get<Reporte | null>(`${this.url}/reportes_1/${idReporte}`, {
+      headers: this.getHeaders(),
+    });
+  }
+
+  actualizarEstado(idReporte: number, estado: string, observacion: string): Observable<Reporte> {
+    return this.http.put<Reporte>(`${this.url}/reporte/estado/${idReporte}`, { estado, observacion }, {
+      headers: this.getHeaders(),
+    });
+  }
+
+  obtenerHistorial(idReporte: number): Observable<ActualizarReporte[]> {
+    return this.http.get<ActualizarReporte[]>(`${this.url}/actualizarreporte/reporte/${idReporte}`, {
       headers: this.getHeaders(),
     });
   }
