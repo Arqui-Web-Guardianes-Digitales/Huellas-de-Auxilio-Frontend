@@ -203,6 +203,28 @@
     </article>
   </section>
 
+  <!-- 2.5. GRÁFICOS ESTADÍSTICOS -->
+  <section class="graficos-entidad" aria-label="Gráficos estadísticos de la entidad">
+    <article class="grafico-card-entidad">
+      <h3>Reportes asignados por estado</h3>
+      <div class="canvas-wrapper-entidad" [hidden]="!tieneReportesEntidad">
+        <canvas #chartEntidadReportesCanvas></canvas>
+      </div>
+      @if (!tieneReportesEntidad) {
+        <p class="grafico-vacio-entidad">Aún no hay reportes asignados para graficar.</p>
+      }
+    </article>
+
+    <article class="grafico-card-entidad">
+      <h3>Solicitudes de adopción por estado</h3>
+      <div class="canvas-wrapper-entidad" [hidden]="!tieneSolicitudesEntidad">
+        <canvas #chartEntidadSolicitudesCanvas></canvas>
+      </div>
+      @if (!tieneSolicitudesEntidad) {
+        <p class="grafico-vacio-entidad">Aún no hay solicitudes de adopción registradas.</p>
+      }
+    </article>
+  </section>
 
   <!-- 3. REPORTES RECIENTES -->
   <section class="reportes-section">
