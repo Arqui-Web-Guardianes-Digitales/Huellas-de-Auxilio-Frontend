@@ -59,6 +59,23 @@ export class MascotaService {
     });
   }
 
+  publicarMascota(idEntidad: number, mascota: Mascota): Observable<Mascota | null> {
+    return this.http.post<Mascota | null>(`${this.url}/mascotas/entidad/${idEntidad}`, mascota, {
+      headers: this.getHeaders(),
+    });
+  }
+
+  categoriaEdad(edad: string): string {
+    const valor = edad.trim().toLowerCase();
+    if (['cachorro', 'joven', 'adulto'].includes(valor)) return valor;
+    const datos = valor.match(/^([0-9]+(?:[.,][0-9]+)?(?:e[+-]?[0-9]+)?)\s+(mes|meses|año|años)$/);
+    if (!datos) return '';
+    const cantidad = Number(datos[1].replace(',', '.'));
+    const meses = datos[2].startsWith('año') ? cantidad * 12 : cantidad;
+    if (!Number.isFinite(meses) || meses <= 0) return '';
+    return meses < 12 ? 'cachorro' : meses < 36 ? 'joven' : 'adulto';
+  }
+
   buscarPorId(idMascota: number): Observable<Mascota | null> {
     return this.http.get<Mascota | null>(`${this.url}/mascota/${idMascota}`, {
       headers: this.getHeaders(),

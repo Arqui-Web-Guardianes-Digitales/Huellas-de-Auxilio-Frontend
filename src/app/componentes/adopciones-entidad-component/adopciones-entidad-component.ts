@@ -101,7 +101,7 @@ export class AdopcionesEntidadComponent implements OnInit {
     this.mascotasFiltradas = this.mascotas.filter((mascota) =>
       mascota.nombre.toLowerCase().includes(nombre)
       && (!especie || mascota.especie.trim().toLowerCase() === especie)
-      && (!edad || mascota.edad.trim().toLowerCase() === edad),
+      && (!edad || this.mascotaService.categoriaEdad(mascota.edad) === edad),
     );
     this.paginas = Array.from({ length: Math.ceil(this.mascotasFiltradas.length / this.porPagina) }, (_, i) => i + 1);
     this.cambiarPagina(1);

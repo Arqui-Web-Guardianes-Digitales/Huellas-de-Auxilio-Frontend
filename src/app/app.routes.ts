@@ -86,6 +86,12 @@ export const routes: Routes = [
       ),
   },
 
+  {
+    path: 'publicar-mascota',
+    loadComponent: () => import('./componentes/publicar-mascota-component/publicar-mascota-component')
+      .then((componente) => componente.PublicarMascotaComponent),
+  },
+
   // Comodín para redirigir si no existe la ruta
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];
