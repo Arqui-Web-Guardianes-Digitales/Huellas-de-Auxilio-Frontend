@@ -150,6 +150,30 @@
     </article>
   </section>
 
+  <!-- Gráficos estadísticos -->
+  <section class="graficos-section" aria-label="Gráficos de actividad">
+    <article class="grafico-card">
+      <h3>Distribución de mis reportes</h3>
+      <div class="canvas-wrapper" [hidden]="!tieneReportes">
+        <canvas #chartReportesCanvas></canvas>
+      </div>
+      @if (!tieneReportes) {
+        <p class="grafico-vacio">Aún no registras reportes para mostrar en el gráfico.</p>
+      }
+    </article>
+
+    <article class="grafico-card">
+      <h3>Estado de mis solicitudes de adopción</h3>
+      <div class="canvas-wrapper" [hidden]="!tieneSolicitudes">
+        <canvas #chartSolicitudesCanvas></canvas>
+      </div>
+      @if (!tieneSolicitudes) {
+        <p class="grafico-vacio">Aún no realizas solicitudes de adopción.</p>
+      }
+    </article>
+  </section>
+
+
   <!-- Seguimiento Reciente -->
   <section class="seguimiento">
     <h2>Seguimiento reciente</h2>

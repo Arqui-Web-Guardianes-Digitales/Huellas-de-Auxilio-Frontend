@@ -7,6 +7,8 @@ import { SolicitudService } from '../../services/solicitud-service';
 import { ResumenReportes, Reporte } from '../../model/reporte';
 import { Solicitud } from '../../model/solicitud';
 
+Chart.register(...registerables);
+
 @Component({
   selector: 'app-home-ciudadano-component',
   standalone: true,
