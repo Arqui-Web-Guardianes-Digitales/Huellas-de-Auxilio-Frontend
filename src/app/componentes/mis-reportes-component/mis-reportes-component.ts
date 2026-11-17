@@ -2,12 +2,32 @@ import { Component, OnInit, AfterViewInit, inject, ChangeDetectorRef, ViewChild,
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 
 import { AuthService } from '../../services/auth-service';
 import { ReporteService } from '../../services/reporte-service';
 import { Reporte, ResumenReportes } from '../../model/reporte';
+
+// chicos esto es solo para poner en ingles lo del angular material y lo de los numeros de listar
+export function getSpanishPaginatorIntl(): MatPaginatorIntl {
+  const paginatorIntl = new MatPaginatorIntl();
+  paginatorIntl.itemsPerPageLabel = 'Reportes por página:';
+  paginatorIntl.nextPageLabel = 'Siguiente página';
+  paginatorIntl.previousPageLabel = 'Página anterior';
+  paginatorIntl.firstPageLabel = 'Primera página';
+  paginatorIntl.lastPageLabel = 'Última página';
+  paginatorIntl.getRangeLabel = (page: number, pageSize: number, length: number) => {
+    if (length === 0 || pageSize === 0) {
+      return `0 de ${length}`;
+    }
+    const startIndex = page * pageSize;
+    const endIndex =
+      startIndex < length ? Math.min(startIndex + pageSize, length) : startIndex + pageSize;
+    return `${startIndex + 1} - ${endIndex} de ${length}`;
+  };
+  return paginatorIntl;
+}
 
 @Component({
   selector: 'app-mis-reportes-component',
@@ -20,6 +40,7 @@ import { Reporte, ResumenReportes } from '../../model/reporte';
     MatPaginatorModule,
     MatSortModule,
   ],
+  providers: [{ provide: MatPaginatorIntl, useFactory: getSpanishPaginatorIntl }],
   templateUrl: './mis-reportes-component.html',
   styleUrl: './mis-reportes-component.css',
 })
