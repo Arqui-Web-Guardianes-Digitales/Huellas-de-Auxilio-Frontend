@@ -416,6 +416,17 @@
   color: #082f3d;
 }
 
+/* graficos estadisticos con CHART.JS) */
+.graficos-section { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; margin: 18px 0 22px; }
+.grafico-card { background-color: #ffffff; border: 2px solid #d9dddd; border-radius: 16px; padding: 20px 24px; }
+.grafico-card h3 { font-size: 15px; font-weight: 700; color: #0b5559; margin-bottom: 14px; }
+.canvas-wrapper { position: relative; height: 220px; width: 100%; }
+.grafico-vacio { color: #676d68; font-size: 13px; text-align: center; padding: 60px 10px; }
+
+@media (max-width: 960px) {
+  .graficos-section { grid-template-columns: 1fr; gap: 16px; }
+}
+
 .btn-detalle {
   width: 150px;
   height: 44px;

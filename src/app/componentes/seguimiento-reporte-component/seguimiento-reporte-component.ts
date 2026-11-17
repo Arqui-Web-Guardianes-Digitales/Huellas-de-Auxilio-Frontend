@@ -30,7 +30,9 @@ export class SeguimientoReporteComponent implements OnInit {
   errorCarga: boolean = false;
 
   ngOnInit(): void {
+    console.log('ngOnInit de SeguimientoReporteComponent');
     if (!this.auth.token() || !this.auth.roles().includes('ROLE_CIUDADANO')) {
+      console.log('Sesión inválida en Seguimiento, redirigiendo a /login');
       this.router.navigateByUrl('/login');
       return;
     }
@@ -38,10 +40,12 @@ export class SeguimientoReporteComponent implements OnInit {
 
     const idParam = this.route.snapshot.paramMap.get('id');
     const idReporte = idParam ? Number(idParam) : null;
+    console.log('ID de reporte capturado desde la ruta:', idReporte);
 
     if (idReporte) {
       this.cargarDetalleReporte(idReporte);
     } else {
+      console.log('No se proporcionó un ID de reporte válido');
       this.errorCarga = true;
       this.cargando = false;
     }
@@ -49,17 +53,21 @@ export class SeguimientoReporteComponent implements OnInit {
 
   cargarDetalleReporte(idReporte: number): void {
     const idCiudadano = this.auth.idCiudadano();
+    console.log('Consultando detalle del reporte:', { idReporte, idCiudadano });
 
     this.reporteService.obtenerReportePorId(idReporte, idCiudadano).subscribe({
       next: (data) => {
+        console.log('Detalle del reporte recibido:', data);
         if (data) {
           this.reporte = data;
-          // Buscamos las fotos reales
-          this.reporteService.obtenerEvidencias(idReporte).subscribe((evs) => {
-            this.evidencias = evs;
-            this.cdr.detectChanges();
+          this.reporteService.obtenerEvidencias(idReporte).subscribe({
+            next: (evs) => {
+              console.log('Evidencias del reporte recibidas:', evs);
+              this.evidencias = evs;
+              this.cdr.detectChanges();
+            },
+            error: (err) => console.log('Error al cargar evidencias del reporte:', err),
           });
-          // Iniciamos el mapa después de cargar los datos
           setTimeout(() => this.iniciarMapa(), 100);
         } else {
           this.errorCarga = true;
@@ -67,7 +75,8 @@ export class SeguimientoReporteComponent implements OnInit {
         this.cargando = false;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
+        console.log('Error al cargar detalle del reporte:', err);
         this.errorCarga = true;
         this.cargando = false;
         this.cdr.detectChanges();
@@ -78,8 +87,8 @@ export class SeguimientoReporteComponent implements OnInit {
   iniciarMapa(): void {
     const lat = this.reporte?.ubicacion?.latitud || -12.0833;
     const lng = this.reporte?.ubicacion?.longitud || -77.0347;
+    console.log('Inicializando mapa de visualización en coordenadas:', { lat, lng });
 
-    // Mapa estático (sin zoom ni arrastre para que solo sea visual)
     const map = L.map('mapaVisualizacion', {
       zoomControl: false,
       dragging: false,
@@ -96,16 +105,22 @@ export class SeguimientoReporteComponent implements OnInit {
   }
 
   imagenError(event: any): void {
+    console.log('No se pudo cargar imagen de evidencia, usando respaldo');
     event.target.src = '/img/evidencia-foto-1.png';
   }
 
   abrirMenu(): void {
+    console.log('Click en abrir menú móvil (Seguimiento)');
     this.menuMobileAbierto = true;
   }
+
   cerrarMenu(): void {
+    console.log('Click en cerrar menú móvil (Seguimiento)');
     this.menuMobileAbierto = false;
   }
+
   cerrarSesion(): void {
+    console.log('Cerrando sesión desde Seguimiento');
     this.auth.cerrarSesion();
     this.router.navigateByUrl('/login');
   }
