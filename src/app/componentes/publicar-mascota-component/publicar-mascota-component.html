@@ -1,0 +1,338 @@
+<header class="header-entidad">
+  <nav class="navbar">
+
+    <!-- Botón de menú móvil -->
+    <button
+      type="button"
+      class="btn-menu"
+      aria-label="Abrir menú"
+      (click)="abrirMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- Logo -->
+    <a routerLink="/home-entidad" class="logo">
+      <img src="/img/logo.png" alt="Huellas de Auxilio">
+    </a>
+
+    <!-- Navegación de escritorio -->
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/home-entidad" class="nav-link">
+          Inicio
+        </a>
+      </li>
+      <li>
+        <a routerLink="/reportes-entidad" class="nav-link">Reportes</a>
+      </li>
+      <li>
+        <a routerLink="/adopciones-entidad" class="nav-link activo" aria-current="page">Adopciones</a>
+      </li>
+      <li>
+        <span class="nav-link ruta-pendiente">Red de apoyo</span>
+      </li>
+      <li>
+        <span class="nav-link ruta-pendiente">Ayuda</span>
+      </li>
+    </ul>
+
+    <!-- Acciones de escritorio -->
+    <div class="header-actions">
+      <span class="btn-campana" title="Notificaciones: integración pendiente" aria-disabled="true">
+        <img src="/icons/campana.png" alt="Notificaciones">
+      </span>
+
+      <span class="btn-cuenta" title="Mi cuenta: integración pendiente" aria-disabled="true">
+        <img src="/icons/user-circle.png" alt="Mi cuenta">
+        <span>Mi cuenta</span>
+      </span>
+
+    </div>
+    <span class="btn-campana-mobile" title="Notificaciones: integración pendiente" aria-disabled="true">
+      <img src="/icons/campana.png" alt="Notificaciones">
+    </span>
+  </nav>
+
+  <!-- Menú móvil -->
+  <div class="menu-mobile" [class.activo]="menuMobileAbierto">
+    <div class="menu-mobile-top">
+
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+
+        <div>
+          <h3>{{ nombreEntidad }}</h3>
+          <span>Ver mi perfil</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar-menu"
+        aria-label="Cerrar menú"
+        (click)="cerrarMenu()">
+        ×
+      </button>
+    </div>
+
+    <div class="menu-mobile-links">
+      <a
+        routerLink="/home-entidad"
+        (click)="cerrarMenu()">
+        Inicio
+      </a>
+
+      <a routerLink="/reportes-entidad" (click)="cerrarMenu()">Reportes</a>
+      <a routerLink="/adopciones-entidad" class="activo" aria-current="page" (click)="cerrarMenu()">Adopciones</a>
+      <span>Red de apoyo</span>
+      <span>Ayuda</span>
+
+    </div>
+  </div>
+</header>
+
+@if (mascotaPublicada) {
+    <main class="confirmacion-mascota-page">
+      <section class="confirmacion-card">
+        <div class="check-principal">
+          <span></span>
+        </div>
+
+        <h1>¡Mascota publicada!</h1>
+
+        <p class="mensaje-confirmacion">
+          La mascota fue publicada correctamente en la sección de adopciones.
+        </p>
+
+        <div class="resumen-confirmacion">
+          <div class="resumen-item">
+            <div class="resumen-icono">
+              <img src="/icons/huella-verde.png" alt="Mascota" />
+            </div>
+
+            <p>Publicación</p>
+            <h3 class="nombre-mascota">{{ mascotaPublicada.nombre }}</h3>
+          </div>
+
+          <div class="resumen-item">
+            <div class="resumen-icono">
+              <img src="/icons/casita.png" alt="Entidad" />
+            </div>
+
+            <p>Entidad</p>
+            <h3>{{ nombreEntidad }}</h3>
+          </div>
+
+          <div class="resumen-item">
+            <div class="resumen-icono">
+              <img src="/icons/calendario.png" alt="Fecha" />
+            </div>
+
+            <p>Edad</p>
+            <h3>{{ mascotaPublicada.edad }}</h3>
+          </div>
+
+          <div class="resumen-item">
+            <div class="resumen-icono">
+              <img src="/icons/check-verde.png" alt="Estado" />
+            </div>
+
+            <p>Estado</p>
+            <h3>{{ mascotaPublicada.estado ? 'Disponible' : 'No disponible' }}</h3>
+          </div>
+        </div>
+
+        <p class="texto-extra">
+          Ahora los ciudadanos podrán ver esta mascota y enviar solicitudes de adopción.
+        </p>
+
+        <div class="acciones-confirmacion">
+          <a routerLink="/adopciones-entidad" class="btn-principal">
+            Volver a adopciones
+          </a>
+
+          <button type="button" class="btn-secundario" (click)="publicarOtra()">
+            Publicar otra mascota
+          </button>
+        </div>
+      </section>
+    </main>
+
+} @else {
+    <main class="form-mascota-page">
+      <section class="titulo-form">
+        <div class="titulo-linea">
+          <a routerLink="/adopciones-entidad" class="btn-volver">
+            <img src="/icons/flecha-volver.png" alt="Volver" />
+          </a>
+
+          <h1>Publicar mascota</h1>
+        </div>
+
+        <p>Completa la información para publicar una mascota en adopción</p>
+      </section>
+
+      @if (cargando) { <p class="angular-info" role="status">Cargando tu perfil de entidad...</p> }
+      @if (errorSesion) { <p class="angular-error" role="alert">{{ errorSesion }}</p> }
+      <form class="form-card" [formGroup]="mascotaForm" (ngSubmit)="publicar()">
+        @if (error) { <p class="angular-error" role="alert">{{ error }}</p> }
+        <fieldset class="form-contenido" [disabled]="cargando || guardando || !!errorSesion">
+          <div class="campo" [class.campo-invalido]="campoInvalido('nombre')">
+            <label for="nombre">Nombre de la mascota</label>
+            <input type="text" id="nombre" formControlName="nombre" placeholder="Ej: Max" maxlength="255" required />
+            @if (campoInvalido('nombre')) { <small class="error-campo">Ingresa un nombre de hasta 255 caracteres, sin dejar solo espacios.</small> }
+          </div>
+
+          <div class="campo" [class.campo-invalido]="campoInvalido('especie')">
+            <label for="especie">Especie</label>
+            <select id="especie" formControlName="especie" required>
+              <option value="">Seleccione la especie</option>
+              <option value="Perro">Perro</option>
+              <option value="Gato">Gato</option>
+            </select>
+            @if (campoInvalido('especie')) { <small class="error-campo">Selecciona Perro o Gato.</small> }
+          </div>
+
+          <div class="campo" [class.campo-invalido]="campoInvalido('edad')">
+            <label for="edad">Edad</label>
+            <div class="edad-controles">
+              <input type="number" id="edad" formControlName="edad" placeholder="Ej: 6" min="0" step="any" required />
+              <select formControlName="unidadEdad" aria-label="Unidad de edad" required>
+                <option value="meses">Meses</option><option value="años">Años</option>
+              </select>
+            </div>
+            @if (campoInvalido('edad')) { <small class="error-campo">Ingresa una edad numérica mayor que cero.</small> }
+            @if (campoInvalido('unidadEdad')) { <small class="error-campo">Selecciona meses o años.</small> }
+          </div>
+
+          <div class="campo" [class.campo-invalido]="campoInvalido('sexo')">
+            <label for="sexo">Sexo</label>
+            <select id="sexo" formControlName="sexo" required>
+              <option value="">Seleccione el sexo</option>
+              <option value="Macho">Macho</option>
+              <option value="Hembra">Hembra</option>
+            </select>
+            @if (campoInvalido('sexo')) { <small class="error-campo">Selecciona Macho o Hembra.</small> }
+          </div>
+
+          <div class="campo" [class.campo-invalido]="campoInvalido('distrito')">
+            <label for="distrito">Distrito</label>
+            <select id="distrito" formControlName="distrito" required>
+              <option value="">Selecciona el distrito</option>
+              @for (distrito of distritos; track distrito) { <option [value]="distrito">{{ distrito }}</option> }
+            </select>
+            @if (campoInvalido('distrito')) { <small class="error-campo">Selecciona un distrito disponible.</small> }
+          </div>
+
+          <div class="campo" [class.campo-invalido]="campoInvalido('tamaño')">
+            <label for="tamano">Tamaño</label>
+            <select id="tamano" formControlName="tamaño" required>
+              <option value="">Seleccione el tamaño</option>
+              <option value="Pequeño">Pequeño</option>
+              <option value="Mediano">Mediano</option>
+              <option value="Grande">Grande</option>
+            </select>
+            @if (campoInvalido('tamaño')) { <small class="error-campo">Selecciona Pequeño, Mediano o Grande.</small> }
+          </div>
+
+          <div class="campo campo-completo" [class.campo-invalido]="campoInvalido('descripcion')">
+            <label for="descripcion">Descripción</label>
+            <textarea
+              id="descripcion" formControlName="descripcion" maxlength="255"
+              placeholder="Describe a la mascota: su carácter, hábitos, historia y lo que la hace especial."
+              required
+            ></textarea>
+            @if (campoInvalido('descripcion')) { <small class="error-campo">Escribe una descripción de hasta 255 caracteres, sin dejar solo espacios.</small> }
+          </div>
+
+          <div class="campo campo-completo">
+            <label for="fotoMascota">Fotografía</label>
+            <input #selectorFoto id="fotoMascota" class="archivo-oculto" type="file" accept="image/png,image/jpeg,image/webp" (change)="seleccionarFoto($event)">
+            <div class="zona-fotos">
+              <button type="button" class="btn-agregar-foto" (click)="selectorFoto.click()">
+                <span>+</span><strong>{{ vistaPrevia ? 'Reemplazar foto' : 'Agregar foto' }}</strong>
+                <small>Una imagen PNG, JPG o WebP. Máximo 1 MB.</small>
+              </button>
+              @if (vistaPrevia) {
+                <div class="preview-fotos"><div class="foto-item">
+                  <img [src]="vistaPrevia" alt="Previsualización de la fotografía seleccionada">
+                  <button type="button" class="btn-quitar-foto" aria-label="Quitar fotografía" (click)="quitarFoto()">×</button>
+                </div></div>
+              }
+            </div>
+            @if (leyendoFoto) { <small role="status">Comprobando imagen...</small> }
+            @if (errorFoto) { <small class="error-campo" role="alert">{{ errorFoto }}</small> }
+            @if (campoInvalido('foto')) { <small class="error-campo">Agrega una fotografía válida antes de publicar.</small> }
+          </div>
+        </fieldset>
+
+        <div class="acciones-form">
+          <button type="button" class="btn-cancelar" [disabled]="guardando" (click)="cancelar()">Cancelar</button>
+          <button type="submit" class="btn-guardar" [disabled]="cargando || guardando || leyendoFoto || !!errorSesion">{{ guardando ? 'Publicando...' : 'Publicar mascota' }}</button>
+        </div>
+      </form>
+
+    </main>
+}
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+
+    <!-- Logo y derechos -->
+    <div class="footer-compacto-brand">
+      <img
+        src="/img/logo-blanco.png"
+        alt="Logo Huellas de Auxilio">
+
+      <p>
+        © 2026 Huellas de Auxilio. Todos<br>
+        los derechos reservados.
+      </p>
+    </div>
+
+    <!-- Enlaces -->
+    <div class="footer-compacto-links">
+      <span>Soporte</span>
+
+      <a
+        href="/documentos/politica-privacidad.pdf"
+        target="_blank"
+        rel="noopener noreferrer">
+        Política de Privacidad
+      </a>
+
+      <a
+        href="/documentos/terminos-condiciones.pdf"
+        target="_blank"
+        rel="noopener noreferrer">
+        Términos y condiciones
+      </a>
+    </div>
+
+    <!-- Redes sociales -->
+    <div class="footer-social">
+      <a
+        href="https://www.facebook.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/facebook.png" alt="Facebook">
+      </a>
+
+      <a
+        href="https://x.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/x.png" alt="X">
+      </a>
+
+      <a
+        href="https://www.instagram.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/instagram.png" alt="Instagram">
+      </a>
+    </div>
+
+  </div>
+</footer>

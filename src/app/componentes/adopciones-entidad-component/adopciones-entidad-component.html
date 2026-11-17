@@ -111,7 +111,7 @@
         <img src="/icons/documento-verde.png" alt="">Solicitudes de adopción
       </button>
     </div>
-    <button type="button" class="btn-publicar" disabled title="Publicar mascota: pendiente de HU28">Publicar mascota</button>
+    <a routerLink="/publicar-mascota" class="btn-publicar">Publicar mascota</a>
   </section>
 
   @if (cargando) { <p class="angular-info" role="status">Cargando las mascotas de tu entidad...</p> }
@@ -144,7 +144,7 @@
         <img class="mascota-img" [src]="mascotaService.urlFotoMascota(mascota.urlFoto)" [alt]="mascota.nombre"
           (error)="mascotaService.mostrarFotoDeRespaldo($event)">
         <div class="mascota-info">
-          <div class="mascota-header"><h3>{{ mascota.nombre }}</h3><span>{{ mascota.especie }}</span></div>
+          <div class="mascota-header"><h3 class="nombre-mascota">{{ mascota.nombre }}</h3><span>{{ mascota.especie }}</span></div>
           <div class="mascota-datos">
             <p><img src="/icons/calendario.png" alt="Edad">{{ mascota.edad }}</p>
             <p><img src="/icons/map.png" alt="Distrito">{{ mascota.distrito || '—' }}</p>

@@ -965,6 +965,7 @@ fieldset { border: 0; min-width: 0; }
 .buscar-box input { min-width: 0; }
 .btn-publicar { border: 0; font-family: inherit; }
 .mascota-info { overflow-wrap: anywhere; }
+.nombre-mascota::first-letter { text-transform: uppercase; }
 .descripcion { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 button:disabled { cursor: not-allowed; }
 .tab:disabled, .btn-publicar:disabled, .mascota-botones button:disabled { opacity: .65; }
