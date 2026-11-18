@@ -1,0 +1,411 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #eaf3f2;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  color: #082f3d;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.detalle-page {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 34px 58px 8px;
+}
+
+.titulo-detalle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.btn-volver {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #d9dddd;
+  background-color: #ffffff;
+  border-radius: 50%;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-volver img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.btn-volver:hover {
+  background-color: #f7fbfa;
+}
+
+.titulo-detalle h1 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1b746f;
+}
+
+.detalle-principal {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 46px;
+  margin-bottom: 28px;
+}
+
+.detalle-imagen {
+  width: 100%;
+  height: 320px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.detalle-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.datos-card {
+  background-color: #ffffff;
+  border: 3px solid #d9dddd;
+  border-radius: 14px;
+  padding: 22px 30px;
+}
+
+.datos-card h2 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1b746f;
+  margin-bottom: 12px;
+}
+
+.dato-fila {
+  min-height: 43px;
+  border-bottom: 1px solid #d9dddd;
+  display: grid;
+  grid-template-columns: 1fr 1.45fr;
+  align-items: center;
+}
+
+.dato-fila:last-child {
+  border-bottom: none;
+}
+
+.dato-fila p {
+  font-size: 14px;
+  font-weight: 700;
+  color: #676d68;
+}
+
+.dato-fila span {
+  font-size: 14px;
+  color: #676d68;
+}
+
+.detalle-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 22px;
+}
+
+.info-card {
+  background-color: #ffffff;
+  border: 3px solid #d9dddd;
+  border-radius: 14px;
+  min-height: 150px;
+  padding: 16px 26px;
+}
+
+.info-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1b746f;
+  margin-bottom: 18px;
+}
+
+.info-card p {
+  font-size: 15px;
+  line-height: 1.45;
+  color: #676d68;
+}
+
+.info-card ul {
+  list-style-position: inside;
+}
+
+.info-card li {
+  font-size: 15px;
+  color: #676d68;
+  margin-bottom: 8px;
+}
+
+.info-card li::marker {
+  color: #1d6869;
+  font-size: 18px;
+}
+
+.refugio-card {
+  background-color: #ffffff;
+  border: 3px solid #d9dddd;
+  border-radius: 14px;
+  min-height: 118px;
+  padding: 18px 30px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-bottom: 20px;
+}
+
+.refugio-icono {
+  width: 82px;
+  height: 82px;
+  background-color: #e5f1f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.refugio-icono img {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+}
+
+.refugio-info {
+  flex: 1;
+}
+
+.refugio-info h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1b746f;
+  margin-bottom: 6px;
+}
+
+.refugio-info > p {
+  font-size: 14px;
+  color: #676d68;
+  margin-bottom: 14px;
+}
+
+.refugio-contacto {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+
+.refugio-contacto p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #676d68;
+}
+
+.refugio-contacto img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.acciones-detalle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 42px;
+  margin-bottom: 6px;
+}
+
+.btn-solicitar-detalle,
+.btn-volver-adopciones {
+  width: 240px;
+  height: 46px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-solicitar-detalle {
+  background-color: #007476;
+  color: #ffffff;
+  border: 2px solid #007476;
+}
+
+.btn-solicitar-detalle:hover {
+  background-color: #005d60;
+}
+
+.btn-volver-adopciones {
+  background-color: #ffffff;
+  color: #1b746f;
+  border: 2px solid #007476;
+}
+
+.btn-volver-adopciones:hover {
+  background-color: #eaf3f2;
+}
+
+@media (max-width: 1180px) {
+  .detalle-page {
+    padding: 30px 32px 20px;
+  }
+
+  .detalle-principal {
+    gap: 28px;
+  }
+}
+
+@media (max-width: 960px) {
+  .detalle-page {
+    padding: 26px 24px 24px;
+  }
+
+  .titulo-detalle h1 {
+    font-size: 32px;
+  }
+
+  .detalle-principal {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .detalle-imagen {
+    height: 330px;
+  }
+
+  .detalle-info-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .refugio-card {
+    align-items: flex-start;
+  }
+
+  .refugio-contacto {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .detalle-page {
+    padding: 22px 18px 22px;
+  }
+
+  .titulo-detalle {
+    gap: 10px;
+  }
+
+  .btn-volver {
+    width: 42px;
+    height: 42px;
+  }
+
+  .btn-volver img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .titulo-detalle h1 {
+    font-size: 27px;
+  }
+
+  .detalle-imagen {
+    height: 280px;
+  }
+
+  .datos-card {
+    padding: 20px 22px;
+  }
+
+  .datos-card h2 {
+    font-size: 32px;
+  }
+
+  .dato-fila {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 10px 0;
+  }
+
+  .info-card {
+    padding: 18px 22px;
+  }
+
+  .info-card h3 {
+    font-size: 18px;
+  }
+
+  .info-card p,
+  .info-card li {
+    font-size: 14px;
+  }
+
+  .refugio-card {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    padding: 22px;
+  }
+
+  .refugio-contacto {
+    align-items: center;
+  }
+
+  .acciones-detalle {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .btn-solicitar-detalle,
+  .btn-volver-adopciones {
+    width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  .titulo-detalle h1 {
+    font-size: 24px;
+  }
+
+  .detalle-imagen {
+    height: 240px;
+  }
+
+  .datos-card h2 {
+    font-size: 30px;
+  }
+
+  .refugio-icono {
+    width: 76px;
+    height: 76px;
+  }
+
+  .refugio-icono img {
+    width: 40px;
+    height: 40px;
+  }
+}

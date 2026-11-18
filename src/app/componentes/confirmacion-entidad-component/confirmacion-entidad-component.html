@@ -1,0 +1,133 @@
+
+    <main class="registro-page">
+      <a routerLink="/registro-entidad" class="back-btn" aria-label="Volver">
+        <img src="/icons/flecha-volver.png" alt="Volver" />
+      </a>
+
+      <section class="registro-container">
+        <h1>Registro de entidad</h1>
+
+        <div class="steps">
+          <div class="step completed">
+            <span>1</span>
+            <p>Tipo de usuario</p>
+          </div>
+
+          <div class="line"></div>
+
+          <div class="step completed">
+            <span>2</span>
+            <p>Datos principales</p>
+          </div>
+
+          <div class="line"></div>
+
+          <div class="step active">
+            <span>3</span>
+            <p>Confirmación</p>
+          </div>
+        </div>
+
+        <section class="confirmacion-card">
+          <div class="icono-confirmacion">
+            <img src="/icons/escudocandado.png" alt="Seguridad" />
+          </div>
+
+          <h2>Seguridad y confirmación</h2>
+
+          <p class="descripcion">
+            Crea una contraseña segura para proteger el<br />
+            acceso a tu cuenta y gestionar reportes.
+          </p>
+
+          <form class="confirmacion-form" (ngSubmit)="submit()">
+@if (error) { <p class="angular-error" role="alert">{{ error }}</p> }
+            <div class="form-group">
+              <label for="password">Contraseña</label>
+
+              <div class="input-box">
+                <img src="/icons/candado.png" alt="Contraseña" class="input-icon" />
+
+                <input
+                  type="password"
+                  id="password"
+                  placeholder="********"
+                 name="password" [(ngModel)]="contrasena" >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="confirmar-password">Confirmar contraseña</label>
+
+              <div class="input-box">
+                <img src="/icons/candado.png" alt="Contraseña" class="input-icon" />
+
+                <input
+                  type="password"
+                  id="confirmar-password"
+                  placeholder="********"
+                 name="confirmar-password" [(ngModel)]="confirmar" >
+              </div>
+            </div>
+
+            <div class="terminos">
+              <input type="checkbox" id="aceptar"  name="aceptar" [(ngModel)]="acepto" >
+
+              <label for="aceptar">
+                Acepto los
+                <a href="/documentos/terminos-condiciones.pdf" target="_blank">
+                  Términos y Condiciones
+                </a>
+                y la
+                <a href="/documentos/politica-privacidad.pdf" target="_blank">
+                  Política de Privacidad.
+                </a>
+              </label>
+            </div>
+
+            <button type="submit" class="btn-crear" [disabled]="cargando">
+              Registrar entidad
+              <img src="/icons/huella.png" alt="Registrar entidad" />
+            </button>
+          </form>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer-compacto">
+      <div class="footer-compacto-container">
+        <div class="footer-compacto-brand">
+          <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+
+          <p>
+            © 2026 Huellas de Auxilio. Todos<br />
+            los derechos reservados.
+          </p>
+        </div>
+
+        <div class="footer-compacto-links">
+          <a href="#">Soporte</a>
+          <a href="/documentos/politica-privacidad.pdf" target="_blank">
+            Política de Privacidad
+          </a>
+          <a href="/documentos/terminos-condiciones.pdf" target="_blank">
+            Términos y condiciones
+          </a>
+        </div>
+
+        <div class="footer-social">
+          <a href="https://www.facebook.com/">
+            <img src="/icons/facebook.png" alt="Facebook" />
+          </a>
+
+          <a href="https://x.com/">
+            <img src="/icons/x.png" alt="X" />
+          </a>
+
+          <a href="https://www.instagram.com/">
+            <img src="/icons/instagram.png" alt="Instagram" />
+          </a>
+        </div>
+      </div>
+    </footer>
+  

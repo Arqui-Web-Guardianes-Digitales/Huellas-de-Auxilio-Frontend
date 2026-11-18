@@ -1,0 +1,465 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:host {
+  background-color: #fbfaf7;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  color: #082f3d;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.registro-page {
+  min-height: calc(100vh - 150px);
+  position: relative;
+  background-image: url("/img/Fondo_registro.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 42px 70px 45px;
+}
+
+.back-btn {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  width: 44px;
+  height: 44px;
+  border: 2px solid #d7dddd;
+  border-radius: 50%;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.back-btn img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.registro-container {
+  max-width: 1050px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.registro-container h1 {
+  font-size: 46px;
+  font-weight: 700;
+  color: #082f3d;
+  margin-bottom: 22px;
+}
+
+.steps {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-bottom: 50px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 125px;
+}
+
+.step span {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid #0b5b63;
+  background-color: #0b5b63;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step span img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.step p {
+  font-size: 13px;
+  margin-top: 10px;
+  color: #0b5b63;
+  font-weight: 600;
+}
+
+.line {
+  width: 82px;
+  height: 2px;
+  background-color: #8e8e8e;
+  margin-top: 28px;
+}
+
+.cuenta-card {
+  width: 520px;
+  background-color: #ffffff;
+  border: 3px solid #d9dddd;
+  border-radius: 16px;
+  padding: 32px 36px 24px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.icono-check-card {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background-color: #dfece2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icono-check-card img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.cuenta-card h2 {
+  font-size: 25px;
+  font-weight: 700;
+  color: #082f3d;
+  margin-bottom: 18px;
+}
+
+.mensaje {
+  font-size: 14px;
+  color: #5f6662;
+  line-height: 1.45;
+  margin-bottom: 24px;
+}
+
+.alias-box {
+  width: 100%;
+  border: 2px solid #d9dddd;
+  border-radius: 16px;
+  padding: 20px 26px 16px;
+  margin-bottom: 20px;
+}
+
+.alias-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.alias-header img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.alias-header h3 {
+  font-size: 19px;
+  font-weight: 700;
+  color: #082f3d;
+}
+
+.alias-line {
+  width: 76%;
+  border-top: 2px dotted #0b5b63;
+  margin: 0 auto 12px;
+}
+
+.alias-box p {
+  font-size: 30px;
+  font-weight: 700;
+  color: #082f3d;
+  line-height: 1.1;
+}
+
+.nota-alias {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 26px 6px;
+  text-align: left;
+}
+
+.nota-alias img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.nota-alias p {
+  font-size: 12px;
+  color: #5f6662;
+  line-height: 1.4;
+}
+
+.botones-finales {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+}
+
+.btn-principal,
+.btn-secundario {
+  height: 43px;
+  border-radius: 8px;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-principal {
+  background-color: #0b5b63;
+  color: #ffffff;
+}
+
+.btn-principal:hover {
+  background-color: #084950;
+}
+
+.btn-secundario {
+  background-color: #ffffff;
+  color: #0b5b63;
+  border: 2px solid #0b5b63;
+  position: relative;
+}
+
+.btn-secundario img {
+  width: 23px;
+  height: 23px;
+  object-fit: contain;
+  position: absolute;
+  right: 18px;
+}
+
+.btn-secundario:hover {
+  background-color: #edf4f3;
+}
+
+@media (max-width: 1024px) {
+  .registro-page {
+    padding: 38px 45px 45px;
+  }
+
+  .registro-container {
+    max-width: 900px;
+  }
+
+  .registro-container h1 {
+    font-size: 40px;
+  }
+
+  .steps {
+    margin-bottom: 46px;
+  }
+
+  .cuenta-card {
+    width: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .registro-page {
+    min-height: auto;
+    padding: 86px 24px 45px;
+    background-size: cover;
+    background-position: 18% center;
+    background-repeat: no-repeat;
+  }
+
+  .back-btn {
+    top: 22px;
+    left: 22px;
+    width: 42px;
+    height: 42px;
+  }
+
+  .back-btn img {
+    width: 19px;
+    height: 19px;
+  }
+
+  .registro-container h1 {
+    font-size: 34px;
+    margin-bottom: 20px;
+  }
+
+  .steps {
+    margin-bottom: 38px;
+  }
+
+  .step {
+    min-width: 84px;
+  }
+
+  .step span {
+    width: 44px;
+    height: 44px;
+  }
+
+  .step span img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .step p {
+    font-size: 11px;
+    max-width: 80px;
+  }
+
+  .line {
+    width: 34px;
+    margin-top: 21px;
+  }
+
+  .cuenta-card {
+    width: 100%;
+    max-width: 430px;
+    padding: 28px 24px 26px;
+  }
+
+  .cuenta-card h2 {
+    font-size: 23px;
+  }
+
+  .mensaje {
+    font-size: 13px;
+  }
+
+  .alias-box p {
+    font-size: 26px;
+  }
+
+  .botones-finales {
+    gap: 18px;
+  }
+
+  .btn-principal,
+  .btn-secundario {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 430px) {
+  .registro-page {
+    padding: 78px 16px 36px;
+    background-size: cover;
+    background-position: 14% center;
+    background-repeat: no-repeat;
+  }
+
+  .registro-container h1 {
+    font-size: 29px;
+  }
+
+  .steps {
+    margin-bottom: 34px;
+  }
+
+  .step {
+    min-width: 72px;
+  }
+
+  .step span {
+    width: 40px;
+    height: 40px;
+  }
+
+  .step span img {
+    width: 21px;
+    height: 21px;
+  }
+
+  .step p {
+    font-size: 10px;
+    max-width: 68px;
+  }
+
+  .line {
+    width: 24px;
+    margin-top: 19px;
+  }
+
+  .cuenta-card {
+    padding: 24px 18px 22px;
+  }
+
+  .icono-check-card {
+    width: 64px;
+    height: 64px;
+  }
+
+  .icono-check-card img {
+    width: 38px;
+    height: 38px;
+  }
+
+  .cuenta-card h2 {
+    font-size: 21px;
+  }
+
+  .mensaje {
+    font-size: 12px;
+  }
+
+  .alias-box {
+    padding: 18px 16px 14px;
+  }
+
+  .alias-header h3 {
+    font-size: 17px;
+  }
+
+  .alias-header img {
+    width: 26px;
+    height: 26px;
+  }
+
+  .alias-box p {
+    font-size: 23px;
+  }
+
+  .nota-alias {
+    align-items: flex-start;
+    margin-left: 0;
+  }
+
+  .nota-alias p {
+    font-size: 11px;
+  }
+
+  .botones-finales {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .btn-principal,
+  .btn-secundario {
+    height: 42px;
+    font-size: 15px;
+  }
+
+  .btn-secundario img {
+    width: 20px;
+    height: 20px;
+    right: 14px;
+  }
+}

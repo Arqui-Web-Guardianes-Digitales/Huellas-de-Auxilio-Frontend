@@ -1,0 +1,122 @@
+
+    <header class="header-login">
+      <a routerLink="/" class="back-btn" aria-label="Volver al inicio">
+        <img src="/icons/flecha-volver.png" alt="Volver" />
+      </a>
+    </header>
+
+    <main class="login-container">
+      <section class="login-card">
+        <img src="/img/logo.png" alt="Huellas de Auxilio" class="login-logo" />
+
+        <h1 class="login-title">Bienvenido de vuelta</h1>
+
+        <div class="mensaje-error" id="mensajeError" [class.activo]="!!error">
+          <img src="/icons/jam_alert-f.png" alt="Error" class="alert-icon" />
+
+          <div>
+            <h3 id="tituloError">Correo o contraseña incorrectos</h3>
+            <p id="textoError">{{ error || "Verifica tus datos e inténtalo de nuevo." }}</p>
+          </div>
+        </div>
+
+
+        <form class="login-form" id="formLogin" (ngSubmit)="submit()">
+
+          <div class="form-group">
+            <label for="email">Correo electrónico</label>
+
+            <div class="input-box" id="boxEmail">
+              <img src="/icons/email2.png" alt="Correo" class="input-icon" />
+
+              <input
+                type="email"
+                id="email"
+                placeholder="ejemplo@correo.com"
+               name="email" [(ngModel)]="correo" >
+
+              <img
+                src="/icons/jam_alert-f.png"
+                alt="Error"
+                class="input-error-img"
+                id="errorEmailIcon"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+
+            <div class="input-box" id="boxPassword">
+              <img src="/icons/candado.png" alt="Contraseña" class="input-icon" />
+
+              <input type="password" id="password" placeholder="********"  name="password" [(ngModel)]="contrasena" >
+
+              <img
+                src="/icons/jam_alert-f.png"
+                alt="Error"
+                class="input-error-img"
+                id="errorPasswordIcon"
+              />
+            </div>
+          </div>
+
+          <a routerLink="/recuperar-cuenta" class="forgot-password">
+            ¿Olvidaste tu contraseña?
+          </a>
+
+          <button type="submit" class="login-btn" [disabled]="cargando">Ingresar</button>
+
+          <div class="separator">
+            <span></span>
+            <p>o</p>
+            <span></span>
+          </div>
+
+          <p class="create-account">
+            ¿No tienes una cuenta?
+            <a routerLink="/crear-cuenta">Crear cuenta</a>
+          </p>
+        </form>
+      </section>
+    </main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+    <div class="footer-compacto-brand">
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+
+      <p>
+        © 2026 Huellas de Auxilio. Todos<br />
+        los derechos reservados.
+      </p>
+    </div>
+
+    <div class="footer-compacto-links">
+      <a href="#">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank">
+        Política de Privacidad
+      </a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank">
+        Términos y condiciones
+      </a>
+    </div>
+
+    <div class="footer-social">
+          <a href="https://www.facebook.com/">
+            <img src="/icons/facebook.png" alt="Facebook" />
+          </a>
+
+          <a href="https://x.com/">
+            <img src="/icons/x.png" alt="X" />
+          </a>
+
+          <a href="https://www.instagram.com/">
+            <img src="/icons/instagram.png" alt="Instagram" />
+          </a>
+        </div>
+  </div>
+</footer>
+
+    
+  

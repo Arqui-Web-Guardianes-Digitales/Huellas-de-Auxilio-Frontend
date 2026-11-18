@@ -1,0 +1,285 @@
+<header class="header-ciudadano">
+  <nav class="navbar">
+    <button type="button"
+            class="btn-menu"
+            id="btnMenu"
+            aria-label="Abrir menú"
+            aria-controls="menuMobile"
+            [attr.aria-expanded]="menuAbierto"
+            (click)="menuAbierto = !menuAbierto">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <a routerLink="/home-ciudadano" class="logo">
+      <img src="/img/logo.png" alt="Huellas de Auxilio" />
+    </a>
+
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/home-ciudadano" class="nav-link">
+          Inicio
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/mis-reportes" class="nav-link">
+          Mis reportes
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/directorio" class="nav-link">
+          Directorio
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/adopciones" class="nav-link activo">
+          Adopciones
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/ayuda" class="nav-link">
+          Ayuda
+        </a>
+      </li>
+    </ul>
+
+    <div class="header-actions">
+      <a routerLink="/reportar" class="btn-reportar">
+        Reportar
+      </a>
+
+      <a routerLink="/notificaciones" class="btn-campana">
+        <img src="/icons/campana.png" alt="Notificaciones" />
+      </a>
+
+      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
+        <img src="/icons/user-circle.png" alt="Mi cuenta" />
+        <span>Mi cuenta</span>
+      </a>
+    </div>
+
+    <a routerLink="/reportar" class="btn-reporte-mobile">
+      Reporte
+    </a>
+  </nav>
+
+  <div class="menu-mobile" id="menuMobile" [class.activo]="menuAbierto">
+    <div class="menu-mobile-top">
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+
+        <div>
+          <h3>{{ nombreCiudadano }}</h3>
+          <a routerLink="/mi-cuenta-ciudadano">
+            Ver mi perfil
+          </a>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar-menu"
+        id="btnCerrarMenu"
+        aria-label="Cerrar menú"
+        (click)="menuAbierto = false">
+        ×
+      </button>
+    </div>
+
+    <div class="menu-mobile-links">
+      <a routerLink="/home-ciudadano">Inicio</a>
+      <a routerLink="/mis-reportes">Mis Reportes</a>
+      <a routerLink="/directorio">Directorio</a>
+      <a routerLink="/adopciones" class="activo">Adopciones</a>
+      <a routerLink="/ayuda">Ayuda</a>
+      <a routerLink="/notificaciones">Notificaciones</a>
+    </div>
+  </div>
+</header>
+
+<main class="adopciones-page">
+  <section class="hero-adopciones">
+    <div class="hero-img">
+      <img src="/img/banner-ciudadano.png" alt="Mascotas en adopción" />
+    </div>
+
+    <div class="hero-text">
+      <h1>Adopciones responsables</h1>
+      <p>Conoce animales rescatados que buscan un hogar.</p>
+    </div>
+  </section>
+
+  <section class="tabs-adopciones">
+    <a routerLink="/adopciones" class="tab activo">
+      <img src="/icons/huella-verde.png" alt="Mascotas" />
+      Mascotas disponibles
+    </a>
+
+    <a routerLink="/mis-solicitudes" class="tab">
+      <img src="/icons/documento-gris.png" alt="Solicitudes" />
+      Mis solicitudes
+    </a>
+  </section>
+
+  <form class="filtros-adopciones" (ngSubmit)="buscarMascotas()">
+    <div class="buscar-box">
+      <button class="btn-buscar" type="submit" aria-label="Buscar mascotas">
+        <img src="/icons/buscar.png" alt="" />
+      </button>
+      <input type="search" id="buscarMascota" name="nombre" aria-label="Nombre de la mascota"
+             placeholder="Buscar mascota" [(ngModel)]="filtros.nombre" />
+    </div>
+
+    <select id="filtroEspecie" name="especie" aria-label="Especie"
+            [ngModel]="filtros.especie" (ngModelChange)="cambiarFiltro('especie', $event)">
+      <option value="">Especie</option>
+      @for (especie of especies; track especie) {
+        <option [value]="especie">{{ especie }}</option>
+      }
+    </select>
+
+    <select id="filtroEdad" name="edad" aria-label="Edad"
+            [ngModel]="filtros.edad" (ngModelChange)="cambiarFiltro('edad', $event)">
+      <option value="">Edad</option>
+      @for (edad of edades; track edad) {
+        <option [value]="edad">{{ edad }}</option>
+      }
+    </select>
+
+    <select id="filtroDistrito" name="distrito" aria-label="Distrito"
+            [ngModel]="filtros.distrito" (ngModelChange)="cambiarFiltro('distrito', $event)">
+      <option value="">Distrito</option>
+      @for (distrito of distritos; track distrito) {
+        <option [value]="distrito">{{ distrito }}</option>
+      }
+    </select>
+
+    <button class="btn-limpiar" id="btnLimpiar" type="button" (click)="limpiarFiltros()">
+      Limpiar filtros
+    </button>
+  </form>
+
+  @if (cargando) {
+    <p class="angular-info" role="status">
+      Cargando mascotas disponibles...
+    </p>
+  }
+
+  @if (error) {
+    <p class="angular-error" role="alert">
+      {{ error }}
+    </p>
+  }
+
+  @if (!cargando && !error) {
+    <section class="mascotas-grid" id="contenedorMascotas">
+      @for (mascota of mascotasVisibles; track mascota.idMascota) {
+        <article class="mascota-card">
+          <img
+            [src]="urlFotoMascota(mascota.urlFoto)"
+            (error)="mostrarFotoDeRespaldo($event)"
+            [alt]="mascota.nombre"
+            class="mascota-img" />
+
+          <div class="mascota-info">
+            <div class="mascota-header">
+              <h3>{{ mascota.nombre }}</h3>
+              <span>{{ mascota.especie }}</span>
+            </div>
+
+            <div class="mascota-datos">
+              <p>
+                <img src="/icons/calendario.png" alt="Edad" />
+                {{ mascota.edad }}
+              </p>
+
+              <p>
+                <img src="/icons/map.png" alt="Distrito" />
+                {{ mascota.distrito }}
+              </p>
+            </div>
+
+            <p class="descripcion">
+              {{ mascota.descripcion }}
+            </p>
+
+            <div class="mascota-botones">
+              <a
+                [routerLink]="['/detalle-mascota', mascota.idMascota]"
+                class="btn-detalle">
+                Ver detalle
+              </a>
+
+              <a
+                [routerLink]="['/solicitud-adopcion', mascota.idMascota]"
+                class="btn-solicitar">
+                Solicitar adopción
+              </a>
+            </div>
+          </div>
+        </article>
+      }
+    </section>
+
+  }
+
+  @if (!cargando && !error && mascotas.length === 0) {
+    <p class="angular-info">
+      {{ filtrosAplicados ? 'No se encontraron mascotas con esos filtros.' : 'No hay mascotas disponibles.' }}
+    </p>
+  }
+
+  @if (!cargando && !error && totalPaginas > 1) {
+    <nav class="paginacion" aria-label="Páginas del catálogo">
+      <button class="pagina" type="button" [disabled]="pagina === 1"
+              (click)="cambiarPagina(pagina - 1)" aria-label="Página anterior">‹</button>
+      <span>Página {{ pagina }} de {{ totalPaginas }}</span>
+      <button class="pagina" type="button" [disabled]="pagina === totalPaginas"
+              (click)="cambiarPagina(pagina + 1)" aria-label="Página siguiente">›</button>
+    </nav>
+  }
+</main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+    <div class="footer-compacto-brand">
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+
+      <p>
+        © 2026 Huellas de Auxilio. Todos<br />
+        los derechos reservados.
+      </p>
+    </div>
+
+    <div class="footer-compacto-links">
+      <a routerLink="/ayuda">Soporte</a>
+
+      <a href="/documentos/politica-privacidad.pdf" target="_blank">
+        Política de Privacidad
+      </a>
+
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank">
+        Términos y condiciones
+      </a>
+    </div>
+
+    <div class="footer-social">
+      <a href="https://www.facebook.com/">
+        <img src="/icons/facebook.png" alt="Facebook" />
+      </a>
+
+      <a href="https://x.com/">
+        <img src="/icons/x.png" alt="X" />
+      </a>
+
+      <a href="https://www.instagram.com/">
+        <img src="/icons/instagram.png" alt="Instagram" />
+      </a>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,240 @@
+<header class="header-entidad">
+  <nav class="navbar">
+    <button class="btn-menu" id="btnMenu" type="button" (click)="menuAbierto = true" [attr.aria-expanded]="menuAbierto" aria-controls="menuMobile" aria-label="Abrir menú">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <a routerLink="/home-entidad" class="logo">
+      <img src="/img/logo.png" alt="Huellas de Auxilio" />
+    </a>
+
+    <button type="button" class="btn-campana-mobile" (click)="mostrarPendiente('Notificaciones de entidad')">
+      <img src="/icons/campana.png" alt="Notificaciones" />
+    </button>
+
+    <ul class="nav-links">
+      <li><a routerLink="/home-entidad" class="nav-link">Inicio</a></li>
+      <li><a routerLink="/reportes-entidad" class="nav-link">Reportes</a></li>
+      <li><button type="button" class="nav-link" (click)="mostrarPendiente('Adopciones de entidad')">Adopciones</button></li>
+      <li><button type="button" class="nav-link" (click)="mostrarPendiente('Red de apoyo')">Red de apoyo</button></li>
+      <li><button type="button" class="nav-link" (click)="mostrarPendiente('Ayuda de entidad')">Ayuda</button></li>
+    </ul>
+
+    <div class="header-actions">
+      <button type="button" class="btn-campana" (click)="mostrarPendiente('Notificaciones de entidad')">
+        <img src="/icons/campana.png" alt="Notificaciones" />
+      </button>
+
+      <a routerLink="/mi-cuenta-entidad" class="btn-cuenta">
+        <img src="/icons/user-circle.png" alt="Mi cuenta" />
+        <span>Mi cuenta</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="menu-mobile" id="menuMobile" [class.activo]="menuAbierto" [attr.inert]="menuAbierto ? null : ''" (click)="menuAbierto = false">
+    <div class="menu-mobile-top">
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+
+        <div>
+          <h3>{{ entidad.nombreEntidad }}</h3>
+          <a routerLink="/mi-cuenta-entidad">Ver mi perfil</a>
+        </div>
+      </div>
+
+      <button class="btn-cerrar-menu" id="btnCerrarMenu" type="button" (click)="menuAbierto = false" aria-label="Cerrar menú">
+        ×
+      </button>
+    </div>
+
+    <div class="menu-mobile-links">
+      <a routerLink="/home-entidad">Inicio</a>
+      <a routerLink="/reportes-entidad">Reportes</a>
+      <button type="button" (click)="mostrarPendiente('Adopciones de entidad')">Adopciones</button>
+      <button type="button" (click)="mostrarPendiente('Red de apoyo')">Red de apoyo</button>
+      <button type="button" (click)="mostrarPendiente('Ayuda de entidad')">Ayuda</button>
+    </div>
+  </div>
+</header>
+
+<main class="mi-cuenta-entidad-page">
+  <aside class="panel-lateral">
+    <div class="saludo-box">
+      <h2>¡Hola,</h2>
+      <p>{{ entidad.nombreEntidad }}!</p>
+    </div>
+
+    <div class="linea"></div>
+
+    <nav class="menu-cuenta">
+      <a routerLink="/mi-cuenta-entidad" class="opcion-cuenta activa">
+        <img src="/icons/perfil.png" alt="Perfil" class="icono-opcion" />
+        Perfil
+      </a>
+
+      <button type="button" class="opcion-cuenta" (click)="cerrarSesion()">
+        <img src="/icons/cerrar-sesion.png" alt="Cerrar sesión" class="icono-opcion" />
+        Cerrar sesión
+      </button>
+    </nav>
+
+    <div class="linea"></div>
+
+    <button type="button" class="opcion-cuenta eliminar" (click)="mostrarPendiente('Eliminar cuenta')">
+      <img src="/icons/eliminar-rojo.png" alt="Eliminar cuenta" class="icono-opcion" />
+      Eliminar cuenta
+    </button>
+  </aside>
+
+  <section class="contenido-cuenta">
+    <h1>Mi perfil</h1>
+
+    @if (mensaje) { <p class="mensaje-cuenta" role="status">{{ mensaje }}</p> }
+    @if (error) { <p class="error-cuenta" role="alert">{{ error }}</p> }
+
+    <form class="card-datos" [class.card-editando]="editando === 'entidad'" (ngSubmit)="guardarEntidad()">
+      <div class="card-header">
+        <h2>Información de la entidad</h2>
+        <div class="acciones-edicion">
+          @if (editando === 'entidad') {
+            <button type="submit" class="btn-editar">Guardar</button>
+            <button type="button" class="btn-editar" (click)="cancelarEdicion()">Cancelar</button>
+          } @else {
+            <button type="button" class="btn-editar" (click)="comenzarEdicion('entidad')" [disabled]="editando !== null">Editar</button>
+          }
+        </div>
+      </div>
+      <div class="datos-grid entidad-grid">
+        <div class="dato-item">
+          <label [attr.for]="editando === 'entidad' ? 'nombreEntidad' : null">NOMBRE DE LA ENTIDAD</label>
+          @if (editando === 'entidad') {
+            <input id="nombreEntidad" name="nombreEntidad" type="text" autocomplete="organization"
+                   [(ngModel)]="borradorEntidad.nombreEntidad" maxlength="255" required />
+          } @else { <p>{{ entidad.nombreEntidad }}</p> }
+        </div>
+        <div class="dato-item">
+          <label [attr.for]="editando === 'entidad' ? 'tipoEntidad' : null">TIPO DE ENTIDAD</label>
+          @if (editando === 'entidad') {
+            <input id="tipoEntidad" name="tipoEntidad" type="text"
+                   [(ngModel)]="borradorEntidad.tipoEntidad" maxlength="255" required />
+          } @else { <p>{{ entidad.tipoEntidad }}</p> }
+        </div>
+        <div class="dato-item">
+          <label [attr.for]="editando === 'entidad' ? 'zonaAtencion' : null">ZONA DE ATENCIÓN</label>
+          @if (editando === 'entidad') {
+            <input id="zonaAtencion" name="zonaAtencion" type="text"
+                   [(ngModel)]="borradorEntidad.zonaAtencion" maxlength="255" required />
+          } @else { <p>{{ entidad.zonaAtencion }}</p> }
+        </div>
+      </div>
+    </form>
+
+    <form class="card-datos" [class.card-editando]="editando === 'contacto'" (ngSubmit)="guardarContacto()">
+      <div class="card-header">
+        <h2>Información de contacto</h2>
+        <div class="acciones-edicion">
+          @if (editando === 'contacto') {
+            <button type="submit" class="btn-editar">Guardar</button>
+            <button type="button" class="btn-editar" (click)="cancelarEdicion()">Cancelar</button>
+          } @else {
+            <button type="button" class="btn-editar" (click)="comenzarEdicion('contacto')" [disabled]="editando !== null">Editar</button>
+          }
+        </div>
+      </div>
+      <div class="datos-grid contacto-grid">
+        <div class="dato-item">
+          <label [attr.for]="editando === 'contacto' ? 'correo' : null">CORREO ELECTRÓNICO</label>
+          @if (editando === 'contacto') {
+            <input id="correo" name="correo" type="email" autocomplete="email"
+                   [(ngModel)]="borradorUsuario.correo" maxlength="254" required />
+          } @else { <p>{{ usuario.correo }}</p> }
+        </div>
+        <div class="dato-item">
+          <label [attr.for]="editando === 'contacto' ? 'telefono' : null">TELÉFONO DE CONTACTO</label>
+          @if (editando === 'contacto') {
+            <input id="telefono" name="telefono" type="tel" autocomplete="tel"
+                   [(ngModel)]="borradorUsuario.telefono" maxlength="16" required />
+          } @else { <p>{{ usuario.telefono }}</p> }
+        </div>
+      </div>
+    </form>
+
+    <form class="card-datos" [class.card-editando]="editando === 'seguridad'" (ngSubmit)="validarContrasena()">
+      <div class="card-header">
+        <h2>Seguridad de la cuenta</h2>
+        <div class="acciones-edicion">
+          @if (editando === 'seguridad') {
+            <button type="submit" class="btn-editar">Validar</button>
+            <button type="button" class="btn-editar" (click)="cancelarEdicion()">Cancelar</button>
+          } @else {
+            <button type="button" class="btn-editar" (click)="comenzarEdicion('seguridad')" [disabled]="editando !== null">Editar</button>
+          }
+        </div>
+      </div>
+      @if (editando === 'seguridad') {
+        <p class="nota-cuenta">Demostración: se valida el formato y la confirmación. La contraseña actual debe comprobarse en el backend.</p>
+        <div class="datos-grid">
+          <div class="dato-item">
+            <label for="contrasenaActual">CONTRASEÑA ACTUAL</label>
+            <input id="contrasenaActual" name="contrasenaActual" type="password" autocomplete="current-password"
+                   [(ngModel)]="contrasenaActual" required />
+          </div>
+          <div class="dato-item">
+            <label for="nuevaContrasena">NUEVA CONTRASEÑA</label>
+            <input id="nuevaContrasena" name="nuevaContrasena" type="password" autocomplete="new-password"
+                   [(ngModel)]="nuevaContrasena" minlength="8" required />
+          </div>
+          <div class="dato-item">
+            <label for="confirmarContrasena">CONFIRMAR CONTRASEÑA</label>
+            <input id="confirmarContrasena" name="confirmarContrasena" type="password" autocomplete="new-password"
+                   [(ngModel)]="confirmarContrasena" minlength="8" required />
+          </div>
+        </div>
+      } @else {
+        <div class="dato-item"><label>CONTRASEÑA</label><p>************</p></div>
+      }
+    </form>
+
+  </section>
+</main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+    <div class="footer-compacto-brand">
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+
+      <p>
+        © 2026 Huellas de Auxilio. Todos<br />
+        los derechos reservados.
+      </p>
+    </div>
+
+    <div class="footer-compacto-links">
+      <button type="button" class="enlace-footer" (click)="mostrarPendiente('Soporte')">Soporte</button>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank" rel="noopener noreferrer">
+        Política de Privacidad
+      </a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank" rel="noopener noreferrer">
+        Términos y condiciones
+      </a>
+    </div>
+
+    <div class="footer-social">
+      <a href="https://www.facebook.com/">
+        <img src="/icons/facebook.png" alt="Facebook" />
+      </a>
+
+      <a href="https://x.com/">
+        <img src="/icons/x.png" alt="X" />
+      </a>
+
+      <a href="https://www.instagram.com/">
+        <img src="/icons/instagram.png" alt="Instagram" />
+      </a>
+    </div>
+  </div>
+</footer>
+

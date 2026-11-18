@@ -1,0 +1,77 @@
+
+    <header class="header-recuperar">
+      <a routerLink="/login" class="back-btn" aria-label="Volver al inicio de sesión">
+        <img src="/icons/flecha-volver.png" alt="Volver" />
+      </a>
+    </header>
+
+    <main class="recuperar-container">
+      <section class="recuperar-card">
+        <img src="/img/logo.png" alt="Huellas de Auxilio" class="recuperar-logo" />
+
+        <h1 class="recuperar-title">Recuperar contraseña</h1>
+        
+        <p class="recuperar-desc">
+          Ingresa tu correo y te enviaremos un enlace<br>para restablecer tu contraseña.
+        </p>
+
+        <form class="recuperar-form" id="formRecuperar" (ngSubmit)="submit()">
+@if (error) { <p class="angular-error" role="alert">{{ error }}</p> }
+          
+          <div class="input-box">
+            <img src="/icons/email2.png" alt="Correo" class="input-icon" />
+            <input
+              type="email"
+              id="emailRecovery"
+              placeholder="ejemplo@correo.com"
+              required
+             name="emailRecovery" [(ngModel)]="correo" >
+          </div>
+
+          <button type="submit" class="btn-enviar">Enviar verificación</button>
+
+          <a routerLink="/login" class="link-volver">
+            Volver al inicio de sesión
+          </a>
+          
+        </form>
+      </section>
+    </main><footer class="footer-compacto">
+      <div class="footer-compacto-container">
+        <div class="footer-compacto-brand">
+          <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+          <p>
+            © 2026 Huellas de Auxilio. Todos<br />
+            los derechos reservados.
+          </p>
+        </div>
+
+        <div class="footer-compacto-links">
+          <a href="#">Soporte</a>
+          <a href="/documentos/politica-privacidad.pdf" target="_blank">
+            Política de Privacidad
+          </a>
+          <a href="/documentos/terminos-condiciones.pdf" target="_blank">
+            Términos y condiciones
+          </a>
+        </div>
+
+        <div class="footer-social">
+          <a href="https://www.facebook.com/">
+            <img src="/icons/facebook.png" alt="Facebook" />
+          </a>
+
+          <a href="https://x.com/">
+            <img src="/icons/x.png" alt="X" />
+          </a>
+
+          <a href="https://www.instagram.com/">
+            <img src="/icons/instagram.png" alt="Instagram" />
+          </a>
+        </div>
+      </div>
+    </footer>
+
+    
+
+  

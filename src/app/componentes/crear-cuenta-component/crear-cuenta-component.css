@@ -1,0 +1,355 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:host {
+  background-color: #fbfaf7;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  color: #082f3d;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.registro-page {
+  min-height: calc(100vh - 150px);
+  position: relative;
+  background-image: url("/img/Fondo_registro.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 42px 70px 55px;
+}
+
+.back-btn {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  width: 44px;
+  height: 44px;
+  border: 2px solid #d7dddd;
+  border-radius: 50%;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.back-btn img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.registro-container {
+  max-width: 1050px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.registro-container h1 {
+  font-size: 46px;
+  font-weight: 700;
+  color: #082f3d;
+  margin-bottom: 22px;
+}
+
+.steps {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-bottom: 78px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 125px;
+}
+
+.step span {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid #777777;
+  background-color: #ffffff;
+  color: #555555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.step.active span {
+  background-color: #0b5b63;
+  color: #ffffff;
+  border-color: #0b5b63;
+}
+
+.step.completed span {
+  background-color: #0b5b63;
+  color: #ffffff;
+  border-color: #0b5b63;
+}
+
+.step p {
+  font-size: 13px;
+  margin-top: 10px;
+  color: #4d5a5d;
+}
+
+.step.active p,
+.step.completed p {
+  color: #0b5b63;
+  font-weight: 600;
+}
+
+.line {
+  width: 82px;
+  height: 2px;
+  background-color: #8e8e8e;
+  margin-top: 28px;
+}
+
+.cards-tipo {
+  display: flex;
+  justify-content: center;
+  gap: 52px;
+}
+
+.tipo-card {
+  width: 390px;
+  min-height: 285px;
+  background-color: #ffffff;
+  border: 3px solid #d9dddd;
+  border-radius: 16px;
+  text-decoration: none;
+  color: #082f3d;
+  padding: 38px 30px 30px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tipo-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 18px rgba(8, 47, 61, 0.1);
+}
+
+.icono-tipo {
+  width: 115px;
+  height: 115px;
+  margin: 0 auto 24px;
+  background-color: #dfece2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icono-tipo img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+}
+
+.tipo-card h2 {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  line-height: 1.25;
+}
+
+.tipo-card p {
+  font-size: 16px;
+  line-height: 1.45;
+  color: #6b716e;
+  max-width: 310px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+  .registro-page {
+    padding: 38px 45px 50px;
+  }
+
+  .registro-container {
+    max-width: 900px;
+  }
+
+  .registro-container h1 {
+    font-size: 40px;
+  }
+
+  .steps {
+    margin-bottom: 65px;
+  }
+
+  .cards-tipo {
+    gap: 35px;
+  }
+
+  .tipo-card {
+    width: 350px;
+    min-height: 265px;
+    padding: 34px 24px 26px;
+  }
+
+  .tipo-card h2 {
+    font-size: 24px;
+  }
+
+  .tipo-card p {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .registro-page {
+    min-height: auto;
+    padding: 86px 24px 45px;
+    background-size: cover;
+    background-position: left center;
+    background-repeat: no-repeat;
+  }
+
+  .back-btn {
+    top: 22px;
+    left: 22px;
+    width: 42px;
+    height: 42px;
+  }
+
+  .back-btn img {
+    width: 19px;
+    height: 19px;
+  }
+
+  .registro-container h1 {
+    font-size: 34px;
+    margin-bottom: 20px;
+  }
+
+  .steps {
+    margin-bottom: 42px;
+  }
+
+  .step {
+    min-width: 84px;
+  }
+
+  .step span {
+    width: 44px;
+    height: 44px;
+    font-size: 21px;
+  }
+
+  .step p {
+    font-size: 11px;
+    max-width: 80px;
+  }
+
+  .line {
+    width: 34px;
+    margin-top: 21px;
+  }
+
+  .cards-tipo {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .tipo-card {
+    width: 100%;
+    max-width: 370px;
+    min-height: auto;
+    padding: 30px 24px 26px;
+  }
+
+  .icono-tipo {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 18px;
+  }
+
+  .icono-tipo img {
+    width: 58px;
+    height: 58px;
+  }
+
+  .tipo-card h2 {
+    font-size: 22px;
+  }
+
+  .tipo-card p {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 430px) {
+  .registro-page {
+    padding: 78px 16px 36px;
+    background-size: cover;
+    background-position: 18% center;
+    background-repeat: no-repeat;
+  }
+
+  .registro-container h1 {
+    font-size: 29px;
+  }
+
+  .steps {
+    margin-bottom: 38px;
+  }
+
+  .step {
+    min-width: 72px;
+  }
+
+  .step span {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .step p {
+    font-size: 10px;
+    max-width: 68px;
+  }
+
+  .line {
+    width: 24px;
+    margin-top: 19px;
+  }
+
+  .cards-tipo {
+    gap: 20px;
+  }
+
+  .tipo-card {
+    padding: 26px 18px 24px;
+  }
+
+  .icono-tipo {
+    width: 92px;
+    height: 92px;
+  }
+
+  .icono-tipo img {
+    width: 54px;
+    height: 54px;
+  }
+
+  .tipo-card h2 {
+    font-size: 20px;
+  }
+
+  .tipo-card p {
+    font-size: 14px;
+  }
+}

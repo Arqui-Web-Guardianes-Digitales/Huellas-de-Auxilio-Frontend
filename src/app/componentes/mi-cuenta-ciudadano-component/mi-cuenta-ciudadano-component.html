@@ -1,0 +1,180 @@
+<header class="header-ciudadano">
+  <nav class="navbar">
+    <button class="btn-menu" id="btnMenu" type="button" (click)="menuAbierto = true" [attr.aria-expanded]="menuAbierto" aria-controls="menuMobile" aria-label="Abrir menú">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <a routerLink="/home-ciudadano" class="logo">
+      <img src="/img/logo.png" alt="Huellas de Auxilio" />
+    </a>
+
+    <a routerLink="/reportar" class="btn-reporte-mobile">
+      Reporte
+    </a>
+
+    <ul class="nav-links">
+      <li><a routerLink="/home-ciudadano" class="nav-link">Inicio</a></li>
+      <li><a routerLink="/mis-reportes" class="nav-link">Mis reportes</a></li>
+      <li><a routerLink="/directorio" class="nav-link">Directorio</a></li>
+      <li><a routerLink="/adopciones" class="nav-link">Adopciones</a></li>
+      <li><a routerLink="/ayuda" class="nav-link">Ayuda</a></li>
+    </ul>
+
+    <div class="header-actions">
+      <a routerLink="/reportar" class="btn-reportar">
+        Reportar
+      </a>
+
+      <a routerLink="/notificaciones" class="btn-campana">
+        <img src="/icons/campana.png" alt="Notificaciones" />
+      </a>
+
+      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
+        <img src="/icons/user-circle.png" alt="Mi cuenta" />
+        <span>Mi cuenta</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="menu-mobile" id="menuMobile" [class.activo]="menuAbierto" [attr.inert]="menuAbierto ? null : ''" (click)="menuAbierto = false">
+    <div class="menu-mobile-top">
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+
+        <div>
+          <h3>{{ nombreVisible }}</h3>
+          <a routerLink="/mi-cuenta-ciudadano">Ver mi perfil</a>
+        </div>
+      </div>
+
+      <button class="btn-cerrar-menu" id="btnCerrarMenu" type="button" (click)="menuAbierto = false" aria-label="Cerrar menú">
+        ×
+      </button>
+    </div>
+
+    <div class="menu-mobile-links">
+      <a routerLink="/home-ciudadano">Inicio</a>
+      <a routerLink="/mis-reportes">Mis reportes</a>
+      <a routerLink="/directorio">Directorio</a>
+      <a routerLink="/adopciones">Adopciones</a>
+      <a routerLink="/ayuda">Ayuda</a>
+      <a routerLink="/notificaciones">Notificaciones</a>
+    </div>
+  </div>
+</header>
+
+<main class="mi-cuenta-ciudadano-page">
+  <aside class="panel-lateral">
+    <div class="saludo-box">
+      <h2>¡Hola,</h2>
+      <p>{{ nombreVisible }}!</p>
+    </div>
+
+    <div class="linea"></div>
+
+    <nav class="menu-cuenta">
+      <a routerLink="/mi-cuenta-ciudadano" class="opcion-cuenta activa">
+        <img src="/icons/perfil.png" alt="Perfil" class="icono-opcion" />
+        Perfil
+      </a>
+
+      <button type="button" class="opcion-cuenta" (click)="cerrarSesion()">
+        <img src="/icons/cerrar-sesion.png" alt="Cerrar sesión" class="icono-opcion" />
+        Cerrar sesión
+      </button>
+    </nav>
+
+    <div class="linea"></div>
+
+    <button type="button" class="opcion-cuenta eliminar" (click)="informarEliminacion()">
+      <img src="/icons/eliminar-rojo.png" alt="Eliminar cuenta" class="icono-opcion" />
+      Eliminar cuenta
+    </button>
+  </aside>
+
+  <section class="contenido-cuenta">
+    <h1>Mi perfil</h1>
+
+    <p class="aviso-prototipo">Vista de demostración con datos de ejemplo. Los cambios duran hasta recargar esta página.</p>
+    @if (mensaje) {
+      <p class="mensaje-cuenta" role="status">{{ mensaje }}</p>
+    }
+
+    @for (tarjeta of tarjetas; track tarjeta.id) {
+      <article class="card-datos" [class.card-editando]="editando[tarjeta.id]">
+        <div class="card-header">
+          <h2>{{ tarjeta.titulo }}</h2>
+          <div class="acciones-edicion">
+            <button type="button" class="btn-editar" (click)="alternarEdicion(tarjeta.id)">
+              {{ editando[tarjeta.id] ? 'Guardar' : 'Editar' }}
+            </button>
+            @if (editando[tarjeta.id]) {
+              <button type="button" class="btn-editar" (click)="cancelarEdicion(tarjeta.id)">Cancelar</button>
+            }
+          </div>
+        </div>
+        <div class="datos-grid" [class.personales-grid]="tarjeta.id === 'personales'">
+          @for (campo of tarjeta.campos; track campo.clave) {
+            <div class="dato-item">
+              <label [attr.for]="editando[tarjeta.id] ? 'perfil-' + campo.clave : null">{{ campo.etiqueta }}</label>
+              @if (editando[tarjeta.id]) {
+                <input [id]="'perfil-' + campo.clave" [name]="campo.clave"
+                       [type]="campo.tipo" [(ngModel)]="borrador[campo.clave]"
+                       [attr.autocomplete]="campo.autocompletar"
+                       [attr.maxlength]="campo.clave === 'dni' ? 8 : null"
+                       [attr.inputmode]="campo.clave === 'dni' ? 'numeric' : null" />
+              } @else {
+                <p>{{ mostrarCampo(campo.clave) }}</p>
+              }
+            </div>
+          }
+        </div>
+        @if (errores[tarjeta.id]) {
+          <p class="error-cuenta" role="alert">{{ errores[tarjeta.id] }}</p>
+        }
+      </article>
+    }
+
+  </section>
+</main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+    <div class="footer-compacto-brand">
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+
+      <p>
+        © 2026 Huellas de Auxilio. Todos<br />
+        los derechos reservados.
+      </p>
+    </div>
+
+    <div class="footer-compacto-links">
+      <a routerLink="/ayuda">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank" rel="noopener noreferrer">
+        Política de Privacidad
+      </a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank" rel="noopener noreferrer">
+        Términos y condiciones
+      </a>
+    </div>
+
+    <div class="footer-social">
+      <a href="https://www.facebook.com/">
+        <img src="/icons/facebook.png" alt="Facebook" />
+      </a>
+
+      <a href="https://x.com/">
+        <img src="/icons/x.png" alt="X" />
+      </a>
+
+      <a href="https://www.instagram.com/">
+        <img src="/icons/instagram.png" alt="Instagram" />
+      </a>
+    </div>
+  </div>
+</footer>
+
+
