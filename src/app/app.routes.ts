@@ -99,6 +99,30 @@ export const routes: Routes = [
       .then((componente) => componente.PublicarMascotaComponent),
   },
 
+  {
+    path: 'editar-mascota/:idMascota',
+    loadComponent: () => import('./componentes/publicar-mascota-component/publicar-mascota-component')
+      .then((componente) => componente.PublicarMascotaComponent),
+  },
+
+  {
+    path: 'solicitudes-mascota/:idMascota',
+    loadComponent: () => import('./componentes/solicitudes-entidad-component/solicitudes-entidad-component')
+      .then((componente) => componente.SolicitudesEntidadComponent),
+  },
+
+  {
+    path: 'solicitudes-entidad',
+    loadComponent: () => import('./componentes/solicitudes-entidad-component/solicitudes-entidad-component')
+      .then((componente) => componente.SolicitudesEntidadComponent),
+  },
+
+  {
+    path: 'detalle-solicitud-entidad/:idMascota/:idSolicitud',
+    loadComponent: () => import('./componentes/detalle-solicitud-entidad-component/detalle-solicitud-entidad-component')
+      .then((componente) => componente.DetalleSolicitudEntidadComponent),
+  },
+
   // Comodín para redirigir si no existe la ruta
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];
