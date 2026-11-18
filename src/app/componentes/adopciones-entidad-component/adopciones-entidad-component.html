@@ -107,9 +107,9 @@
       <a routerLink="/adopciones-entidad" class="tab activo" aria-current="page">
         <img src="/icons/huella-verde.png" alt="">Mascotas publicadas
       </a>
-      <button type="button" class="tab" disabled title="Solicitudes de adopción: pendiente de HU30/HU31">
+      <a routerLink="/solicitudes-entidad" class="tab">
         <img src="/icons/documento-verde.png" alt="">Solicitudes de adopción
-      </button>
+      </a>
     </div>
     <a routerLink="/publicar-mascota" class="btn-publicar">Publicar mascota</a>
   </section>
@@ -151,8 +151,8 @@
           </div>
           <p class="descripcion">{{ mascota.descripcion || 'Sin descripción registrada.' }}</p>
           <div class="mascota-botones">
-            <button type="button" class="btn-editar" disabled title="Editar mascota: pendiente de HU29">Editar</button>
-            <button type="button" class="btn-solicitudes" disabled title="Ver solicitudes: pendiente de HU30">Ver solicitudes</button>
+            <a class="btn-editar" [routerLink]="['/editar-mascota', mascota.idMascota]">Editar</a>
+            <a class="btn-solicitudes" [routerLink]="['/solicitudes-mascota', mascota.idMascota]">Ver solicitudes</a>
           </div>
         </div>
       </article>
