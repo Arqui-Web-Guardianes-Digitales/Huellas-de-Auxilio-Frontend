@@ -1,0 +1,437 @@
+<header class="header-entidad">
+  <nav class="navbar">
+
+    <!-- Botón de menú móvil -->
+    <button
+      type="button"
+      class="btn-menu"
+      aria-label="Abrir menú"
+      (click)="abrirMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- Logo -->
+    <a routerLink="/home-entidad" class="logo">
+      <img src="/img/logo.png" alt="Huellas de Auxilio">
+    </a>
+
+    <!-- Navegación de escritorio -->
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/home-entidad" class="nav-link">
+          Inicio
+        </a>
+      </li>
+      <li>
+        <a routerLink="/reportes-entidad" class="nav-link">Reportes</a>
+      </li>
+      <li>
+        <a routerLink="/adopciones-entidad" class="nav-link activo" aria-current="page">Adopciones</a>
+      </li>
+      <li>
+        <span class="nav-link ruta-pendiente">Red de apoyo</span>
+      </li>
+      <li>
+        <span class="nav-link ruta-pendiente">Ayuda</span>
+      </li>
+    </ul>
+
+    <!-- Acciones de escritorio -->
+    <div class="header-actions">
+      <span class="btn-campana" title="Notificaciones: integración pendiente" aria-disabled="true">
+        <img src="/icons/campana.png" alt="Notificaciones">
+      </span>
+
+      <span class="btn-cuenta" title="Mi cuenta: integración pendiente" aria-disabled="true">
+        <img src="/icons/user-circle.png" alt="Mi cuenta">
+        <span>Mi cuenta</span>
+      </span>
+
+    </div>
+    <span class="btn-campana-mobile" title="Notificaciones: integración pendiente" aria-disabled="true">
+      <img src="/icons/campana.png" alt="Notificaciones">
+    </span>
+  </nav>
+
+  <!-- Menú móvil -->
+  <div class="menu-mobile" [class.activo]="menuMobileAbierto">
+    <div class="menu-mobile-top">
+
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+
+        <div>
+          <h3>{{ nombreEntidad }}</h3>
+          <span>Ver mi perfil</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar-menu"
+        aria-label="Cerrar menú"
+        (click)="cerrarMenu()">
+        ×
+      </button>
+    </div>
+
+    <div class="menu-mobile-links">
+      <a
+        routerLink="/home-entidad"
+        (click)="cerrarMenu()">
+        Inicio
+      </a>
+
+      <a routerLink="/reportes-entidad" (click)="cerrarMenu()">Reportes</a>
+      <a routerLink="/adopciones-entidad" class="activo" aria-current="page" (click)="cerrarMenu()">Adopciones</a>
+      <span>Red de apoyo</span>
+      <span>Ayuda</span>
+
+    </div>
+  </div>
+</header>
+
+@if (gestionada && solicitud && mascota) {
+    <main class="confirmacion-solicitud-page">
+      <section class="titulo-confirmacion">
+        <a [routerLink]="volver" class="btn-volver">
+          <img src="/icons/flecha-volver.png" alt="Volver" />
+        </a>
+
+        <div>
+          <h1>Solicitud actualizada</h1>
+          <p>La postulación fue gestionada correctamente.</p>
+        </div>
+      </section>
+
+      <section class="confirmacion-panel">
+        @if (solicitud.estadoSolicitud === 'APROBADA') { <div class="check-central"><span></span></div> }
+        @else { <div class="rechazo-central"><span>×</span></div> }
+
+        <div class="linea-separadora"></div>
+
+        <section class="datos-confirmacion">
+          <div class="dato-confirmacion">
+            <div class="dato-icono">
+              <img src="/icons/documento-verde.png" alt="Código" />
+            </div>
+
+            <div>
+              <p>Código de solicitud</p>
+              <h3>SOL-{{ solicitud.idSolicitud }}</h3>
+            </div>
+          </div>
+
+          <div class="dato-confirmacion">
+            <div class="dato-icono">
+              <img src="/icons/huella-verde.png" alt="Mascota" />
+            </div>
+
+            <div>
+              <p>Mascota</p>
+              <h3 class="nombre-mascota">{{ mascota.nombre }}</h3>
+            </div>
+          </div>
+
+          <div class="dato-confirmacion">
+            <div class="dato-icono">
+              <img src="/icons/user-circle.png" alt="Solicitante" />
+            </div>
+
+            <div>
+              <p>Solicitante</p>
+              <h3>{{ solicitud.nombreSolicitante || 'No registrado' }}</h3>
+            </div>
+          </div>
+
+          <div class="dato-confirmacion">
+            <div class="dato-icono">
+              <img src="/icons/reloj-azul.png" alt="Estado" />
+            </div>
+
+            <div>
+              <p>Estado actual</p>
+              <span class="estado" [class.estado-aprobado]="solicitud.estadoSolicitud === 'APROBADA'" [class.estado-rechazado]="solicitud.estadoSolicitud === 'RECHAZADA'">{{ etiquetaEstado(solicitud.estadoSolicitud) }}</span>
+            </div>
+          </div>
+
+          <div class="dato-confirmacion">
+            <div class="dato-icono">
+              <img src="/icons/calendario.png" alt="Fecha" />
+            </div>
+
+            <div>
+              <p>Fecha de solicitud</p>
+              <h3>{{ solicitud.fechaSolicitud ? (solicitud.fechaSolicitud | date:'dd/MM/yyyy HH:mm') : 'No registrada' }}</h3>
+            </div>
+          </div>
+
+          <div class="dato-confirmacion">
+            <div class="dato-icono">
+              <img src="/icons/casita.png" alt="Entidad" />
+            </div>
+
+            <div>
+              <p>Entidad</p>
+              <h3>{{ nombreEntidad }}</h3>
+            </div>
+          </div>
+        </section>
+
+        <div class="aviso-confirmacion">
+          <div class="aviso-icono">!</div>
+          <p>La persona solicitante será notificada sobre el estado de su solicitud.</p>
+        </div>
+
+        <div class="acciones-confirmacion">
+          <a routerLink="/adopciones-entidad" class="btn-principal">
+            Ver mascota
+          </a>
+
+          <a routerLink="/solicitudes-entidad" class="btn-secundario">
+  Volver a solicitudes
+</a>
+        </div>
+      </section>
+    </main>
+
+} @else {
+    <main class="detalle-solicitud-entidad-page">
+      <section class="titulo-detalle">
+        <a [routerLink]="volver" class="btn-volver">
+          <img src="/icons/flecha-volver.png" alt="Volver" />
+        </a>
+
+        <h1>Detalle de solicitud</h1>
+      </section>
+
+      @if (cargando) { <p class="angular-info" role="status">Cargando detalle de solicitud...</p> }
+      @if (error) { <p class="angular-error" role="alert">{{ error }}</p> }
+      @if (!cargando && !error && solicitud && mascota) {
+      <section class="resumen-superior">
+        <div class="resumen-dato">
+          <div class="resumen-icono">
+            <img src="/icons/documento-verde.png" alt="Código" />
+          </div>
+
+          <div>
+            <h3>Código de solicitud</h3>
+            <p>SOL-{{ solicitud.idSolicitud }}</p>
+          </div>
+        </div>
+
+        <div class="resumen-dato">
+          <div class="resumen-icono">
+            <img src="/icons/calendario.png" alt="Fecha" />
+          </div>
+
+          <div>
+            <h3>Fecha de solicitud</h3>
+            <p>{{ solicitud.fechaSolicitud ? (solicitud.fechaSolicitud | date:'dd/MM/yyyy HH:mm') : 'No registrada' }}</p>
+          </div>
+        </div>
+
+        <div class="resumen-dato">
+          <div class="resumen-icono">
+            <img src="/icons/huella-verde.png" alt="Mascota" />
+          </div>
+
+          <div>
+            <h3>Mascota</h3>
+            <p class="nombre-mascota">{{ mascota.nombre }}</p>
+          </div>
+        </div>
+
+        <div class="resumen-dato">
+          <div class="resumen-icono">
+            <img src="/icons/reloj-azul.png" alt="Estado" />
+          </div>
+
+          <div>
+            <h3>Estado actual</h3>
+            <span class="estado" [class.estado-revision]="solicitud.estadoSolicitud === 'EN_REVISION'" [class.estado-aprobado]="solicitud.estadoSolicitud === 'APROBADA'" [class.estado-rechazado]="solicitud.estadoSolicitud === 'RECHAZADA'">{{ etiquetaEstado(solicitud.estadoSolicitud) }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="detalle-layout">
+        <article class="datos-solicitante-card">
+          <div class="card-titulo">
+            <img src="/icons/user-circle.png" alt="Solicitante" />
+            <h2>Datos del solicitante</h2>
+          </div>
+
+          <div class="dato-linea">
+            <strong>Nombre Completo</strong>
+            <span>{{ solicitud.nombreSolicitante || 'No registrado' }}</span>
+          </div>
+
+          <div class="dato-linea">
+            <strong>DNI</strong>
+            <span>{{ solicitud.dniSolicitante || 'No registrado' }}</span>
+          </div>
+
+          <div class="dato-linea">
+            <strong>Correo electrónico</strong>
+            <span>{{ solicitud.correoSolicitante || 'No registrado' }}</span>
+          </div>
+
+          <div class="dato-linea">
+            <strong>Telefono</strong>
+            <span>{{ solicitud.telefonoSolicitante || 'No registrado' }}</span>
+          </div>
+
+          <div class="dato-linea">
+            <strong>Distrito</strong>
+            <span>{{ solicitud.distritoSolicitante || 'No registrado' }}</span>
+          </div>
+
+          <div class="dato-linea">
+            <strong>Tipo de vivienda</strong>
+            <span>{{ solicitud.tipoVivienda }}</span>
+          </div>
+
+          <div class="dato-linea">
+            <strong>Experiencia con mascotas</strong>
+            <span>{{ solicitud.experiencia === true ? 'Sí' : (solicitud.experiencia === false ? 'No' : 'No registrada') }}</span>
+          </div>
+
+          <div class="dato-linea dato-motivo">
+            <strong>Motivo de adopción</strong>
+            <span>
+              {{ solicitud.motivo }}
+            </span>
+          </div>
+        </article>
+
+        <section class="columna-derecha">
+          <article class="mascota-solicitada-card">
+            <div class="card-titulo pequeño">
+              <img src="/icons/huella-verde.png" alt="Mascota" />
+              <h2>Mascota solicitada</h2>
+            </div>
+
+            <div class="mascota-mini">
+              <img [src]="mascotaService.urlFotoMascota(mascota.urlFoto)" [alt]="mascota.nombre" class="mascota-mini-img" (error)="mascotaService.mostrarFotoDeRespaldo($event)">
+
+              <div class="mascota-mini-info">
+                <div class="mascota-mini-header">
+                  <h3 class="nombre-mascota">{{ mascota.nombre }}</h3>
+                  <span>{{ mascota.especie }}</span>
+                </div>
+
+                <div class="mascota-mini-datos">
+                  <p>
+                    <img src="/icons/calendario.png" alt="Edad" />
+                    {{ mascota.edad }}
+                  </p>
+
+                  <p>
+                    <img src="/icons/map.png" alt="Distrito" />
+                    {{ mascota.distrito }}
+                  </p>
+                </div>
+
+                <p>
+                  {{ mascota.descripcion }}
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article class="gestion-card">
+            <div class="card-titulo pequeño">
+              <img src="/icons/documento-verde.png" alt="Gestión" />
+              <h2>Gestión de la solicitud</h2>
+            </div>
+
+            @if (errorGestion) {
+              <p class="angular-error" role="alert">{{ errorGestion }}</p>
+              <button class="btn-recargar" type="button" [disabled]="guardando" (click)="cargarSolicitud()">Recargar solicitud</button>
+            }
+            @if (solicitud.estadoSolicitud === 'EN_REVISION') {
+              <div class="acciones-gestion">
+                <button type="button" class="btn-rechazar" [disabled]="guardando || !!errorGestion" (click)="abrirConfirmacion('rechazar')">Rechazar solicitud</button>
+                <button type="button" class="btn-aprobar" [disabled]="guardando || !!errorGestion" (click)="abrirConfirmacion('aprobar')">Aprobar solicitud</button>
+              </div>
+            } @else {
+              <p>Esta solicitud ya fue gestionada y no puede modificarse.</p>
+            }
+          </article>
+        </section>
+      </section>
+      }
+    </main>
+
+}
+<dialog #confirmacion class="confirmacion-dialogo" (cancel)="guardando ? $event.preventDefault() : cerrarConfirmacion()">
+  <h2>{{ accion === 'aprobar' ? 'Aprobar solicitud' : 'Rechazar solicitud' }}</h2>
+  <p>¿Confirmas que deseas {{ accion }} esta solicitud?</p>
+  <p>{{ accion === 'aprobar' ? 'La mascota dejará de estar disponible y se rechazarán sus demás solicitudes en revisión.' : 'Las demás solicitudes de esta mascota permanecerán sin cambios.' }}</p>
+  <div class="acciones-gestion">
+    <button class="btn-rechazar" type="button" [disabled]="guardando" (click)="cerrarConfirmacion()">Cancelar</button>
+    <button class="btn-aprobar" type="button" [disabled]="guardando" (click)="confirmarGestion()">{{ guardando ? 'Guardando...' : 'Confirmar' }}</button>
+  </div>
+</dialog>
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+
+    <!-- Logo y derechos -->
+    <div class="footer-compacto-brand">
+      <img
+        src="/img/logo-blanco.png"
+        alt="Logo Huellas de Auxilio">
+
+      <p>
+        © 2026 Huellas de Auxilio. Todos<br>
+        los derechos reservados.
+      </p>
+    </div>
+
+    <!-- Enlaces -->
+    <div class="footer-compacto-links">
+      <span>Soporte</span>
+
+      <a
+        href="/documentos/politica-privacidad.pdf"
+        target="_blank"
+        rel="noopener noreferrer">
+        Política de Privacidad
+      </a>
+
+      <a
+        href="/documentos/terminos-condiciones.pdf"
+        target="_blank"
+        rel="noopener noreferrer">
+        Términos y condiciones
+      </a>
+    </div>
+
+    <!-- Redes sociales -->
+    <div class="footer-social">
+      <a
+        href="https://www.facebook.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/facebook.png" alt="Facebook">
+      </a>
+
+      <a
+        href="https://x.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/x.png" alt="X">
+      </a>
+
+      <a
+        href="https://www.instagram.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <img src="/icons/instagram.png" alt="Instagram">
+      </a>
+    </div>
+
+  </div>
+</footer>
