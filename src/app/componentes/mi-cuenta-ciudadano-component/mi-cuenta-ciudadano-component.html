@@ -88,55 +88,86 @@
 
     <div class="linea"></div>
 
-    <button type="button" class="opcion-cuenta eliminar" (click)="informarEliminacion()">
+    <button type="button" class="opcion-cuenta eliminar" [disabled]="cargando || guardando || requiereLogin" (click)="informarEliminacion()">
       <img src="/icons/eliminar-rojo.png" alt="Eliminar cuenta" class="icono-opcion" />
       Eliminar cuenta
     </button>
   </aside>
 
-  <section class="contenido-cuenta">
+  <section class="contenido-cuenta" [attr.aria-busy]="cargando || guardando">
     <h1>Mi perfil</h1>
 
-    <p class="aviso-prototipo">Vista de demostración con datos de ejemplo. Los cambios duran hasta recargar esta página.</p>
     @if (mensaje) {
       <p class="mensaje-cuenta" role="status">{{ mensaje }}</p>
     }
 
-    @for (tarjeta of tarjetas; track tarjeta.id) {
-      <article class="card-datos" [class.card-editando]="editando[tarjeta.id]">
-        <div class="card-header">
-          <h2>{{ tarjeta.titulo }}</h2>
-          <div class="acciones-edicion">
-            <button type="button" class="btn-editar" (click)="alternarEdicion(tarjeta.id)">
-              {{ editando[tarjeta.id] ? 'Guardar' : 'Editar' }}
-            </button>
-            @if (editando[tarjeta.id]) {
-              <button type="button" class="btn-editar" (click)="cancelarEdicion(tarjeta.id)">Cancelar</button>
-            }
-          </div>
-        </div>
-        <div class="datos-grid" [class.personales-grid]="tarjeta.id === 'personales'">
-          @for (campo of tarjeta.campos; track campo.clave) {
-            <div class="dato-item">
-              <label [attr.for]="editando[tarjeta.id] ? 'perfil-' + campo.clave : null">{{ campo.etiqueta }}</label>
+    @if (requiereLogin) {
+      @if (correoActualizado) {
+        <p class="mensaje-cuenta">Tu nuevo correo es <strong>{{ correoActualizado }}</strong>.</p>
+      }
+      <a routerLink="/login" class="btn-editar">Iniciar sesión</a>
+    } @else if (cargando) {
+      <p class="estado-carga" role="status">Cargando tus datos...</p>
+    } @else if (errorCarga) {
+      <p class="error-cuenta" role="alert">{{ errorCarga }}</p>
+      <button type="button" class="btn-editar" (click)="cargarPerfil()">Reintentar</button>
+    } @else {
+      @if (guardando) {
+        <p class="estado-carga" role="status">Guardando cambios. Espera la confirmación.</p>
+      }
+      @for (tarjeta of tarjetas; track tarjeta.id) {
+        <article class="card-datos" [class.card-editando]="editando[tarjeta.id]">
+          <div class="card-header">
+            <h2>{{ tarjeta.titulo }}</h2>
+            <div class="acciones-edicion">
+              <button type="button" class="btn-editar" [disabled]="guardando"
+                      (click)="alternarEdicion(tarjeta.id)">
+                {{ guardando && editando[tarjeta.id] ? 'Guardando...' : editando[tarjeta.id] ? 'Guardar' : 'Editar' }}
+              </button>
               @if (editando[tarjeta.id]) {
-                <input [id]="'perfil-' + campo.clave" [name]="campo.clave"
-                       [type]="campo.tipo" [(ngModel)]="borrador[campo.clave]"
-                       [attr.autocomplete]="campo.autocompletar"
-                       [attr.maxlength]="campo.clave === 'dni' ? 8 : null"
-                       [attr.inputmode]="campo.clave === 'dni' ? 'numeric' : null" />
-              } @else {
-                <p>{{ mostrarCampo(campo.clave) }}</p>
+                <button type="button" class="btn-editar" [disabled]="guardando"
+                        (click)="cancelarEdicion(tarjeta.id)">Cancelar</button>
+              }
+            </div>
+          </div>
+
+          @if (tarjeta.id === 'correo' && editando.correo) {
+            <p class="aviso-contacto">Si cambias tu correo, al guardar tendrás que iniciar sesión nuevamente con el correo nuevo.</p>
+          }
+
+          @if (tarjeta.id === 'password' && !editando.password) {
+            <div class="dato-item">
+              <p>************</p>
+            </div>
+          } @else {
+            <div class="datos-grid" [class.personales-grid]="tarjeta.id === 'personales'">
+              @for (campo of tarjeta.campos; track campo.clave) {
+                <div class="dato-item">
+                  <label [attr.for]="editando[tarjeta.id] ? 'perfil-' + campo.clave : null">
+                    {{ campo.etiqueta }}
+                  </label>
+                  @if (editando[tarjeta.id]) {
+                    <input [id]="'perfil-' + campo.clave" [name]="campo.clave"
+                           [type]="campo.tipo" [(ngModel)]="borrador[campo.clave]"
+                           [disabled]="guardando" [attr.autocomplete]="campo.autocompletar"
+                           [attr.aria-invalid]="errores[tarjeta.id] ? 'true' : null"
+                           [attr.aria-describedby]="errores[tarjeta.id] ? 'error-' + tarjeta.id : null"
+                           [attr.maxlength]="campo.clave === 'dni' ? 8 : campo.clave === 'telefono' ? 9 : null"
+                           [attr.inputmode]="campo.clave === 'dni' || campo.clave === 'telefono' ? 'numeric' : null" />
+                  } @else {
+                    <p>{{ mostrarCampo(campo.clave) }}</p>
+                  }
+                </div>
               }
             </div>
           }
-        </div>
-        @if (errores[tarjeta.id]) {
-          <p class="error-cuenta" role="alert">{{ errores[tarjeta.id] }}</p>
-        }
-      </article>
-    }
 
+          @if (errores[tarjeta.id]) {
+            <p class="error-cuenta" [id]="'error-' + tarjeta.id" role="alert">{{ errores[tarjeta.id] }}</p>
+          }
+        </article>
+      }
+    }
   </section>
 </main>
 

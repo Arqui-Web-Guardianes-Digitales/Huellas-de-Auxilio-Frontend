@@ -836,6 +836,21 @@ button { font: inherit; cursor: pointer; }
 .dato-item p, .saludo-box p, .menu-user h3 { overflow-wrap: anywhere; }
 .acciones-edicion { display: flex; flex-wrap: wrap; gap: 8px; }
 .btn-editar { flex-shrink: 0; }
+.btn-editar:disabled, .opcion-cuenta:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.btn-editar:disabled:hover { background-color: #ffffff; }
+.dato-item input:disabled { opacity: 0.7; cursor: wait; }
+.estado-carga, .aviso-contacto {
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  background: #eaf3f2;
+  color: #155263;
+  font-size: 14px;
+  line-height: 1.5;
+}
 .aviso-prototipo, .mensaje-cuenta, .error-cuenta {
   font-size: 14px; line-height: 1.5; padding: 12px; margin-bottom: 16px;
   border-radius: 8px; background: #eaf3f2; color: #155263;
