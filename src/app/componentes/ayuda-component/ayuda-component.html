@@ -1,1 +1,185 @@
-<p>ayuda-component works!</p>
+<div class="ayuda-shell">
+
+  <!-- HEADER DEL PROTOTIPO: SOLO PARA ESTA PÁGINA -->
+  <header class="a-header">
+    <nav class="a-navbar" aria-label="Navegación principal">
+      <button class="a-menu-toggle" type="button" (click)="menuAbierto = !menuAbierto"
+              [attr.aria-expanded]="menuAbierto" aria-label="Mostrar menú">☰</button>
+
+      <button class="a-logo" type="button" (click)="navegar('inicio')" aria-label="Ir al inicio">
+        <img src="/img/logo.png" alt="Huellas de Auxilio">
+      </button>
+
+      <div class="a-links" [class.a-menu-abierto]="menuAbierto">
+        <button type="button" (click)="navegar('inicio')">Inicio</button>
+        <button type="button" (click)="navegar('reportes')">Mis reportes</button>
+        <button type="button" (click)="navegar('directorio')">Directorio</button>
+        <button type="button" (click)="navegar('adopciones')">Adopciones</button>
+        <button type="button" class="a-activo" (click)="navegar('ayuda')">Ayuda</button>
+      </div>
+
+      <div class="a-header-acciones">
+        <button type="button" class="a-reportar" (click)="navegar('reportar')">Reportar</button>
+        <button type="button" class="a-campana" aria-label="Notificaciones" (click)="navegar('notificaciones')">
+          <img src="/icons/campana.png" alt="">
+        </button>
+        <button type="button" class="a-cuenta" (click)="navegar('cuenta')">
+          <img src="/icons/user-circle.png" alt="">
+          <span>Mi cuenta</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="a-page" [ngSwitch]="vista">
+
+    <!-- CENTRO DE AYUDA -->
+    <div *ngSwitchCase="'centro'">
+      <section class="a-hero">
+        <div class="a-hero-figura">
+          <img src="/img/banner-ciudadano.png" alt="Perro y gato dentro de un corazón">
+        </div>
+        <div class="a-hero-texto">
+          <h1>Centro de ayuda</h1>
+          <p>Encuentra orientación para reportar, dar seguimiento y usar la plataforma.</p>
+        </div>
+      </section>
+
+      <section class="a-bloque">
+        <h2>Accesos rápidos</h2>
+        <div class="a-accesos">
+          <button class="a-acceso" type="button" (click)="cambiarVista('chat')">
+            <span class="a-acceso-icono"><img src="/icons/chat-ayuda.png" alt=""></span>
+            <span class="a-acceso-textos">
+              <strong>Chat de ayuda</strong>
+              <small>Recibe orientación rápida para resolver dudas sobre la plataforma.</small>
+            </span>
+            <img class="a-flecha" src="/icons/flecha-verde.png" alt="">
+          </button>
+
+          <button class="a-acceso" type="button" (click)="cambiarVista('guia')">
+            <span class="a-acceso-icono"><img src="/icons/guia.png" alt=""></span>
+            <span class="a-acceso-textos">
+              <strong>Guía completa</strong>
+              <small>Consulta los pasos para usar cada sección de la plataforma.</small>
+            </span>
+            <img class="a-flecha" src="/icons/flecha-verde.png" alt="">
+          </button>
+        </div>
+      </section>
+
+      <section class="a-bloque a-faq-bloque">
+        <h2>Preguntas frecuentes</h2>
+        <div class="a-faq">
+          <details class="a-faq-item" *ngFor="let pregunta of preguntasFrecuentes; let i = index" [open]="i === 0">
+            <summary>
+              <span>{{ pregunta.pregunta }}</span>
+              <img src="/icons/flecha-abajo.png" alt="">
+            </summary>
+            <p>{{ pregunta.respuesta }}</p>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <!-- CHAT DE AYUDA -->
+    <div *ngSwitchCase="'chat'" class="a-vista-secundaria">
+      <div class="a-titulo-vista">
+        <button class="a-volver" type="button" (click)="cambiarVista('centro')" aria-label="Regresar al centro de ayuda">←</button>
+        <div><h1>Chat de ayuda</h1><p>Resuelve tus dudas aquí.</p></div>
+      </div>
+      <div class="a-chat-layout">
+        <aside class="a-temas">
+          <h2>Temas sugeridos</h2>
+          <button type="button" class="a-tema" *ngFor="let tema of temasSugeridos" (click)="preguntar(tema.pregunta)">
+            <span class="a-tema-icono"><img [src]="'/icons/' + tema.icono" alt=""></span>
+            <span>{{ tema.titulo }}</span>
+            <img class="a-flecha" src="/icons/flecha-verde.png" alt="">
+          </button>
+        </aside>
+
+        <section class="a-chat">
+          <div class="a-chat-cabecera">
+            <span class="a-chat-logo"><img src="/icons/chat-blanco.png" alt=""></span>
+            <div><h2>Asistente virtual</h2><small>Orientación sobre la plataforma</small></div>
+          </div>
+          <div class="a-chat-mensajes" #historialChat aria-live="polite">
+            <div *ngFor="let mensaje of mensajes" class="a-chat-fila" [class.a-usuario]="mensaje.tipo === 'usuario'">
+              <span *ngIf="mensaje.tipo === 'asistente'" class="a-chat-avatar"><img src="/icons/huella-verde.png" alt=""></span>
+              <div class="a-burbuja" [class.a-burbuja-usuario]="mensaje.tipo === 'usuario'">
+                <p>{{ mensaje.texto }}</p><time>{{ mensaje.hora }}</time>
+              </div>
+            </div>
+          </div>
+          <form class="a-chat-entrada" (ngSubmit)="enviarConsulta()">
+            <input type="text" name="consulta" [(ngModel)]="consulta" maxlength="500"
+                   placeholder="Escribe tu consulta..." autocomplete="off" aria-label="Tu consulta">
+            <button type="submit" [disabled]="!consulta.trim()">Enviar</button>
+          </form>
+        </section>
+      </div>
+    </div>
+
+    <!-- GUÍA COMPLETA -->
+    <div *ngSwitchCase="'guia'" class="a-vista-secundaria">
+      <div class="a-titulo-vista">
+        <button class="a-volver" type="button" (click)="cambiarVista('centro')" aria-label="Regresar al centro de ayuda">←</button>
+        <div><h1>Guía completa</h1><p>Consulta los pasos para usar cada sección de la plataforma.</p></div>
+      </div>
+      <div class="a-guia-lista">
+        <details class="a-guia-item" *ngFor="let guia of guias; let i = index" [open]="i === 0">
+          <summary>
+            <span class="a-guia-icono"><img [src]="'/icons/' + guia.icono" alt=""></span>
+            <span class="a-guia-numero">{{ i + 1 }}</span>
+            <span class="a-guia-textos"><strong>{{ guia.titulo }}</strong><small>{{ guia.descripcion }}</small></span>
+            <img class="a-flecha" src="/icons/flecha-abajo.png" alt="">
+          </summary>
+          <div class="a-guia-cuerpo">
+            <ol><li *ngFor="let paso of guia.pasos">{{ paso }}</li></ol>
+            <img *ngIf="i === 0" src="/img/guia-reporte.png" alt="Ejemplo visual de un reporte" class="a-imagen-guia">
+          </div>
+        </details>
+      </div>
+      <div class="a-guia-soporte">
+        <div><strong>¿Necesitas más ayuda?</strong><p>Selecciona uno de los temas sugeridos o escribe tu consulta.</p></div>
+        <button type="button" (click)="cambiarVista('chat')">Abrir chat →</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER IGUAL AL DE HOME_CIUDADANO -->
+  <footer class="footer-compacto">
+    <div class="footer-compacto-container">
+      <div class="footer-compacto-brand">
+        <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+        <p>
+          © 2026 Huellas de Auxilio. Todos<br />
+          los derechos reservados.
+        </p>
+      </div>
+
+      <div class="footer-compacto-links">
+        <button type="button" (click)="cambiarVista('chat')">Soporte</button>
+        <a href="/documentos/politica-privacidad.pdf" target="_blank" rel="noopener noreferrer">
+          Política de Privacidad
+        </a>
+        <a href="/documentos/terminos-condiciones.pdf" target="_blank" rel="noopener noreferrer">
+          Términos y condiciones
+        </a>
+      </div>
+
+      <div class="footer-social">
+        <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <img src="/icons/facebook.png" alt="Facebook" />
+        </a>
+        <a href="https://x.com/" target="_blank" rel="noopener noreferrer" aria-label="X">
+          <img src="/icons/x.png" alt="X" />
+        </a>
+        <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <img src="/icons/instagram.png" alt="Instagram" />
+        </a>
+      </div>
+    </div>
+  </footer>
+
+</div>
