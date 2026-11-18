@@ -117,3 +117,7 @@
   .nav-links, .header-actions { display:none; }
   .datos-confirmacion, .acciones-confirmacion { grid-template-columns:1fr; }
 }
+
+/* Validaciones visuales del formulario reactivo */
+.error-campo { display: block; color: #e23737; font-size: 12px; font-weight: 600; margin-top: 4px; }
+.campo-form input.invalido, .campo-form select.invalido, .campo-form textarea.invalido { border-color: #e23737; }
