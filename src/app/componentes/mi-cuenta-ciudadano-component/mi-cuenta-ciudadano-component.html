@@ -88,7 +88,7 @@
 
     <div class="linea"></div>
 
-    <button type="button" class="opcion-cuenta eliminar" [disabled]="cargando || guardando || requiereLogin" (click)="informarEliminacion()">
+    <button type="button" class="opcion-cuenta eliminar" [disabled]="cargando || guardando || eliminando || requiereLogin" (click)="informarEliminacion()">
       <img src="/icons/eliminar-rojo.png" alt="Eliminar cuenta" class="icono-opcion" />
       Eliminar cuenta
     </button>
@@ -102,10 +102,14 @@
     }
 
     @if (requiereLogin) {
-      @if (correoActualizado) {
-        <p class="mensaje-cuenta">Tu nuevo correo es <strong>{{ correoActualizado }}</strong>.</p>
+      @if (cuentaDesactivada) {
+        <a routerLink="/" class="btn-editar">Volver al inicio</a>
+      } @else {
+        @if (correoActualizado) {
+          <p class="mensaje-cuenta">Tu nuevo correo es <strong>{{ correoActualizado }}</strong>.</p>
+        }
+        <a routerLink="/login" class="btn-editar">Iniciar sesión</a>
       }
-      <a routerLink="/login" class="btn-editar">Iniciar sesión</a>
     } @else if (cargando) {
       <p class="estado-carga" role="status">Cargando tus datos...</p>
     } @else if (errorCarga) {
@@ -120,12 +124,12 @@
           <div class="card-header">
             <h2>{{ tarjeta.titulo }}</h2>
             <div class="acciones-edicion">
-              <button type="button" class="btn-editar" [disabled]="guardando"
+              <button type="button" class="btn-editar" [disabled]="guardando || eliminando"
                       (click)="alternarEdicion(tarjeta.id)">
                 {{ guardando && editando[tarjeta.id] ? 'Guardando...' : editando[tarjeta.id] ? 'Guardar' : 'Editar' }}
               </button>
               @if (editando[tarjeta.id]) {
-                <button type="button" class="btn-editar" [disabled]="guardando"
+                <button type="button" class="btn-editar" [disabled]="guardando || eliminando"
                         (click)="cancelarEdicion(tarjeta.id)">Cancelar</button>
               }
             </div>
@@ -149,7 +153,7 @@
                   @if (editando[tarjeta.id]) {
                     <input [id]="'perfil-' + campo.clave" [name]="campo.clave"
                            [type]="campo.tipo" [(ngModel)]="borrador[campo.clave]"
-                           [disabled]="guardando" [attr.autocomplete]="campo.autocompletar"
+                           [disabled]="guardando || eliminando" [attr.autocomplete]="campo.autocompletar"
                            [attr.aria-invalid]="errores[tarjeta.id] ? 'true' : null"
                            [attr.aria-describedby]="errores[tarjeta.id] ? 'error-' + tarjeta.id : null"
                            [attr.maxlength]="campo.clave === 'dni' ? 8 : campo.clave === 'telefono' ? 9 : null"
@@ -209,3 +213,42 @@
 </footer>
 
 
+
+<ng-template #dialogoEliminar>
+  <h2 mat-dialog-title id="titulo-eliminar-cuenta">Desactivar cuenta</h2>
+
+  <mat-dialog-content>
+    <p class="aviso-eliminar">
+      Tu cuenta será desactivada y no podrás iniciar sesión.
+      Tus reportes y solicitudes se conservarán.
+    </p>
+
+    <form id="form-desactivar-cuenta" (ngSubmit)="confirmarEliminacion()">
+      <div class="dato-item">
+        <label for="contrasena-eliminar">CONTRASEÑA ACTUAL</label>
+        <input id="contrasena-eliminar" name="contrasenaEliminar"
+               type="password" autocomplete="current-password"
+               [(ngModel)]="contrasenaEliminar" [disabled]="eliminando"
+               [attr.aria-invalid]="errorEliminar ? 'true' : null"
+               [attr.aria-describedby]="errorEliminar ? 'error-eliminar-cuenta' : null"
+               required />
+      </div>
+    </form>
+
+    @if (errorEliminar) {
+      <p class="error-cuenta" id="error-eliminar-cuenta" role="alert">{{ errorEliminar }}</p>
+    }
+    @if (eliminando) {
+      <p class="estado-carga" role="status">Desactivando tu cuenta...</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button type="button" class="btn-editar" [disabled]="eliminando"
+            (click)="cancelarEliminacion()">Cancelar</button>
+    <button type="submit" form="form-desactivar-cuenta" class="btn-editar btn-desactivar"
+            [disabled]="eliminando">
+      {{ eliminando ? 'Desactivando...' : 'Desactivar' }}
+    </button>
+  </mat-dialog-actions>
+</ng-template>

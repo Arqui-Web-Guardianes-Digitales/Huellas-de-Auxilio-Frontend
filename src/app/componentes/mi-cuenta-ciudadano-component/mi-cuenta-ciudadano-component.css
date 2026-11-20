@@ -830,7 +830,6 @@
   }
 }
 
-/* Ajustes para la plantilla Angular y los campos editables. */
 button { font: inherit; cursor: pointer; }
 .panel-lateral, .contenido-cuenta, .dato-item { min-width: 0; }
 .dato-item p, .saludo-box p, .menu-user h3 { overflow-wrap: anywhere; }
@@ -865,3 +864,8 @@ button:focus-visible, a:focus-visible { outline: 3px solid #1b746f; outline-offs
   .card-header { flex-wrap: wrap; }
   .acciones-edicion { width: 100%; }
 }
+
+.aviso-eliminar { margin-bottom: 20px; line-height: 1.6; }
+mat-dialog-actions { gap: 8px; }
+.btn-desactivar { width: auto; min-width: 112px; padding: 0 12px; border-color: #a82330; color: #a82330; }
+.btn-desactivar:hover:not(:disabled) { background-color: #fff1f2; }
