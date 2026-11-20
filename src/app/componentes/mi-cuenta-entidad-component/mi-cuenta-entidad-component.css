@@ -848,7 +848,7 @@ object-fit: contain;
   }
 }
 
-/* Ajustes propios de la integración Angular. */
+
 button { font: inherit; cursor: pointer; }
 button.nav-link, button.btn-campana, button.btn-campana-mobile {
   border: 0; background: transparent;
@@ -884,3 +884,11 @@ button:focus-visible, a:focus-visible { outline: 3px solid #1b746f; outline-offs
   .card-header { flex-wrap: wrap; gap: 14px; }
   .acciones-edicion { width: 100%; }
 }
+
+.btn-editar:disabled { opacity: 0.55; cursor: not-allowed; }
+.dato-item input:disabled { opacity: 0.7; cursor: wait; }
+
+.aviso-eliminar { margin-bottom: 20px; line-height: 1.6; }
+mat-dialog-actions { gap: 8px; }
+.btn-desactivar { width: auto; min-width: 112px; padding: 0 12px; border-color: #a82330; color: #a82330; }
+.btn-desactivar:hover:not(:disabled) { background-color: #fff1f2; }
