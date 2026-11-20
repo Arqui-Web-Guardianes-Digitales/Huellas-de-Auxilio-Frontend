@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, HostListener, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, HostListener, OnDestroy, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, TimeoutError, finalize, timeout } from 'rxjs';
 import { AuthService } from '../../services/auth-service';
 import { CiudadanoService, PerfilCiudadano } from '../../services/ciudadano-service';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 type TarjetaId = 'personales' | 'correo' | 'password';
 type Campo = 'nombreCompleto' | 'dni' | 'distrito' | 'correo' | 'telefono'
@@ -27,11 +28,11 @@ interface TarjetaPerfil {
 @Component({
   selector: 'app-mi-cuenta-ciudadano-component',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, MatDialogModule],
   templateUrl: './mi-cuenta-ciudadano-component.html',
   styleUrl: './mi-cuenta-ciudadano-component.css',
 })
-export class MiCuentaCiudadanoComponent implements OnInit {
+export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
   private readonly auth = inject(AuthService);
   private readonly servicio = inject(CiudadanoService);
   private readonly router = inject(Router);
@@ -39,6 +40,16 @@ export class MiCuentaCiudadanoComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private perfil: PerfilCiudadano | null = null;
   private tokenSesion: string | null = null;
+  private readonly dialog = inject(MatDialog);
+  private dialogoEliminarRef: MatDialogRef<unknown> | null = null;
+
+  @ViewChild('dialogoEliminar')
+  dialogoEliminar!: TemplateRef<unknown>;
+
+  contrasenaEliminar = '';
+  errorEliminar = '';
+  eliminando = false;
+  cuentaDesactivada = false;
 
   menuAbierto = false;
   mensaje = '';
@@ -90,7 +101,7 @@ export class MiCuentaCiudadanoComponent implements OnInit {
   }
 
   cargarPerfil(): void {
-    if (this.cargando || !this.comprobarSesion()) return;
+    if (this.cargando || this.eliminando || !this.comprobarSesion()) return;
     this.cargando = true;
     this.errorCarga = '';
     this.servicio.obtenerPerfil().pipe(
@@ -130,11 +141,10 @@ export class MiCuentaCiudadanoComponent implements OnInit {
   }
 
   alternarEdicion(id: TarjetaId): void {
-    if (this.cargando || this.guardando || !this.perfil || !this.comprobarSesion()) return;
+    if (this.cargando || this.guardando || this.eliminando || !this.perfil || !this.comprobarSesion()) return;
     this.mensaje = '';
     this.errores[id] = '';
     if (!this.editando[id]) {
-      // Antes de editar otra tarjeta, guardar o cancelar el borrador actual.
       if (Object.values(this.editando).some(Boolean)) {
         this.mensaje = 'Guarda o cancela la edición actual antes de editar otra sección.';
         return;
@@ -222,7 +232,7 @@ export class MiCuentaCiudadanoComponent implements OnInit {
   }
 
   cancelarEdicion(id: TarjetaId): void {
-    if (this.guardando) return;
+    if (this.guardando || this.eliminando) return;
     this.borrador = { ...this.datos };
     this.limpiarContrasenas();
     this.editando[id] = false;
@@ -234,6 +244,8 @@ export class MiCuentaCiudadanoComponent implements OnInit {
     if (!this.requiereLogin && this.tokenSesion && this.auth.token() === this.tokenSesion) return true;
     this.requiereLogin = true;
     this.limpiarContrasenas();
+    this.contrasenaEliminar = '';
+    this.dialogoEliminarRef?.close();
     if (!this.mensaje) this.mensaje = 'La sesión cambió. Inicia sesión nuevamente.';
     return false;
   }
@@ -268,11 +280,89 @@ export class MiCuentaCiudadanoComponent implements OnInit {
 
   cerrarSesion(): void {
     this.limpiarContrasenas();
+    this.contrasenaEliminar = '';
+    this.dialogoEliminarRef?.close();
     this.auth.cerrarSesion();
     void this.router.navigateByUrl('/login');
   }
 
   informarEliminacion(): void {
-    this.mensaje = 'La eliminación de cuenta todavía no está conectada al backend.';
+    if (this.cargando || this.guardando || this.eliminando || this.dialogoEliminarRef
+      || !this.perfil || !this.comprobarSesion()) return;
+
+    this.contrasenaEliminar = '';
+    this.errorEliminar = '';
+    this.dialogoEliminarRef = this.dialog.open(this.dialogoEliminar, {
+      width: '440px',
+      maxWidth: '95vw',
+      disableClose: true,
+      ariaLabelledBy: 'titulo-eliminar-cuenta',
+    });
+
+    this.dialogoEliminarRef.afterClosed().pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(() => {
+      this.dialogoEliminarRef = null;
+      this.contrasenaEliminar = '';
+    });
+  }
+
+  cancelarEliminacion(): void {
+    if (this.eliminando) return;
+    this.contrasenaEliminar = '';
+    this.errorEliminar = '';
+    this.dialogoEliminarRef?.close();
+  }
+
+  confirmarEliminacion(): void {
+    if (this.eliminando || !this.dialogoEliminarRef || !this.perfil || !this.comprobarSesion()) return;
+    if (!this.contrasenaEliminar.trim()) {
+      this.errorEliminar = 'Ingresa tu contraseña actual.';
+      return;
+    }
+
+    const idUsuario = this.perfil.idUsuario;
+    this.eliminando = true;
+    this.errorEliminar = '';
+
+    this.servicio.desactivarCuenta(idUsuario, this.perfil.correo, this.contrasenaEliminar).pipe(
+      timeout(20000),
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => { this.eliminando = false; this.cdr.markForCheck(); }),
+    ).subscribe({
+      next: (usuario) => {
+        if (!this.comprobarSesion()) return;
+        this.contrasenaEliminar = '';
+
+        if (!usuario || usuario.idUsuario !== idUsuario || usuario.estadoUsuario !== false) {
+          this.errorEliminar = 'No se pudo desactivar la cuenta. Verifica tu contraseña.';
+          this.cdr.markForCheck();
+          return;
+        }
+
+        this.limpiarContrasenas();
+        this.dialogoEliminarRef?.close();
+        this.auth.cerrarSesion();
+        this.cuentaDesactivada = true;
+        this.requiereLogin = true;
+        this.mensaje = 'Tu cuenta fue desactivada correctamente.';
+        this.cdr.markForCheck();
+      },
+      error: (error: unknown) => {
+        this.contrasenaEliminar = '';
+        if (this.comprobarSesion()) {
+          this.errorEliminar = error instanceof TimeoutError
+            ? 'El servidor tardó demasiado. No se confirmó la desactivación de la cuenta.'
+            : this.obtenerMensajeError(error);
+          if (this.requiereLogin) this.dialogoEliminarRef?.close();
+        }
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.contrasenaEliminar = '';
+    this.dialogoEliminarRef?.close();
   }
 }

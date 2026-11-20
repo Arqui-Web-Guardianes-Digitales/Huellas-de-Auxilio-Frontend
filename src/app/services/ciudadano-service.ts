@@ -180,6 +180,22 @@ export class CiudadanoService {
     );
   }
 
+  desactivarCuenta(
+    idUsuario: number,
+    correo: string,
+    contrasena: string,
+  ): Observable<Usuario | null> {
+    return defer(() => {
+      this.validarId(idUsuario);
+
+      return this.http.put<Usuario | null>(
+        `${this.url}/usuario/usuario/${idUsuario}`,
+        { correo, contraseña: contrasena },
+        { headers: this.headers() },
+      );
+    });
+  }
+
   private validarId(id: number): void {
     if (!Number.isSafeInteger(id) || id <= 0) {
       throw new Error('El identificador del perfil no es válido.');
