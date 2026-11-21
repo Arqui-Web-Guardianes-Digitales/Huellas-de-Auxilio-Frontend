@@ -165,12 +165,11 @@
                     }
                   </div>
                   <div class="entidad-acciones">
-                    <button type="button" class="btn-detalle"
-                      (click)="seleccionarEntidad(entidad)"
-                      [attr.aria-pressed]="entidadVisible?.idEntidad === entidad.idEntidad">
-                      Ver ubicación
+                    <a class="btn-detalle"
+                      [routerLink]="['/detalle-entidad', entidad.idEntidad]">
+                      Ver detalle
                       <img src="/icons/flecha-verde.png" alt="" />
-                    </button>
+                    </a>
                     @if (entidad.telefono) {
                       <a class="btn-llamar" [href]="'tel:' + entidad.telefono">
                         <img src="/icons/llamar.png" alt="" />
