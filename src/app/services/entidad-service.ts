@@ -24,6 +24,12 @@ export class EntidadService {
   private readonly auth = inject(AuthService);
   private readonly url = environment.apiURL;
 
+  buscarPorId(idEntidad: number): Observable<Entidad | null> {
+    return defer(() => this.http.get<Entidad | null>(
+      `${this.url}/entidad/detalle/${idEntidad}`, { headers: this.headers() },
+    ));
+  }
+
   listarEntidades(): Observable<Entidad[]> {
     return defer(() => this.http.get<Entidad[]>(
       `${this.url}/entidades`, { headers: this.headers() },

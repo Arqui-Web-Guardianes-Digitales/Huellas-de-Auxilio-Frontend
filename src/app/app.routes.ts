@@ -16,6 +16,7 @@ import { MisReportesComponent } from './componentes/mis-reportes-component/mis-r
 import { ReportarComponent } from './componentes/reportar-component/reportar-component';
 import { SeguimientoReporteComponent } from './componentes/seguimiento-reporte-component/seguimiento-reporte-component';
 import { DirectorioComponent } from './componentes/directorio-component/directorio-component';
+import { DetalleEntidadComponent } from './componentes/detalle-entidad-component/detalle-entidad-component';
 import { AdopcionesComponent } from './componentes/adopciones-component/adopciones-component';
 import { AyudaComponent } from './componentes/ayuda-component/ayuda-component';
 import { NotificacionesComponent } from './componentes/notificaciones-component/notificaciones-component';
@@ -48,6 +49,7 @@ export const routes: Routes = [
   { path: 'seguimiento-reporte/:id', component: SeguimientoReporteComponent },
   { path: 'seguimiento-reporte', component: SeguimientoReporteComponent },
   { path: 'directorio', component: DirectorioComponent },
+  { path: 'detalle-entidad/:idEntidad', component: DetalleEntidadComponent },
   { path: 'adopciones', component: AdopcionesComponent },
   { path: 'ayuda', component: AyudaComponent },
   { path: 'notificaciones', component: NotificacionesComponent },
