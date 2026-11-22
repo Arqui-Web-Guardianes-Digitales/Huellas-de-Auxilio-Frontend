@@ -63,7 +63,7 @@
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 }
 
 .btn-reportar {
@@ -71,7 +71,7 @@
   color: #ffffff;
   text-decoration: none;
   border-radius: 10px;
-  padding: 10px 22px;
+  padding: 11px 23px;
   font-size: 13px;
   font-weight: 700;
   transition: background-color 0.2s ease;
@@ -102,8 +102,8 @@
 }
 
 .btn-cuenta {
-  min-width: 130px;
-  height: 42px;
+  min-width: 140px;
+  height: 46px;
   border: 2px solid #d9dddd;
   border-radius: 18px;
   text-decoration: none;
@@ -111,7 +111,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 9px;
   font-weight: 700;
   font-size: 13px;
   transition: background-color 0.2s ease, border-color 0.2s ease;
@@ -123,8 +123,8 @@
 }
 
 .btn-cuenta img {
-  width: 28px;
-  height: 28px;
+  width: 35px;
+  height: 35px;
   object-fit: contain;
 }
 
@@ -423,6 +423,25 @@
 .canvas-wrapper { position: relative; height: 220px; width: 100%; }
 .grafico-vacio { color: #676d68; font-size: 13px; text-align: center; padding: 60px 10px; }
 
+@media (max-width: 1180px) {
+  .navbar {
+    padding: 0 32px;
+  }
+
+  .nav-links {
+    gap: 18px;
+  }
+
+  .nav-link {
+    font-size: 12px;
+  }
+
+  .header-actions {
+    gap: 14px;
+  }
+}
+
+
 @media (max-width: 960px) {
   .graficos-section { grid-template-columns: 1fr; gap: 16px; }
 }
@@ -663,9 +682,15 @@
 
 /* RESPONSIVE DESIGN */
 @media (max-width: 960px) {
+  .header-ciudadano {
+    position: sticky;
+    top: 0;
+    z-index: 300;
+  }
+
   .navbar {
     height: 72px;
-    padding: 0 20px;
+    padding: 0 22px;
     position: relative;
     justify-content: center;
   }
@@ -676,11 +701,9 @@
   }
 
   .btn-menu {
-    display: flex;
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
+    left: 22px;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .btn-reporte-mobile {
@@ -701,18 +724,24 @@
     font-weight: 700;
   }
 
+  .logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .logo img {
+    width: 116px;
+  }
+
+
   .menu-mobile {
-    width: 85%;
-    max-width: 310px;
+    width: 88%;
+    max-width: 315px;
     min-height: calc(100vh - 72px);
-    background-color: #ffffff;
-    position: fixed;
-    top: 72px;
-    left: -100%;
-    z-index: 400;
-    display: block;
-    transition: left 0.25s ease;
-    box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+    box-shadow: none;
+    margin: 0;
+    border-top: none;
   }
 
   .menu-mobile.activo {
