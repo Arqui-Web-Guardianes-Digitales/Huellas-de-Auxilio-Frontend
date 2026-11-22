@@ -1079,3 +1079,11 @@ border-bottom: 1px solid #edf0f0;
     visibility: visible;
   }
 }
+
+.notificacion-card.no-leida { background-color: #e4f1ef; }
+.notificacion-card { cursor: pointer; }
+.notificacion-card:focus-visible { outline: 3px solid #1b746f; outline-offset: 3px; }
+.acciones-centro, .acciones-aviso { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.acciones-aviso img { width: 14px; height: 14px; margin-left: 8px; }
+.error-notificaciones { color: #a32626; margin-bottom: 14px; }
+.carga-notificaciones { padding: 24px 0; }
