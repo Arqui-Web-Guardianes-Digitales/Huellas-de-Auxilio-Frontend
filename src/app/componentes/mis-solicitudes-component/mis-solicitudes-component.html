@@ -1,37 +1,37 @@
 <header class="header-ciudadano">
   <nav class="navbar">
-    <button type="button" class="btn-menu" aria-label="Abrir menú" aria-controls="menuMobile" [attr.aria-expanded]="menuAbierto" (click)="menuAbierto = !menuAbierto">
+    <button type="button" class="btn-menu" aria-label="Abrir menú" aria-controls="menuMobile" [attr.aria-expanded]="menuAbierto" (click)="alternarMenu()">
       <span></span>
       <span></span>
       <span></span>
     </button>
 
-    <a routerLink="/home-ciudadano" class="logo">
+    <a routerLink="/home-ciudadano" class="logo" (click)="registrarNavegacion('/home-ciudadano')">
       <img src="/img/logo.png" alt="Huellas de Auxilio" />
     </a>
 
     <ul class="nav-links">
-      <li><a routerLink="/home-ciudadano" class="nav-link">Inicio</a></li>
-      <li><a routerLink="/mis-reportes" class="nav-link">Mis reportes</a></li>
-      <li><a routerLink="/directorio" class="nav-link">Directorio</a></li>
-      <li><a routerLink="/adopciones" class="nav-link activo">Adopciones</a></li>
-      <li><a routerLink="/ayuda" class="nav-link">Ayuda</a></li>
+      <li><a routerLink="/home-ciudadano" class="nav-link" (click)="registrarNavegacion('/home-ciudadano')">Inicio</a></li>
+      <li><a routerLink="/mis-reportes" class="nav-link" (click)="registrarNavegacion('/mis-reportes')">Mis reportes</a></li>
+      <li><a routerLink="/directorio" class="nav-link" (click)="registrarNavegacion('/directorio')">Directorio</a></li>
+      <li><a routerLink="/adopciones" class="nav-link activo" (click)="registrarNavegacion('/adopciones')">Adopciones</a></li>
+      <li><a routerLink="/ayuda" class="nav-link" (click)="registrarNavegacion('/ayuda')">Ayuda</a></li>
     </ul>
 
     <div class="header-actions">
-      <a routerLink="/reportar" class="btn-reportar">Reportar</a>
+      <a routerLink="/reportar" class="btn-reportar" (click)="registrarNavegacion('/reportar')">Reportar</a>
 
-      <a routerLink="/notificaciones" class="btn-campana">
+      <a routerLink="/notificaciones" class="btn-campana" (click)="registrarNavegacion('/notificaciones')">
         <img src="/icons/campana.png" alt="Notificaciones" />
       </a>
 
-      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
+      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta" (click)="registrarNavegacion('/mi-cuenta-ciudadano')">
         <img src="/icons/user-circle.png" alt="Mi cuenta" />
         <span>Mi cuenta</span>
       </a>
     </div>
 
-    <a routerLink="/reportar" class="btn-reporte-mobile">Reporte</a>
+    <a routerLink="/reportar" class="btn-reporte-mobile" (click)="registrarNavegacion('/reportar')">Reporte</a>
   </nav>
 
   <div class="menu-mobile" id="menuMobile" [class.activo]="menuAbierto">
@@ -41,22 +41,22 @@
 
         <div>
           <h3>{{ nombreCiudadano }}</h3>
-          <a routerLink="/mi-cuenta-ciudadano">Ver mi perfil</a>
+          <a routerLink="/mi-cuenta-ciudadano" (click)="registrarNavegacion('/mi-cuenta-ciudadano')">Ver mi perfil</a>
         </div>
       </div>
 
-      <button type="button" class="btn-cerrar-menu" aria-label="Cerrar menú" (click)="menuAbierto = false">
+      <button type="button" class="btn-cerrar-menu" aria-label="Cerrar menú" (click)="cerrarMenu()">
         ×
       </button>
     </div>
 
     <div class="menu-mobile-links">
-      <a routerLink="/home-ciudadano">Inicio</a>
-      <a routerLink="/mis-reportes">Mis Reportes</a>
-      <a routerLink="/directorio">Directorio</a>
-      <a routerLink="/adopciones" class="activo">Adopciones</a>
-      <a routerLink="/ayuda">Ayuda</a>
-      <a routerLink="/notificaciones">Notificaciones</a>
+      <a routerLink="/home-ciudadano" (click)="registrarNavegacion('/home-ciudadano')">Inicio</a>
+      <a routerLink="/mis-reportes" (click)="registrarNavegacion('/mis-reportes')">Mis Reportes</a>
+      <a routerLink="/directorio" (click)="registrarNavegacion('/directorio')">Directorio</a>
+      <a routerLink="/adopciones" class="activo" (click)="registrarNavegacion('/adopciones')">Adopciones</a>
+      <a routerLink="/ayuda" (click)="registrarNavegacion('/ayuda')">Ayuda</a>
+      <a routerLink="/notificaciones" (click)="registrarNavegacion('/notificaciones')">Notificaciones</a>
     </div>
   </div>
 </header>
@@ -74,12 +74,12 @@
   </section>
 
   <section class="tabs-solicitudes">
-    <a routerLink="/adopciones" class="tab">
+    <a routerLink="/adopciones" class="tab" (click)="registrarNavegacion('/adopciones')">
       <img src="/icons/huella-verde.png" alt="Mascotas" />
       Mascotas disponibles
     </a>
 
-    <a routerLink="/mis-solicitudes" class="tab activo" aria-current="page">
+    <a routerLink="/mis-solicitudes" class="tab activo" aria-current="page" (click)="registrarNavegacion('/mis-solicitudes')">
       <img src="/icons/documento-verde.png" alt="Solicitudes" />
       Mis solicitudes
     </a>
@@ -92,11 +92,11 @@
         <img src="/icons/buscar.png" alt="" />
       </button>
       <input type="search" name="nombreMascota" placeholder="Buscar mascota"
-             aria-label="Nombre de la mascota" [(ngModel)]="nombreMascota"
+             aria-label="Nombre de la mascota" [(ngModel)]="nombreMascota" (change)="registrarCambioBusqueda()"
              [disabled]="cargando || idCiudadano === null" />
     </div>
     <select name="estado" aria-label="Filtrar por estado"
-            [ngModel]="estado" (ngModelChange)="estado = $event; cargarSolicitudes()"
+            [ngModel]="estado" (ngModelChange)="cambiarEstado($event)"
             [disabled]="cargando || idCiudadano === null">
       <option value="">Estado</option>
       <option value="ENVIADA">Enviada</option>
@@ -133,7 +133,7 @@
         <div class="tabla-fila" role="row">
           <div class="mascota-col" role="cell">
             @if (fila.fotoMascota; as foto) {
-              <img [src]="foto" alt="" (error)="fila.fotoMascota = null" />
+              <img [src]="foto" alt="" (error)="ocultarFoto(fila)" />
             } @else {
               <div class="foto-respaldo" aria-hidden="true">
                 <img src="/icons/huella-verde.png" alt="" />
@@ -154,7 +154,7 @@
           </div>
           <div class="accion-col" role="cell">
             @if (fila.solicitud.idSolicitud; as id) {
-              <a class="btn-detalle" [routerLink]="['/detalle-solicitud', id]">
+              <a class="btn-detalle" [routerLink]="['/detalle-solicitud', id]" (click)="registrarNavegacion(['/detalle-solicitud', id])">
                 Ver detalle
                 <img src="/icons/flecha-verde.png" alt="" />
               </a>
@@ -184,25 +184,25 @@
     </div>
 
     <div class="footer-compacto-links">
-      <a routerLink="/ayuda">Soporte</a>
-      <a href="/documentos/politica-privacidad.pdf" target="_blank">
+      <a routerLink="/ayuda" (click)="registrarNavegacion('/ayuda')">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank" (click)="registrarNavegacion('/documentos/politica-privacidad.pdf')">
         Política de Privacidad
       </a>
-      <a href="/documentos/terminos-condiciones.pdf" target="_blank">
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank" (click)="registrarNavegacion('/documentos/terminos-condiciones.pdf')">
         Términos y condiciones
       </a>
     </div>
 
     <div class="footer-social">
-      <a href="https://www.facebook.com/">
+      <a href="https://www.facebook.com/" (click)="registrarNavegacion('https://www.facebook.com/')">
         <img src="/icons/facebook.png" alt="Facebook" />
       </a>
 
-      <a href="https://x.com/">
+      <a href="https://x.com/" (click)="registrarNavegacion('https://x.com/')">
         <img src="/icons/x.png" alt="X" />
       </a>
 
-      <a href="https://www.instagram.com/">
+      <a href="https://www.instagram.com/" (click)="registrarNavegacion('https://www.instagram.com/')">
         <img src="/icons/instagram.png" alt="Instagram" />
       </a>
     </div>

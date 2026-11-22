@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
@@ -22,7 +22,7 @@ import { AuthService } from '../../services/auth-service';
   templateUrl: './solicitud-adopcion-component.html',
   styleUrl: './solicitud-adopcion-component.css',
 })
-export class SolicitudAdopcionComponent implements OnInit {
+export class SolicitudAdopcionComponent implements OnInit, OnDestroy {
   private readonly mascotaService = inject(MascotaService);
   private readonly solicitudService = inject(SolicitudService);
   private readonly auth = inject(AuthService);
@@ -45,7 +45,11 @@ export class SolicitudAdopcionComponent implements OnInit {
   error = '';
 
   ngOnInit(): void {
+    console.log('[SolicitudAdopcionComponent] Entrada al componente.');
     if (!this.auth.token() || !this.auth.roles().includes('ROLE_CIUDADANO')) {
+      console.warn(
+        '[SolicitudAdopcionComponent] Acceso no autorizado; se solicita volver al login.',
+      );
       void this.router.navigateByUrl('/login');
       return;
     }
@@ -55,18 +59,25 @@ export class SolicitudAdopcionComponent implements OnInit {
     const correoSesion = this.auth.correo();
 
     if (!Number.isSafeInteger(idMascota) || idMascota <= 0) {
+      console.warn(
+        '[SolicitudAdopcionComponent] Validación fallida: identificador de mascota no válido.',
+      );
       this.error = 'El identificador de la mascota no es válido.';
       this.cargando = false;
       return;
     }
 
     if (!correoSesion) {
+      console.warn('[SolicitudAdopcionComponent] No se pudo identificar la cuenta de la sesión.');
       this.error = 'No se pudo identificar tu cuenta. Vuelve a iniciar sesión.';
 
       this.cargando = false;
       return;
     }
 
+    console.log('[SolicitudAdopcionComponent] Carga del formulario y la mascota iniciada.', {
+      idMascota,
+    });
     forkJoin({
       mascota: this.mascotaService.buscarPorId(idMascota),
       ciudadano: this.auth.obtenerPerfilCiudadanoDB(),
@@ -76,12 +87,14 @@ export class SolicitudAdopcionComponent implements OnInit {
         this.cargando = false;
 
         if (!datos.mascota) {
+          console.warn('[SolicitudAdopcionComponent] La API no devolvió la mascota seleccionada.');
           this.error = 'No se encontró la mascota.';
           this.cdr.markForCheck();
           return;
         }
 
         if (!datos.mascota.estado) {
+          console.warn('[SolicitudAdopcionComponent] Solicitud bloqueada: mascota no disponible.');
           this.error = 'La mascota ya no está disponible.';
           this.cdr.markForCheck();
           return;
@@ -92,12 +105,16 @@ export class SolicitudAdopcionComponent implements OnInit {
           !datos.usuario?.idUsuario ||
           datos.ciudadano.idUsuario !== datos.usuario.idUsuario
         ) {
+          console.warn('[SolicitudAdopcionComponent] No se pudo confirmar el perfil de la cuenta.');
           this.error = 'No se pudo confirmar el perfil de tu cuenta.';
 
           this.cdr.markForCheck();
           return;
         }
 
+        console.log('[SolicitudAdopcionComponent] Datos cargados; formulario disponible.', {
+          idMascota,
+        });
         this.mascota = datos.mascota;
         this.ciudadano = datos.ciudadano;
 
@@ -115,6 +132,9 @@ export class SolicitudAdopcionComponent implements OnInit {
       },
 
       error: (e: HttpErrorResponse) => {
+        console.error('[SolicitudAdopcionComponent] Error al cargar los datos del formulario.', {
+          estadoHttp: e.status,
+        });
         this.cargando = false;
 
         this.error =
@@ -128,13 +148,20 @@ export class SolicitudAdopcionComponent implements OnInit {
   }
 
   enviarSolicitud(): void {
+    console.log('[SolicitudAdopcionComponent] Intento de envío de solicitud.');
     if (this.enviando || this.solicitudEnviada) {
+      console.warn(
+        '[SolicitudAdopcionComponent] Envío omitido: hay un envío en curso o la solicitud ya fue registrada.',
+      );
       return;
     }
 
     this.error = '';
 
     if (!this.ciudadano?.idCiudadano || !this.mascota) {
+      console.warn(
+        '[SolicitudAdopcionComponent] Validación fallida: faltan los datos del formulario.',
+      );
       this.error = 'Primero deben cargarse tus datos y la mascota.';
       return;
     }
@@ -144,15 +171,29 @@ export class SolicitudAdopcionComponent implements OnInit {
       !this.solicitud.motivo?.trim() ||
       this.solicitud.experiencia == null
     ) {
+      console.warn(
+        '[SolicitudAdopcionComponent] Validación fallida: campos obligatorios incompletos.',
+        {
+          faltaTipoVivienda: !this.solicitud.tipoVivienda?.trim(),
+          faltaMotivo: !this.solicitud.motivo?.trim(),
+          faltaExperiencia: this.solicitud.experiencia == null,
+        },
+      );
       this.error = 'Completa todos los campos de la solicitud.';
       return;
     }
 
     if (!this.aceptoTerminos) {
+      console.warn(
+        '[SolicitudAdopcionComponent] Validación fallida: términos de adopción sin aceptar.',
+      );
       this.error = 'Debes aceptar los términos de adopción.';
       return;
     }
 
+    console.log('[SolicitudAdopcionComponent] Validaciones superadas; enviando a la API.', {
+      idMascota: this.solicitud.mascotaIdMascota,
+    });
     this.enviando = true;
 
     this.solicitudService.insertar(this.ciudadano.idCiudadano, this.solicitud).subscribe({
@@ -160,6 +201,9 @@ export class SolicitudAdopcionComponent implements OnInit {
         this.enviando = false;
 
         if (!respuesta?.idSolicitud) {
+          console.warn(
+            '[SolicitudAdopcionComponent] La API no confirmó el registro de la solicitud.',
+          );
           this.error =
             'La solicitud no fue registrada. Revisa los datos ' +
             'y la disponibilidad de la mascota.';
@@ -169,10 +213,18 @@ export class SolicitudAdopcionComponent implements OnInit {
         }
 
         this.solicitudEnviada = respuesta;
+        console.log('[SolicitudAdopcionComponent] Solicitud registrada.', {
+          idSolicitud: respuesta.idSolicitud,
+          estado: respuesta.estadoSolicitud,
+        });
+        console.log('[SolicitudAdopcionComponent] Confirmación de solicitud mostrada.');
         this.cdr.markForCheck();
       },
 
       error: (e: HttpErrorResponse) => {
+        console.error('[SolicitudAdopcionComponent] Error al enviar la solicitud.', {
+          estadoHttp: e.status,
+        });
         this.enviando = false;
 
         this.error =
@@ -184,5 +236,21 @@ export class SolicitudAdopcionComponent implements OnInit {
         this.cdr.markForCheck();
       },
     });
+  }
+
+  registrarCambioCampo(campo: string): void {
+    console.log('[SolicitudAdopcionComponent] Campo del formulario modificado.', { campo });
+  }
+
+  registrarErrorImagen(): void {
+    console.warn('[SolicitudAdopcionComponent] No se pudo cargar la foto de la mascota.');
+  }
+
+  registrarNavegacion(destino: string | (string | number)[]): void {
+    console.log('[SolicitudAdopcionComponent] Navegación solicitada.', { destino });
+  }
+
+  ngOnDestroy(): void {
+    console.log('[SolicitudAdopcionComponent] Salida del componente.');
   }
 }

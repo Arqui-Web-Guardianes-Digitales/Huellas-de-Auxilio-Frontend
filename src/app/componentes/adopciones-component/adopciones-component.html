@@ -6,64 +6,64 @@
             aria-label="Abrir menú"
             aria-controls="menuMobile"
             [attr.aria-expanded]="menuAbierto"
-            (click)="menuAbierto = !menuAbierto">
+            (click)="alternarMenu()">
       <span></span>
       <span></span>
       <span></span>
     </button>
 
-    <a routerLink="/home-ciudadano" class="logo">
+    <a routerLink="/home-ciudadano" class="logo" (click)="registrarNavegacion('/home-ciudadano')">
       <img src="/img/logo.png" alt="Huellas de Auxilio" />
     </a>
 
     <ul class="nav-links">
       <li>
-        <a routerLink="/home-ciudadano" class="nav-link">
+        <a routerLink="/home-ciudadano" class="nav-link" (click)="registrarNavegacion('/home-ciudadano')">
           Inicio
         </a>
       </li>
 
       <li>
-        <a routerLink="/mis-reportes" class="nav-link">
+        <a routerLink="/mis-reportes" class="nav-link" (click)="registrarNavegacion('/mis-reportes')">
           Mis reportes
         </a>
       </li>
 
       <li>
-        <a routerLink="/directorio" class="nav-link">
+        <a routerLink="/directorio" class="nav-link" (click)="registrarNavegacion('/directorio')">
           Directorio
         </a>
       </li>
 
       <li>
-        <a routerLink="/adopciones" class="nav-link activo">
+        <a routerLink="/adopciones" class="nav-link activo" (click)="registrarNavegacion('/adopciones')">
           Adopciones
         </a>
       </li>
 
       <li>
-        <a routerLink="/ayuda" class="nav-link">
+        <a routerLink="/ayuda" class="nav-link" (click)="registrarNavegacion('/ayuda')">
           Ayuda
         </a>
       </li>
     </ul>
 
     <div class="header-actions">
-      <a routerLink="/reportar" class="btn-reportar">
+      <a routerLink="/reportar" class="btn-reportar" (click)="registrarNavegacion('/reportar')">
         Reportar
       </a>
 
-      <a routerLink="/notificaciones" class="btn-campana">
+      <a routerLink="/notificaciones" class="btn-campana" (click)="registrarNavegacion('/notificaciones')">
         <img src="/icons/campana.png" alt="Notificaciones" />
       </a>
 
-      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
+      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta" (click)="registrarNavegacion('/mi-cuenta-ciudadano')">
         <img src="/icons/user-circle.png" alt="Mi cuenta" />
         <span>Mi cuenta</span>
       </a>
     </div>
 
-    <a routerLink="/reportar" class="btn-reporte-mobile">
+    <a routerLink="/reportar" class="btn-reporte-mobile" (click)="registrarNavegacion('/reportar')">
       Reporte
     </a>
   </nav>
@@ -75,7 +75,7 @@
 
         <div>
           <h3>{{ nombreCiudadano }}</h3>
-          <a routerLink="/mi-cuenta-ciudadano">
+          <a routerLink="/mi-cuenta-ciudadano" (click)="registrarNavegacion('/mi-cuenta-ciudadano')">
             Ver mi perfil
           </a>
         </div>
@@ -86,18 +86,18 @@
         class="btn-cerrar-menu"
         id="btnCerrarMenu"
         aria-label="Cerrar menú"
-        (click)="menuAbierto = false">
+        (click)="cerrarMenu()">
         ×
       </button>
     </div>
 
     <div class="menu-mobile-links">
-      <a routerLink="/home-ciudadano">Inicio</a>
-      <a routerLink="/mis-reportes">Mis Reportes</a>
-      <a routerLink="/directorio">Directorio</a>
-      <a routerLink="/adopciones" class="activo">Adopciones</a>
-      <a routerLink="/ayuda">Ayuda</a>
-      <a routerLink="/notificaciones">Notificaciones</a>
+      <a routerLink="/home-ciudadano" (click)="registrarNavegacion('/home-ciudadano')">Inicio</a>
+      <a routerLink="/mis-reportes" (click)="registrarNavegacion('/mis-reportes')">Mis Reportes</a>
+      <a routerLink="/directorio" (click)="registrarNavegacion('/directorio')">Directorio</a>
+      <a routerLink="/adopciones" class="activo" (click)="registrarNavegacion('/adopciones')">Adopciones</a>
+      <a routerLink="/ayuda" (click)="registrarNavegacion('/ayuda')">Ayuda</a>
+      <a routerLink="/notificaciones" (click)="registrarNavegacion('/notificaciones')">Notificaciones</a>
     </div>
   </div>
 </header>
@@ -115,12 +115,12 @@
   </section>
 
   <section class="tabs-adopciones">
-    <a routerLink="/adopciones" class="tab activo">
+    <a routerLink="/adopciones" class="tab activo" (click)="registrarNavegacion('/adopciones')">
       <img src="/icons/huella-verde.png" alt="Mascotas" />
       Mascotas disponibles
     </a>
 
-    <a routerLink="/mis-solicitudes" class="tab">
+    <a routerLink="/mis-solicitudes" class="tab" (click)="registrarNavegacion('/mis-solicitudes')">
       <img src="/icons/documento-gris.png" alt="Solicitudes" />
       Mis solicitudes
     </a>
@@ -132,7 +132,7 @@
         <img src="/icons/buscar.png" alt="" />
       </button>
       <input type="search" id="buscarMascota" name="nombre" aria-label="Nombre de la mascota"
-             placeholder="Buscar mascota" [(ngModel)]="filtros.nombre" />
+             placeholder="Buscar mascota" [(ngModel)]="filtros.nombre" (change)="registrarCambioBusqueda()" />
     </div>
 
     <select id="filtroEspecie" name="especie" aria-label="Especie"
@@ -211,13 +211,13 @@
             <div class="mascota-botones">
               <a
                 [routerLink]="['/detalle-mascota', mascota.idMascota]"
-                class="btn-detalle">
+                class="btn-detalle" (click)="registrarNavegacion(['/detalle-mascota', mascota.idMascota])">
                 Ver detalle
               </a>
 
               <a
                 [routerLink]="['/solicitud-adopcion', mascota.idMascota]"
-                class="btn-solicitar">
+                class="btn-solicitar" (click)="registrarNavegacion(['/solicitud-adopcion', mascota.idMascota])">
                 Solicitar adopción
               </a>
             </div>
@@ -257,27 +257,27 @@
     </div>
 
     <div class="footer-compacto-links">
-      <a routerLink="/ayuda">Soporte</a>
+      <a routerLink="/ayuda" (click)="registrarNavegacion('/ayuda')">Soporte</a>
 
-      <a href="/documentos/politica-privacidad.pdf" target="_blank">
+      <a href="/documentos/politica-privacidad.pdf" target="_blank" (click)="registrarNavegacion('/documentos/politica-privacidad.pdf')">
         Política de Privacidad
       </a>
 
-      <a href="/documentos/terminos-condiciones.pdf" target="_blank">
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank" (click)="registrarNavegacion('/documentos/terminos-condiciones.pdf')">
         Términos y condiciones
       </a>
     </div>
 
     <div class="footer-social">
-      <a href="https://www.facebook.com/">
+      <a href="https://www.facebook.com/" (click)="registrarNavegacion('https://www.facebook.com/')">
         <img src="/icons/facebook.png" alt="Facebook" />
       </a>
 
-      <a href="https://x.com/">
+      <a href="https://x.com/" (click)="registrarNavegacion('https://x.com/')">
         <img src="/icons/x.png" alt="X" />
       </a>
 
-      <a href="https://www.instagram.com/">
+      <a href="https://www.instagram.com/" (click)="registrarNavegacion('https://www.instagram.com/')">
         <img src="/icons/instagram.png" alt="Instagram" />
       </a>
     </div>
