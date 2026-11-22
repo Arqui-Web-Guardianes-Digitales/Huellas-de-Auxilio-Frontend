@@ -101,6 +101,7 @@ export class SolicitudService {
       {
         headers: this.getHeaders(),
       },
+
     );
   }
 }
