@@ -3,7 +3,7 @@
     <a
       routerLink="/adopciones"
       class="btn-volver"
-      aria-label="Volver a mascotas disponibles">
+      aria-label="Volver a mascotas disponibles" (click)="registrarNavegacion('/adopciones')">
       <img src="/icons/flecha-volver.png" alt="" />
     </a>
 
@@ -143,14 +143,14 @@
       @if (m.estado) {
         <a
           [routerLink]="['/solicitud-adopcion', m.idMascota]"
-          class="btn-solicitar-detalle">
+          class="btn-solicitar-detalle" (click)="registrarNavegacion(['/solicitud-adopcion', m.idMascota])">
           Solicitar adopción
         </a>
       }
 
       <a
         routerLink="/adopciones"
-        class="btn-volver-adopciones">
+        class="btn-volver-adopciones" (click)="registrarNavegacion('/adopciones')">
         Volver a mascotas disponibles
       </a>
     </section>

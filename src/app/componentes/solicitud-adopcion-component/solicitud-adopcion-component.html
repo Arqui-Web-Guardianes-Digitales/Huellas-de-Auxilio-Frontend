@@ -42,11 +42,11 @@
       </p>
 
       <div class="acciones-confirmacion">
-        <a routerLink="/mis-solicitudes" class="btn-principal">
+        <a routerLink="/mis-solicitudes" class="btn-principal" (click)="registrarNavegacion('/mis-solicitudes')">
           Ir a mis solicitudes
         </a>
 
-        <a routerLink="/adopciones" class="btn-secundario">
+        <a routerLink="/adopciones" class="btn-secundario" (click)="registrarNavegacion('/adopciones')">
           Volver a mascotas disponibles
         </a>
       </div>
@@ -58,7 +58,7 @@
       <a
         routerLink="/adopciones"
         class="btn-volver"
-        aria-label="Volver a mascotas disponibles">
+        aria-label="Volver a mascotas disponibles" (click)="registrarNavegacion('/adopciones')">
         <img src="/icons/flecha-volver.png" alt="" />
       </a>
 
@@ -143,6 +143,7 @@
                   id="vivienda"
                   name="tipoVivienda"
                   [(ngModel)]="solicitud.tipoVivienda"
+                  (ngModelChange)="registrarCambioCampo('tipo de vivienda')"
                   [disabled]="enviando"
                   required>
 
@@ -166,6 +167,7 @@
                       name="experiencia"
                       [value]="true"
                       [(ngModel)]="solicitud.experiencia"
+                      (ngModelChange)="registrarCambioCampo('experiencia con mascotas')"
                       [disabled]="enviando"
                       required />
                     Sí
@@ -177,6 +179,7 @@
                       name="experiencia"
                       [value]="false"
                       [(ngModel)]="solicitud.experiencia"
+                      (ngModelChange)="registrarCambioCampo('experiencia con mascotas')"
                       [disabled]="enviando"
                       required />
                     No
@@ -192,6 +195,7 @@
                   name="motivo"
                   placeholder="Cuéntanos por qué deseas adoptar"
                   [(ngModel)]="solicitud.motivo"
+                  (change)="registrarCambioCampo('motivo de adopción')"
                   [disabled]="enviando"
                   required>
                 </textarea>
@@ -204,6 +208,7 @@
                 type="checkbox"
                 name="aceptoTerminos"
                 [(ngModel)]="aceptoTerminos"
+                (ngModelChange)="registrarCambioCampo('aceptación de términos')"
                 [disabled]="enviando"
                 required />
 
@@ -225,7 +230,7 @@
               </button>
 
               @if (!enviando) {
-                <a routerLink="/adopciones" class="btn-cancelar">
+                <a routerLink="/adopciones" class="btn-cancelar" (click)="registrarNavegacion('/adopciones')">
                   Cancelar
                 </a>
               }
@@ -236,7 +241,7 @@
             <h2>Mascota seleccionada</h2>
 
             <div class="mascota-resumen">
-              <img [src]="m.urlFoto" [alt]="m.nombre" />
+              <img [src]="m.urlFoto" [alt]="m.nombre" (error)="registrarErrorImagen()" />
 
               <div class="mascota-info">
                 <h3>{{ m.nombre }}</h3>

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Mascota } from '../../model/mascota';
@@ -12,12 +12,15 @@ import { AuthService } from '../../services/auth-service';
   templateUrl: './detalle-mascota-component.html',
   styleUrl: './detalle-mascota-component.css',
 })
-export class DetalleMascotaComponent implements OnInit {
+export class DetalleMascotaComponent implements OnInit, OnDestroy {
   urlFotoMascota(url?: string | null): string {
     return this.mascotaService.urlFotoMascota(url);
   }
 
   mostrarFotoDeRespaldo(evento: Event): void {
+    console.warn(
+      '[DetalleMascotaComponent] No se pudo cargar la foto; se usará la imagen de respaldo.',
+    );
     this.mascotaService.mostrarFotoDeRespaldo(evento);
   }
 
@@ -35,7 +38,9 @@ export class DetalleMascotaComponent implements OnInit {
   errorEntidad = '';
 
   ngOnInit(): void {
+    console.log('[DetalleMascotaComponent] Entrada al componente.');
     if (!this.auth.token() || !this.auth.roles().includes('ROLE_CIUDADANO')) {
+      console.warn('[DetalleMascotaComponent] Acceso no autorizado; se solicita volver al login.');
       void this.router.navigateByUrl('/login');
       return;
     }
@@ -43,22 +48,31 @@ export class DetalleMascotaComponent implements OnInit {
     const idMascota = Number(this.route.snapshot.paramMap.get('idMascota'));
 
     if (!Number.isSafeInteger(idMascota) || idMascota <= 0) {
+      console.warn(
+        '[DetalleMascotaComponent] Validación fallida: identificador de mascota no válido.',
+      );
       this.error = 'El identificador de la mascota no es válido.';
       this.cargando = false;
       return;
     }
 
+    console.log('[DetalleMascotaComponent] Consulta de mascota iniciada.', { idMascota });
     this.mascotaService.buscarPorId(idMascota).subscribe({
       next: (mascota) => {
         this.cargando = false;
 
         if (!mascota) {
+          console.warn('[DetalleMascotaComponent] La API no devolvió una mascota.', { idMascota });
           this.error = 'No se encontró la mascota.';
           this.cdr.markForCheck();
           return;
         }
 
         this.mascota = mascota;
+        console.log('[DetalleMascotaComponent] Mascota recibida.', {
+          idMascota: mascota.idMascota,
+          disponible: mascota.estado,
+        });
 
         if (mascota.entidadIdEntidad) {
           this.cargarEntidad(mascota.entidadIdEntidad);
@@ -68,6 +82,9 @@ export class DetalleMascotaComponent implements OnInit {
       },
 
       error: (e: HttpErrorResponse) => {
+        console.error('[DetalleMascotaComponent] Error al consultar la mascota.', {
+          estadoHttp: e.status,
+        });
         this.cargando = false;
         this.error =
           e.status === 0
@@ -80,9 +97,15 @@ export class DetalleMascotaComponent implements OnInit {
   }
 
   cargarEntidad(idEntidad: number): void {
+    console.log('[DetalleMascotaComponent] Consulta de entidad iniciada.', { idEntidad });
     this.mascotaService.buscarEntidadPorId(idEntidad).subscribe({
       next: (entidad) => {
         this.entidad = entidad;
+        if (entidad) {
+          console.log('[DetalleMascotaComponent] Entidad recibida.', { idEntidad });
+        } else {
+          console.warn('[DetalleMascotaComponent] La API no devolvió una entidad.', { idEntidad });
+        }
 
         if (!entidad) {
           this.errorEntidad = 'No se encontró la información de la entidad.';
@@ -92,10 +115,19 @@ export class DetalleMascotaComponent implements OnInit {
       },
 
       error: () => {
+        console.error('[DetalleMascotaComponent] Error al consultar la entidad.', { idEntidad });
         this.errorEntidad = 'No se pudo cargar la información de la entidad.';
 
         this.cdr.markForCheck();
       },
     });
+  }
+
+  registrarNavegacion(destino: string | (string | number)[]): void {
+    console.log('[DetalleMascotaComponent] Navegación solicitada.', { destino });
+  }
+
+  ngOnDestroy(): void {
+    console.log('[DetalleMascotaComponent] Salida del componente.');
   }
 }
