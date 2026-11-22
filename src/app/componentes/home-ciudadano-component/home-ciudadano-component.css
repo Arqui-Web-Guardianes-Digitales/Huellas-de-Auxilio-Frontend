@@ -9,6 +9,8 @@
   min-height: 100vh;
 }
 
+*, *::before, *::after { box-sizing: border-box; }
+
 /* HEADER y NAVBAR*/
 .header-ciudadano {
   width: 100%;
@@ -418,10 +420,29 @@
 
 /* graficos estadisticos con CHART.JS) */
 .graficos-section { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; margin: 18px 0 22px; }
-.grafico-card { background-color: #ffffff; border: 2px solid #d9dddd; border-radius: 16px; padding: 20px 24px; }
-.grafico-card h3 { font-size: 15px; font-weight: 700; color: #0b5559; margin-bottom: 14px; }
-.canvas-wrapper { position: relative; height: 220px; width: 100%; }
-.grafico-vacio { color: #676d68; font-size: 13px; text-align: center; padding: 60px 10px; }
+.grafico-card { min-width: 0; display: flex; flex-direction: column; background-color: #ffffff; border: 2px solid #d9dddd; border-radius: 16px; padding: 20px 24px; }
+.grafico-card h3 { font-size: 15px; font-weight: 700; color: #0b5559; margin: 0 0 14px; }
+.canvas-wrapper { flex-shrink: 0; position: relative; height: 220px; width: 100%; }
+.grafico-vacio { flex: 1; display: grid; place-content: center; min-height: 220px; color: #676d68; font-size: 13px; text-align: center; padding: 20px 10px; margin: 0; }
+.cantidades-grafico { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 12px 0 0; text-align: center; }
+.cantidades-grafico > div { min-width: 0; border-top: 3px solid currentColor; padding-top: 6px; }
+.cantidades-grafico dt { color: #263b3b; font-size: 12px; }
+.cantidades-grafico dd { font-size: 20px; font-weight: 700; margin: 4px 0 0; }
+.cantidad-recibidos { color: #007476; }
+.cantidad-revision { color: #ff9800; }
+.cantidad-atendidos { color: #7da766; }
+.cantidad-sol-revision { color: #005aa0; }
+.cantidad-sol-aprobadas { color: #2d8a65; }
+.cantidad-sol-rechazadas { color: #e23737; }
+.total-dona { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; color: #263b3b; }
+.total-dona strong { font-size: 32px; line-height: 1.2; }
+.total-dona span { max-width: 110px; text-align: center; font-size: 12px; line-height: 1.4; }
+.leyenda-reportes dt { min-height: 2.2em; display: grid; place-content: center; }
+.porcentaje-grafico { display: block; color: #676d68; font-size: 12px; font-weight: 500; margin-top: 2px; }
+
+@media (max-width: 960px) {
+  .graficos-section { grid-template-columns: 1fr; gap: 16px; }
+}
 
 @media (max-width: 1180px) {
   .navbar {
@@ -469,7 +490,7 @@
 /* ACCESOS RÁPIDOS */
 .accesos-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 28px;
   margin-bottom: 20px;
 }
