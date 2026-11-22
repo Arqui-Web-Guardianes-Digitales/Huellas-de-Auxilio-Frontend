@@ -77,137 +77,143 @@
       } @else if (error) {
         <p class="estado-detalle error-detalle" role="alert">{{ error }}</p>
       } @else if (entidad; as datos) {
-        <section class="detalle-entidad-contenido">
+        <section class="detalle-entidad-contenido" [class.sin-mapa]="!enlaceMapa"
+          [class.sin-inferiores]="!tieneContacto && !tieneHorario">
           <section class="bloque-principal">
             <article class="card-presentacion">
               <div class="entidad-imagen">
-                <img src="/icons/home-verde.png" [alt]="datos.nombreEntidad" />
+                <img src="/icons/home-verde.png" [alt]="datos.nombreEntidad || ''" />
               </div>
 
               <div class="entidad-datos">
                 <div class="entidad-titulo">
-                  <h2>{{ datos.nombreEntidad }}</h2>
-                  <span>{{ datos.tipoEntidad || 'Tipo no registrado' }}</span>
+                  @if (tieneDatos(datos.nombreEntidad)) {
+                    <h2>{{ datos.nombreEntidad }}</h2>
+                  }
+                  @if (tieneDatos(datos.tipoEntidad)) {
+                    <span>{{ datos.tipoEntidad }}</span>
+                  }
                 </div>
 
                 <ul class="lista-datos">
-                  <li>
-                    <img src="/icons/ubicacion-verde.png" alt="Zona de atención" />
-                    {{ datos.zonaAtencion || 'Zona no registrada' }}
-                  </li>
-                  <li>
-                    <img src="/icons/telefono-negro.png" alt="Teléfono" />
-                    {{ textoTelefono }}
-                  </li>
-                  <li>
-                    <img src="/icons/reloj-verde.png" alt="Días de atención" />
-                    {{ datos.diasAtencion || 'Días no registrados' }}
-                  </li>
-                  <li>
-                    <img src="/icons/reloj-verde.png" alt="Horario" />
-                    {{ horario }}
-                  </li>
+                  @if (tieneDatos(datos.zonaAtencion)) {
+                    <li>
+                      <img src="/icons/ubicacion-verde.png" alt="Zona de atención" />
+                      {{ datos.zonaAtencion }}
+                    </li>
+                  }
+                  @if (tieneDatos(telefono)) {
+                    <li>
+                      <img src="/icons/telefono-negro.png" alt="Teléfono" />
+                      {{ telefono }}
+                    </li>
+                  }
+                  @if (tieneDatos(datos.diasAtencion)) {
+                    <li>
+                      <img src="/icons/reloj-verde.png" alt="Días de atención" />
+                      {{ datos.diasAtencion }}
+                    </li>
+                  }
+                  @if (horario) {
+                    <li>
+                      <img src="/icons/reloj-verde.png" alt="Horario" />
+                      {{ horario }}
+                    </li>
+                  }
                 </ul>
 
                 @if (errorContacto) {
                   <p role="status">{{ errorContacto }}</p>
                 }
 
-                <div class="acciones-principales">
-                  @if (telefono) {
+                @if (tieneDatos(telefono)) {
+                  <div class="acciones-principales">
                     <a [href]="'tel:' + telefono" class="btn-llamar">
                       <img src="/icons/llamar.png" alt="" />
                       Llamar
                     </a>
-                  } @else {
-                    <button type="button" class="btn-llamar" disabled>
-                      {{ cargandoContacto ? 'Cargando...' : 'Sin teléfono' }}
+                    <button type="button" class="btn-guardar" id="btnGuardarContacto"
+                      (click)="guardarContacto()" [class.guardado]="contactoGuardado"
+                      [attr.aria-pressed]="contactoGuardado">
+                      {{ contactoGuardado ? 'Contacto guardado' : 'Guardar contacto' }}
                     </button>
-                  }
-                  <button type="button" class="btn-guardar" id="btnGuardarContacto"
-                    (click)="guardarContacto()" [disabled]="!telefono"
-                    [class.guardado]="contactoGuardado" [attr.aria-pressed]="contactoGuardado">
-                    {{ contactoGuardado ? 'Contacto guardado' : 'Guardar contacto' }}
-                  </button>
-                </div>
+                  </div>
+                }
               </div>
             </article>
 
-            <section class="cards-inferiores">
-              <article class="info-card contacto-card">
-                <div class="card-titulo">
-                  <img src="/icons/user-verde.png" alt="" />
-                  <h2>Datos de contacto</h2>
-                </div>
-                <ul>
-                  <li>
-                    <img src="/icons/telefono-negro.png" alt="Teléfono" />
-                    {{ textoTelefono }}
-                  </li>
-                  <li>
-                    <img src="/icons/email2.png" alt="Correo" />
-                    Correo no disponible
-                  </li>
-                  <li>
-                    <img src="/icons/mundo-verde.png" alt="Sitio web" />
-                    @if (enlaceSitioWeb; as enlace) {
-                      <a [href]="enlace" target="_blank" rel="noopener noreferrer">
-                        {{ datos.sitioWeb }}
-                      </a>
-                    } @else {
-                      Sitio web no disponible
+            @if (tieneContacto || tieneHorario) {
+              <section class="cards-inferiores">
+                @if (tieneContacto) {
+                  <article class="info-card contacto-card">
+                    <div class="card-titulo">
+                      <img src="/icons/user-verde.png" alt="" />
+                      <h2>Datos de contacto</h2>
+                    </div>
+                    <ul>
+                      @if (tieneDatos(telefono)) {
+                        <li>
+                          <img src="/icons/telefono-negro.png" alt="Teléfono" />
+                          {{ telefono }}
+                        </li>
+                      }
+                      @if (tieneDatos(datos.sitioWeb)) {
+                        <li>
+                          <img src="/icons/mundo-verde.png" alt="Sitio web" />
+                          @if (enlaceSitioWeb; as enlace) {
+                            <a [href]="enlace" target="_blank" rel="noopener noreferrer">
+                              {{ datos.sitioWeb }}
+                            </a>
+                          } @else {
+                            {{ datos.sitioWeb }}
+                          }
+                        </li>
+                      }
+                      @if (tieneDatos(datos.zonaAtencion)) {
+                        <li>
+                          <img src="/icons/ubicacion-verde.png" alt="Zona de atención" />
+                          {{ datos.zonaAtencion }}
+                        </li>
+                      }
+                    </ul>
+                  </article>
+                }
+
+                @if (tieneHorario) {
+                  <article class="info-card horario-card">
+                    <div class="card-titulo">
+                      <img src="/icons/reloj-verde.png" alt="" />
+                      <h2>Horario de atención</h2>
+                    </div>
+                    @if (tieneDatos(datos.diasAtencion)) {
+                      <p>{{ datos.diasAtencion }}</p>
                     }
-                  </li>
-                  <li>
-                    <img src="/icons/ubicacion-verde.png" alt="Zona de atención" />
-                    {{ datos.zonaAtencion || 'Zona no registrada' }}
-                  </li>
-                </ul>
-              </article>
-
-              <article class="info-card horario-card">
-                <div class="card-titulo">
-                  <img src="/icons/reloj-verde.png" alt="" />
-                  <h2>Horario de atención</h2>
-                </div>
-                <p>{{ datos.diasAtencion || 'Días no registrados' }}</p>
-                <div class="horario-linea">
-                  <span>Horario</span>
-                  <strong>{{ horario }}</strong>
-                </div>
-              </article>
-
-              <article class="info-card atencion-card">
-                <div class="card-titulo">
-                  <img src="/icons/corazon-verde.png" alt="" />
-                  <h2>Tipos de atención</h2>
-                </div>
-                <p class="informacion-no-disponible">Información no disponible.</p>
-              </article>
-            </section>
+                    @if (horario) {
+                      <div class="horario-linea">
+                        <span>Horario</span>
+                        <strong>{{ horario }}</strong>
+                      </div>
+                    }
+                  </article>
+                }
+              </section>
+            }
           </section>
 
-          <aside class="bloque-lateral">
-            <article class="card-mapa">
-              <h2>Ubicación</h2>
-              @if (enlaceMapa; as enlace) {
+          @if (enlaceMapa; as enlace) {
+            <aside class="bloque-lateral">
+              <article class="card-mapa">
+                <h2>Ubicación</h2>
                 <div #mapaEntidad class="mapa-entidad mapa-interactivo" role="region"
-                  [attr.aria-label]="'Ubicación de ' + datos.nombreEntidad">
+                  [attr.aria-label]="datos.nombreEntidad ? 'Ubicación de ' + datos.nombreEntidad : 'Ubicación de la entidad'">
                 </div>
                 <a [href]="enlace" target="_blank" rel="noopener noreferrer" class="link-mapa">
                   Ver ubicación en el mapa
                   <img src="/icons/salir.png" alt="" />
                 </a>
-              } @else {
-                <div class="mapa-entidad ubicacion-real">
-                  <img src="/icons/ubicacion-verde.png" alt="" />
-                  <strong>{{ datos.nombreEntidad }}</strong>
-                  <span>{{ datos.zonaAtencion || 'Zona no registrada' }}</span>
-                  <span>Coordenadas no disponibles.</span>
-                </div>
-              }
-            </article>
-          </aside>
+              </article>
+            </aside>
+          }
         </section>
       }
     </main>

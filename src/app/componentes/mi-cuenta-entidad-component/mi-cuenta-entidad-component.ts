@@ -108,15 +108,35 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
   }
 
   comenzarEdicion(seccion: 'entidad' | 'contacto' | 'seguridad'): void {
-    if (this.cargando || this.guardando || this.eliminando || this.errorCarga || !this.entidad.idEntidad
-      || !this.comprobarSesion()) return;
-    if (this.editando !== null && this.editando !== seccion) return;
-    this.borradorEntidad = Object.assign(new Entidad(), this.entidad);
+    if (this.cargando || this.guardando || this.eliminando) {
+      this.error = 'Espera a que termine la operación actual para editar tu cuenta.';
+      this.cdr.markForCheck();
+      return;
+    }
+    if (this.errorCarga || !Number.isSafeInteger(this.entidad.idEntidad) || this.entidad.idEntidad! <= 0) {
+      this.error = 'No se ha cargado correctamente tu entidad. Vuelve a cargar el perfil.';
+      this.cdr.markForCheck();
+      return;
+    }
+    if (!this.comprobarSesion()) return;
+    if (this.editando !== null && this.editando !== seccion) {
+      this.error = 'Guarda o cancela la edición actual antes de editar otra sección.';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    this.borradorEntidad = Object.assign(new Entidad(), this.entidad, {
+      sitioWeb: this.entidad.sitioWeb || '',
+      fechaAtencionInicio: this.entidad.fechaAtencionInicio || '',
+      fechaAtencionFinal: this.entidad.fechaAtencionFinal || '',
+      diasAtencion: this.entidad.diasAtencion || '',
+    });
     this.borradorUsuario = Object.assign(new Usuario(), this.usuario);
     this.limpiarClaves();
     this.editando = seccion;
     this.error = '';
     this.mensaje = '';
+    this.cdr.detectChanges();
   }
 
   cancelarEdicion(): void {
@@ -126,6 +146,7 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
     this.limpiarClaves();
     this.editando = null;
     this.error = '';
+    this.cdr.detectChanges();
   }
 
   guardarEntidad(): void {
@@ -138,10 +159,35 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
       this.error = 'Completa el nombre, tipo de entidad y zona de atención.';
       return;
     }
+    const sitioWeb = (this.borradorEntidad.sitioWeb || '').trim();
+    const diasAtencion = (this.borradorEntidad.diasAtencion || '').trim();
+
+    if (sitioWeb.length > 255 || diasAtencion.length > 255) {
+      this.error = 'El sitio web y los días de atención admiten hasta 255 caracteres.';
+      return;
+    }
+
+    if (sitioWeb) {
+      try {
+        const direccionWeb = new URL(sitioWeb);
+        if (direccionWeb.protocol !== 'http:' && direccionWeb.protocol !== 'https:') {
+          this.error = 'El sitio web debe comenzar con http:// o https://.';
+          return;
+        }
+      } catch {
+        this.error = 'Ingresa un sitio web válido, por ejemplo https://www.ejemplo.com.';
+        return;
+      }
+    }
+
     const datos = Object.assign(new Entidad(), {
       nombreEntidad: nombre,
       tipoEntidad: tipo,
       zonaAtencion: zona,
+      sitioWeb,
+      fechaAtencionInicio: this.borradorEntidad.fechaAtencionInicio || undefined,
+      fechaAtencionFinal: this.borradorEntidad.fechaAtencionFinal || undefined,
+      diasAtencion,
     });
     const idEntidad = this.entidad.idEntidad;
     const idUsuario = this.entidad.idUsuario;

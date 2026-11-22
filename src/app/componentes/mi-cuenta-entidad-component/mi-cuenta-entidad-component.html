@@ -143,6 +143,34 @@
                    [(ngModel)]="borradorEntidad.zonaAtencion" [disabled]="guardando || eliminando || requiereLogin" maxlength="255" required />
           } @else { <p>{{ entidad.zonaAtencion }}</p> }
         </div>
+        <div class="dato-item">
+          <label [attr.for]="editando === 'entidad' ? 'sitioWeb' : null">SITIO WEB (OPCIONAL)</label>
+          @if (editando === 'entidad') {
+            <input id="sitioWeb" name="sitioWeb" type="url" placeholder="https://www.ejemplo.com"
+                   [(ngModel)]="borradorEntidad.sitioWeb" [disabled]="guardando || eliminando || requiereLogin" maxlength="255" />
+          } @else { <p>{{ entidad.sitioWeb || 'Sin registrar' }}</p> }
+        </div>
+        <div class="dato-item">
+          <label [attr.for]="editando === 'entidad' ? 'fechaAtencionInicio' : null">HORA DE INICIO (OPCIONAL)</label>
+          @if (editando === 'entidad') {
+            <input id="fechaAtencionInicio" name="fechaAtencionInicio" type="time"
+                   [(ngModel)]="borradorEntidad.fechaAtencionInicio" [disabled]="guardando || eliminando || requiereLogin" />
+          } @else { <p>{{ entidad.fechaAtencionInicio?.slice(0, 5) || 'Sin registrar' }}</p> }
+        </div>
+        <div class="dato-item">
+          <label [attr.for]="editando === 'entidad' ? 'fechaAtencionFinal' : null">HORA DE FINALIZACIÓN (OPCIONAL)</label>
+          @if (editando === 'entidad') {
+            <input id="fechaAtencionFinal" name="fechaAtencionFinal" type="time"
+                   [(ngModel)]="borradorEntidad.fechaAtencionFinal" [disabled]="guardando || eliminando || requiereLogin" />
+          } @else { <p>{{ entidad.fechaAtencionFinal?.slice(0, 5) || 'Sin registrar' }}</p> }
+        </div>
+        <div class="dato-item">
+          <label [attr.for]="editando === 'entidad' ? 'diasAtencion' : null">DÍAS DE ATENCIÓN (OPCIONAL)</label>
+          @if (editando === 'entidad') {
+            <input id="diasAtencion" name="diasAtencion" type="text" placeholder="Lunes a viernes"
+                   [(ngModel)]="borradorEntidad.diasAtencion" [disabled]="guardando || eliminando || requiereLogin" maxlength="255" />
+          } @else { <p>{{ entidad.diasAtencion || 'Sin registrar' }}</p> }
+        </div>
       </div>
     </form>
       @if (guardando) {

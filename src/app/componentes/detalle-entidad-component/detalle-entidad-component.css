@@ -1069,3 +1069,40 @@ a:focus-visible {
     height: 260px;
   }
 }
+
+.cards-inferiores {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.detalle-entidad-contenido.sin-mapa {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "principal"
+    "inferiores";
+}
+
+.detalle-entidad-contenido.sin-inferiores {
+  grid-template-areas: "principal mapa";
+}
+
+.detalle-entidad-contenido.sin-mapa.sin-inferiores {
+  grid-template-areas: "principal";
+}
+
+@media (max-width: 1150px) {
+  .detalle-entidad-contenido.sin-inferiores {
+    grid-template-areas:
+      "principal"
+      "mapa";
+  }
+
+  .detalle-entidad-contenido.sin-mapa.sin-inferiores {
+    grid-template-areas: "principal";
+  }
+}
+
+@media (max-width: 700px) {
+  .cards-inferiores {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

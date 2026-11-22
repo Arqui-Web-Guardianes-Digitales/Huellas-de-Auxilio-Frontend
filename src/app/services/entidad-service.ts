@@ -188,6 +188,10 @@ export class EntidadService {
           nombreEntidad: datos.nombreEntidad.trim(),
           tipoEntidad: datos.tipoEntidad.trim(),
           zonaAtencion: datos.zonaAtencion.trim(),
+          sitioWeb: (datos.sitioWeb || '').trim(),
+          fechaAtencionInicio: datos.fechaAtencionInicio || null,
+          fechaAtencionFinal: datos.fechaAtencionFinal || null,
+          diasAtencion: (datos.diasAtencion || '').trim(),
         },
         { headers },
       );
