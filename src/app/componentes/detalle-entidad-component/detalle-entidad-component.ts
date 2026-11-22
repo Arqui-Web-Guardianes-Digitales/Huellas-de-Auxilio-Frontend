@@ -157,16 +157,39 @@ export class DetalleEntidadComponent implements OnInit, OnDestroy {
     ).subscribe(() => this.cdr.markForCheck());
   }
 
-  get textoTelefono(): string {
-    if (this.cargandoContacto) return 'Cargando teléfono...';
-    return this.telefono || 'Teléfono no disponible';
+  tieneDatos(valor: string | null | undefined): boolean {
+    return valor != null && valor.trim() !== '';
+  }
+
+  get tieneContacto(): boolean {
+    return this.tieneDatos(this.telefono)
+      || this.tieneDatos(this.entidad?.sitioWeb)
+      || this.tieneDatos(this.entidad?.zonaAtencion);
+  }
+
+  get tieneHorario(): boolean {
+    return this.tieneDatos(this.entidad?.diasAtencion)
+      || this.tieneDatos(this.entidad?.fechaAtencionInicio)
+      || this.tieneDatos(this.entidad?.fechaAtencionFinal);
   }
 
   get horario(): string {
     const inicio = this.entidad?.fechaAtencionInicio;
     const final = this.entidad?.fechaAtencionFinal;
-    if (!inicio || !final) return 'Horario no registrado';
-    return inicio.slice(0, 5) + ' - ' + final.slice(0, 5);
+
+    if (this.tieneDatos(inicio) && this.tieneDatos(final)) {
+      return inicio!.slice(0, 5) + ' - ' + final!.slice(0, 5);
+    }
+
+    if (this.tieneDatos(inicio)) {
+      return 'Desde las ' + inicio!.slice(0, 5);
+    }
+
+    if (this.tieneDatos(final)) {
+      return 'Hasta las ' + final!.slice(0, 5);
+    }
+
+    return '';
   }
 
   get enlaceMapa(): string | null {
@@ -201,6 +224,6 @@ export class DetalleEntidadComponent implements OnInit, OnDestroy {
   }
 
   guardarContacto(): void {
-    if (this.telefono) this.contactoGuardado = true;
+    if (this.tieneDatos(this.telefono)) this.contactoGuardado = true;
   }
 }
