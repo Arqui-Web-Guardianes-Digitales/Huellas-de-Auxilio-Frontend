@@ -22,6 +22,8 @@ interface FiltrosMascotas {
   styleUrl: './adopciones-component.css',
 })
 export class AdopcionesComponent implements OnInit {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly mascotaService = inject(MascotaService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
@@ -52,6 +54,7 @@ export class AdopcionesComponent implements OnInit {
   readonly tarjetasPorPagina = 6;
 
   ngOnInit(): void {
+    console.log("Consultando mascotas disponibles para adopción");
     if (!this.auth.token() || !this.auth.roles().includes('ROLE_CIUDADANO')) {
       void this.router.navigateByUrl('/login');
       return;
@@ -77,10 +80,12 @@ export class AdopcionesComponent implements OnInit {
       }),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe(({ mascotas, filtrando, fallo }) => {
+      console.log('Consulta de mascotas para adopción finalizada:', { cantidad: mascotas.length, filtrosAplicados: filtrando, fallo });
       this.mascotas = mascotas;
       this.cargando = false;
       if (fallo) {
         this.error = 'No se pudieron cargar las mascotas. Vuelve a intentar la búsqueda.';
+console.log("Operación detenida o no confirmada:", this.error);
       } else if (!filtrando) {
         // Las opciones salen del listado completo, no del resultado filtrado.
         this.especies = this.opcionesDe(mascotas, 'especie');
@@ -94,15 +99,18 @@ export class AdopcionesComponent implements OnInit {
   }
 
   buscarMascotas(): void {
+    console.log("Buscando mascotas para adopción");
     this.consultas.next({ ...this.filtros, nombre: this.filtros.nombre.trim() });
   }
 
   cambiarFiltro(campo: 'especie' | 'edad' | 'distrito', valor: string): void {
+    console.log("Modificando los filtros de adopción");
     this.filtros[campo] = valor;
     this.buscarMascotas();
   }
 
   limpiarFiltros(): void {
+    console.log("Limpiando los filtros de adopción");
     this.filtros = { nombre: '', especie: '', edad: '', distrito: '' };
     this.buscarMascotas();
   }
@@ -117,6 +125,7 @@ export class AdopcionesComponent implements OnInit {
   }
 
   cambiarPagina(pagina: number): void {
+    console.log("Cambiando la página de mascotas");
     if (pagina >= 1 && pagina <= this.totalPaginas) this.pagina = pagina;
   }
 

@@ -16,6 +16,8 @@ import { Solicitud } from '../../model/solicitud';
   styleUrl: './detalle-solicitud-entidad-component.css',
 })
 export class DetalleSolicitudEntidadComponent implements OnInit {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   readonly mascotaService = inject(MascotaService);
   private readonly solicitudService = inject(SolicitudService);
@@ -42,6 +44,7 @@ export class DetalleSolicitudEntidadComponent implements OnInit {
   solicitud: Solicitud | null = null;
 
   ngOnInit(): void {
+    console.log("Abriendo el detalle de la solicitud de la entidad");
     this.tokenSesion = this.auth.token();
     if (!this.tokenSesion || !this.auth.correoEntidad() || !this.auth.roles().includes('ROLE_ENTIDAD')) {
       this.cargando = false; void this.router.navigateByUrl('/login'); return;
@@ -52,35 +55,40 @@ export class DetalleSolicitudEntidadComponent implements OnInit {
     this.auth.limpiarDatosEntidad();
     this.auth.obtenerPerfilEntidadDB().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (entidad) => {
+        console.log("Respuesta recibida: abriendo el detalle de la solicitud de la entidad", { cantidad: Array.isArray(entidad) ? entidad.length : null, respuestaRecibida: entidad != null });
         if (!this.comprobarSesion()) return;
         if (!entidad) { this.mostrarError('No se encontró tu perfil de entidad.'); return; }
         this.idEntidad = entidad.idEntidad!; this.nombreEntidad = entidad.nombreEntidad;
         this.auth.guardarDatosEntidad(this.idEntidad, this.nombreEntidad);
         this.cargarMascota();
       },
-      error: (error: HttpErrorResponse) => this.errorPeticion(error),
+      error: (error: HttpErrorResponse) => (console.log("Error durante la operación: abriendo el detalle de la solicitud de la entidad"), this.errorPeticion(error)),
     });
   }
 
   private cargarMascota(): void {
+    console.log("Consultando la mascota de la solicitud");
     this.mascotaService.buscarPorId(this.idMascota).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (mascota) => {
+        console.log("Respuesta recibida: consultando la mascota de la solicitud", { cantidad: Array.isArray(mascota) ? mascota.length : null, respuestaRecibida: mascota != null });
         if (!this.comprobarSesion()) return;
         if (!mascota || mascota.entidadIdEntidad !== this.idEntidad) {
           this.mostrarError('No se encontró una mascota de tu entidad con ese identificador.'); return;
         }
         this.mascota = mascota; this.cargarSolicitud();
       },
-      error: (error: HttpErrorResponse) => this.errorPeticion(error),
+      error: (error: HttpErrorResponse) => (console.log("Error durante la operación: consultando la mascota de la solicitud"), this.errorPeticion(error)),
     });
   }
 
   cargarSolicitud(): void {
+    console.log("Consultando el detalle de la solicitud");
     if (!this.comprobarSesion() || !this.mascota || this.guardando) return;
     this.cargando = true; this.errorGestion = ''; this.accion = null;
     this.solicitudService.buscarPorSolicitudYMascota(this.idMascota, this.idSolicitud)
       .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (solicitud) => {
+          console.log("Respuesta recibida: consultando el detalle de la solicitud", { cantidad: Array.isArray(solicitud) ? solicitud.length : null, respuestaRecibida: solicitud != null });
           if (!this.comprobarSesion()) return;
           this.cargando = false;
           if (!solicitud || solicitud.idSolicitud !== this.idSolicitud || solicitud.mascotaIdMascota !== this.idMascota) {
@@ -89,22 +97,25 @@ export class DetalleSolicitudEntidadComponent implements OnInit {
           this.solicitud = solicitud; this.error = '';
           this.cdr.markForCheck();
         },
-        error: (error: HttpErrorResponse) => this.errorPeticion(error),
+        error: (error: HttpErrorResponse) => (console.log("Error durante la operación: consultando el detalle de la solicitud"), this.errorPeticion(error)),
       });
   }
 
   abrirConfirmacion(accion: 'aprobar' | 'rechazar'): void {
+    console.log("Comprobando si se puede aprobar o rechazar la solicitud");
     if (!this.comprobarSesion() || this.guardando || this.cargando || this.error || this.errorGestion || this.gestionada
       || this.solicitud?.estadoSolicitud !== 'EN_REVISION') return;
     this.accion = accion; this.errorGestion = '';
     this.confirmacion?.nativeElement.showModal();
   }
   cerrarConfirmacion(): void {
+    console.log("Cerrando la confirmación de gestión de la solicitud");
     if (this.guardando) return;
     this.confirmacion?.nativeElement.close(); this.accion = null;
   }
 
   confirmarGestion(): void {
+    console.log("Intentando confirmar la aprobación o rechazo de la solicitud");
     if (!this.comprobarSesion() || this.guardando || this.cargando || this.error || this.errorGestion || this.gestionada
       || !this.accion || this.solicitud?.estadoSolicitud !== 'EN_REVISION') return;
     const estado = this.accion === 'aprobar' ? 'APROBADA' : 'RECHAZADA';
@@ -113,23 +124,28 @@ export class DetalleSolicitudEntidadComponent implements OnInit {
     this.guardando = true; this.errorGestion = '';
     peticion.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (respuesta) => {
+        console.log("Respuesta recibida: intentando confirmar la aprobación o rechazo de la solicitud", { cantidad: Array.isArray(respuesta) ? respuesta.length : null, respuestaRecibida: respuesta != null });
         if (!this.comprobarSesion()) return;
         this.guardando = false; this.cerrarConfirmacion();
         if (!respuesta || respuesta.idSolicitud !== this.idSolicitud || respuesta.mascotaIdMascota !== this.idMascota
           || respuesta.estadoSolicitud !== estado) {
           this.errorGestion = 'No se pudo confirmar el cambio. Recarga la solicitud antes de reintentar.';
+console.log("Operación detenida o no confirmada:", this.errorGestion);
         } else {
           this.solicitud = { ...this.solicitud!, estadoSolicitud: respuesta.estadoSolicitud };
           this.gestionada = true;
+          console.log('Gestión de la solicitud confirmada:', { idSolicitud: this.idSolicitud, estadoSolicitud: respuesta.estadoSolicitud });
         }
         this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
+        console.log("Error durante la operación: intentando confirmar la aprobación o rechazo de la solicitud");
         if (!this.comprobarSesion()) return;
         this.guardando = false; this.cerrarConfirmacion();
         this.errorGestion = error.status === 409 ? 'La solicitud ya fue gestionada o la mascota ya no está disponible. Recarga para consultar el estado actual.'
           : error.status === 403 ? 'Solo puedes gestionar solicitudes de tu entidad.'
           : 'No se pudo confirmar el cambio. Recarga la solicitud antes de reintentar.';
+console.log("Operación detenida o no confirmada:", this.errorGestion);
         if (error.status === 401) { this.auth.cerrarSesion(); void this.router.navigateByUrl('/login'); }
         this.cdr.markForCheck();
       },

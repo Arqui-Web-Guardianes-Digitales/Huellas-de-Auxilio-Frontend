@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, DestroyRef, HostListener, OnDestroy, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
+import * as L from 'leaflet';
+import { ChangeDetectorRef, Component, DestroyRef, ElementRef, HostListener, OnDestroy, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Entidad } from '../../model/entidad';
@@ -18,6 +19,8 @@ import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dial
   styleUrl: './mi-cuenta-entidad-component.css',
 })
 export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly entidadService = inject(EntidadService);
@@ -59,6 +62,72 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
   contrasenaActual = '';
   nuevaContrasena = '';
   confirmarContrasena = '';
+
+  private mapa: L.Map | null = null;
+  private marcador: L.Marker | null = null;
+
+  @ViewChild('mapaUbicacionEntidad')
+  set referenciaMapa(referencia: ElementRef<HTMLDivElement> | undefined) {
+    this.destruirMapa();
+    if (!referencia || this.editando !== 'entidad') return;
+
+    const tieneUbicacion = this.coordenadasValidas(this.borradorEntidad.latitud, this.borradorEntidad.longitud);
+    const coordenadas: L.LatLngTuple = tieneUbicacion
+      ? [this.borradorEntidad.latitud!, this.borradorEntidad.longitud!]
+      : [-12.0833, -77.0347];
+    this.mapa = L.map(referencia.nativeElement).setView(coordenadas, tieneUbicacion ? 15 : 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19,
+    }).addTo(this.mapa);
+    if (tieneUbicacion) this.mostrarMarcador(coordenadas);
+
+    this.mapa.on('click', (evento: L.LeafletMouseEvent) => {
+      if (this.editando !== 'entidad' || this.guardando || this.eliminando || !this.comprobarSesion()) return;
+      const latitud = evento.latlng.lat;
+      const longitud = evento.latlng.lng;
+      if (!this.coordenadasValidas(latitud, longitud)) {
+        this.error = 'Selecciona una ubicación con latitud entre -90 y 90 y longitud entre -180 y 180.';
+        this.cdr.markForCheck();
+        return;
+      }
+      this.borradorEntidad.latitud = latitud;
+      this.borradorEntidad.longitud = longitud;
+      this.mostrarMarcador([latitud, longitud]);
+      this.error = '';
+      console.log('Nueva ubicación seleccionada para la entidad');
+      this.cdr.markForCheck();
+    });
+    console.log('Mapa de edición de ubicación de la entidad inicializado');
+  }
+
+  coordenadasValidas(latitud: number | null | undefined, longitud: number | null | undefined): boolean {
+    return typeof latitud === 'number' && Number.isFinite(latitud) && latitud >= -90 && latitud <= 90
+      && typeof longitud === 'number' && Number.isFinite(longitud) && longitud >= -180 && longitud <= 180;
+  }
+
+  private mostrarMarcador(coordenadas: L.LatLngTuple): void {
+    if (!this.mapa) return;
+    if (this.marcador) {
+      this.marcador.setLatLng(coordenadas);
+      return;
+    }
+    const icono = L.icon({
+      iconUrl: '/icons/map2.png',
+      iconSize: [36, 36],
+      iconAnchor: [18, 36],
+    });
+    this.marcador = L.marker(coordenadas, { icon: icono, draggable: false }).addTo(this.mapa);
+  }
+
+  private destruirMapa(): void {
+    if (this.mapa) {
+      this.mapa.remove();
+      console.log('Mapa de edición de ubicación de la entidad liberado');
+    }
+    this.mapa = null;
+    this.marcador = null;
+  }
 
   ngOnInit(): void {
     this.tokenSesion = this.auth.token();
@@ -134,6 +203,7 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
     this.borradorUsuario = Object.assign(new Usuario(), this.usuario);
     this.limpiarClaves();
     this.editando = seccion;
+    console.log('Edición iniciada', { seccion });
     this.error = '';
     this.mensaje = '';
     this.cdr.detectChanges();
@@ -141,6 +211,7 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
 
   cancelarEdicion(): void {
     if (this.cargando || this.guardando || this.eliminando || !this.comprobarSesion()) return;
+    console.log('Edición cancelada', { seccion: this.editando });
     this.borradorEntidad = Object.assign(new Entidad(), this.entidad);
     this.borradorUsuario = Object.assign(new Usuario(), this.usuario);
     this.limpiarClaves();
@@ -157,6 +228,7 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
     const zona = this.borradorEntidad.zonaAtencion.trim();
     if (!nombre || !tipo || !zona || [nombre, tipo, zona].some((valor) => valor.length > 255)) {
       this.error = 'Completa el nombre, tipo de entidad y zona de atención.';
+      console.log('Actualización de datos de la entidad detenida', { motivo: this.error });
       return;
     }
     const sitioWeb = (this.borradorEntidad.sitioWeb || '').trim();
@@ -164,6 +236,7 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
 
     if (sitioWeb.length > 255 || diasAtencion.length > 255) {
       this.error = 'El sitio web y los días de atención admiten hasta 255 caracteres.';
+      console.log('Actualización de datos de la entidad detenida', { motivo: this.error });
       return;
     }
 
@@ -172,12 +245,22 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
         const direccionWeb = new URL(sitioWeb);
         if (direccionWeb.protocol !== 'http:' && direccionWeb.protocol !== 'https:') {
           this.error = 'El sitio web debe comenzar con http:// o https://.';
+          console.log('Actualización de datos de la entidad detenida', { motivo: this.error });
           return;
         }
       } catch {
         this.error = 'Ingresa un sitio web válido, por ejemplo https://www.ejemplo.com.';
+        console.log('Actualización de datos de la entidad detenida', { motivo: this.error });
         return;
       }
+    }
+
+    const latitud = this.borradorEntidad.latitud;
+    const longitud = this.borradorEntidad.longitud;
+    if ((latitud != null || longitud != null) && !this.coordenadasValidas(latitud, longitud)) {
+      this.error = 'Selecciona una ubicación válida en el mapa antes de guardar.';
+      console.log('Actualización de ubicación detenida: coordenadas inválidas');
+      return;
     }
 
     const datos = Object.assign(new Entidad(), {
@@ -188,9 +271,12 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
       fechaAtencionInicio: this.borradorEntidad.fechaAtencionInicio || undefined,
       fechaAtencionFinal: this.borradorEntidad.fechaAtencionFinal || undefined,
       diasAtencion,
+      latitud,
+      longitud,
     });
     const idEntidad = this.entidad.idEntidad;
     const idUsuario = this.entidad.idUsuario;
+    console.log('Solicitando actualización de datos de la entidad');
     this.guardando = true;
     this.error = '';
     this.mensaje = '';
@@ -204,6 +290,7 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
         if (!this.comprobarSesion()) return;
         if (!actualizada || actualizada.idEntidad !== idEntidad || actualizada.idUsuario !== idUsuario) {
           this.error = 'El servidor no confirmó la actualización de tu entidad.';
+          console.log('Actualización de datos de la entidad detenida', { motivo: this.error });
           this.cdr.markForCheck();
           return;
         }
@@ -212,9 +299,11 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
         this.auth.guardarDatosEntidad(idEntidad, actualizada.nombreEntidad);
         this.editando = null;
         this.mensaje = 'Datos de la entidad actualizados correctamente.';
+        console.log('Datos de la entidad actualizados', { idEntidad });
         this.cdr.markForCheck();
       },
       error: (error: unknown) => {
+        console.log('Error al actualizar datos de la entidad', { estadoHTTP: error instanceof HttpErrorResponse ? error.status : null });
         if (this.comprobarSesion()) this.error = this.obtenerMensajeError(error);
         this.cdr.markForCheck();
       },
@@ -232,8 +321,10 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
       !/^\d{9}$/.test(telefono)
     ) {
       this.error = 'Ingresa un correo válido y un teléfono de 9 dígitos.';
+      console.log('Actualización de contacto detenida', { motivo: this.error });
       return;
     }
+    console.log('Solicitando actualización de contacto');
     this.guardando = true;
     this.error = '';
     this.mensaje = '';
@@ -250,7 +341,9 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
         this.borradorUsuario = Object.assign(new Usuario(), this.usuario);
         this.editando = null;
         this.mensaje = 'Datos de contacto actualizados correctamente.';
+        console.log('Contacto actualizado', { correoModificado: resultado.correoModificado });
         if (resultado.correoModificado) {
+          console.log('Cerrando sesión por cambio de correo');
           this.auth.cerrarSesion();
           this.limpiarClaves();
           this.requiereLogin = true;
@@ -260,6 +353,7 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       },
       error: (error: unknown) => {
+        console.log('Error al actualizar contacto', { estadoHTTP: error instanceof HttpErrorResponse ? error.status : null });
         if (this.comprobarSesion()) this.error = this.obtenerMensajeError(error);
         this.cdr.markForCheck();
       },
@@ -278,8 +372,10 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
     ) {
       this.error =
         'Completa la clave actual y confirma una nueva de al menos 8 caracteres y hasta 72 bytes UTF-8.';
+      console.log('Cambio de contraseña detenido: validación rechazada');
       return;
     }
+    console.log('Solicitando actualización de contraseña');
     this.guardando = true;
     this.error = '';
     this.mensaje = '';
@@ -295,9 +391,11 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
         this.limpiarClaves();
         this.editando = null;
         this.mensaje = 'Contraseña actualizada correctamente.';
+        console.log('Cambio de contraseña confirmado');
         this.cdr.markForCheck();
       },
       error: (error: unknown) => {
+        console.log('Error al actualizar contraseña', { estadoHTTP: error instanceof HttpErrorResponse ? error.status : null });
         if (this.comprobarSesion()) this.error = this.obtenerMensajeError(error);
         this.limpiarClaves();
         this.cdr.markForCheck();
@@ -312,6 +410,7 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
   }
 
   cerrarSesion(): void {
+    console.log('Cerrando sesión');
     this.limpiarClaves();
     this.contrasenaEliminar = '';
     this.dialogoEliminarRef?.close();
@@ -349,6 +448,7 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
       || this.errorCarga || !this.usuario.idUsuario || !this.comprobarSesion()) return;
     this.contrasenaEliminar = '';
     this.errorEliminar = '';
+    console.log('Abriendo confirmación de eliminación lógica');
     this.dialogoEliminarRef = this.dialog.open(this.dialogoEliminarEntidad, {
       width: '440px', maxWidth: '95vw', disableClose: true,
       ariaLabelledBy: 'titulo-eliminar-entidad',
@@ -363,6 +463,7 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
 
   cancelarEliminacion(): void {
     if (this.eliminando) return;
+    console.log('Eliminación lógica cancelada');
     this.contrasenaEliminar = '';
     this.errorEliminar = '';
     this.dialogoEliminarRef?.close();
@@ -373,9 +474,11 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
       || !this.comprobarSesion()) return;
     if (!this.contrasenaEliminar.trim()) {
       this.errorEliminar = 'Ingresa tu contraseña actual.';
+      console.log('Eliminación detenida: falta la contraseña actual');
       return;
     }
     const idUsuario = this.usuario.idUsuario;
+    console.log('Solicitando eliminación lógica', { idUsuario });
     this.eliminando = true;
     this.errorEliminar = '';
     this.entidadService.desactivarCuenta(idUsuario, this.usuario.correo, this.contrasenaEliminar).pipe(
@@ -388,18 +491,21 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
         this.contrasenaEliminar = '';
         if (!usuario || usuario.idUsuario !== idUsuario || usuario.estadoUsuario !== false) {
           this.errorEliminar = 'No se pudo desactivar la cuenta. Verifica tu contraseña.';
+          console.log('El servidor no confirmó la eliminación lógica', { idUsuario });
           this.cdr.markForCheck();
           return;
         }
         this.limpiarClaves();
         this.dialogoEliminarRef?.close();
         this.auth.cerrarSesion();
+        console.log('Eliminación lógica confirmada y sesión cerrada', { idUsuario, estadoUsuario: usuario.estadoUsuario });
         this.cuentaDesactivada = true;
         this.requiereLogin = true;
         this.mensaje = 'La cuenta de tu entidad fue desactivada correctamente.';
         this.cdr.markForCheck();
       },
       error: (error: unknown) => {
+        console.log('Error al eliminar lógicamente la cuenta', { estadoHTTP: error instanceof HttpErrorResponse ? error.status : null });
         this.contrasenaEliminar = '';
         if (this.comprobarSesion()) {
           this.errorEliminar = error instanceof TimeoutError
@@ -413,6 +519,7 @@ export class MiCuentaEntidadComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destruirMapa();
     this.contrasenaEliminar = '';
     this.dialogoEliminarRef?.close();
   }

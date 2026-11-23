@@ -27,7 +27,7 @@
             <img src="/icons/campana.png" alt="Notificaciones" />
           </a>
 
-          <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
+          <a [routerLink]="rutaCuenta" class="btn-cuenta">
             <img src="/icons/user-circle.png" alt="Mi cuenta" />
             <span>Mi cuenta</span>
           </a>
@@ -41,7 +41,7 @@
 
             <div>
               <h3>HuellaAmiga247</h3>
-              <a routerLink="/mi-cuenta-ciudadano">Ver mi perfil</a>
+              <a [routerLink]="rutaCuenta">Ver mi perfil</a>
             </div>
           </div>
 
@@ -81,7 +81,7 @@
           <img src="/icons/buscar.png" alt="Buscar" />
           <input
             type="text"
-            id="buscarDirectorio" aria-label="Buscar en el directorio" [(ngModel)]="busqueda"
+            id="buscarDirectorio" aria-label="Buscar en el directorio" [(ngModel)]="busqueda" (ngModelChange)="actualizarMapa()"
             placeholder="Buscar entidad, distrito o tipo de atención"
           />
         </div>
@@ -89,7 +89,7 @@
         <div class="filtros-directorio">
           <div class="filtro-box">
             <label for="filtroDistrito">Zona de atención</label>
-            <select id="filtroDistrito" [(ngModel)]="distrito">
+            <select id="filtroDistrito" [(ngModel)]="distrito" (ngModelChange)="actualizarMapa()">
               <option value="">Todas las zonas</option>
               @for (zona of zonas; track zona) {
                 <option [value]="zona">{{ zona }}</option>
@@ -99,7 +99,7 @@
 
           <div class="filtro-box">
             <label for="filtroTipo">Tipo de atención</label>
-            <select id="filtroTipo" [(ngModel)]="tipo">
+            <select id="filtroTipo" [(ngModel)]="tipo" (ngModelChange)="actualizarMapa()">
               <option value="">Todos los tipos</option>
               @for (tipoEntidad of tipos; track tipoEntidad) {
                 <option [value]="tipoEntidad">{{ tipoEntidad }}</option>
@@ -130,7 +130,11 @@
         <section class="directorio-contenido">
           <section class="entidades-directorio" aria-label="Entidades registradas">
             @for (entidad of entidadesFiltradas; track entidad.idEntidad) {
-              <article class="entidad-card"
+              <article class="entidad-card" tabindex="0"
+                [attr.aria-label]="'Mostrar ubicación de ' + entidad.nombreEntidad"
+                (click)="seleccionarEntidad(entidad)"
+                (keydown.enter)="seleccionarConTeclado($event, entidad)"
+                (keydown.space)="seleccionarConTeclado($event, entidad)"
                 [class.activa-mapa]="entidadVisible?.idEntidad === entidad.idEntidad">
                 <div class="entidad-avatar">
                   <img src="/icons/casita.png" alt="" />
@@ -170,17 +174,6 @@
                       Ver detalle
                       <img src="/icons/flecha-verde.png" alt="" />
                     </a>
-                    @if (entidad.telefono) {
-                      <a class="btn-llamar" [href]="'tel:' + entidad.telefono">
-                        <img src="/icons/llamar.png" alt="" />
-                        Llamar
-                      </a>
-                    } @else {
-                      <button type="button" class="btn-llamar" disabled>
-                        <img src="/icons/llamar.png" alt="" />
-                        Sin teléfono
-                      </button>
-                    }
                   </div>
                 </div>
               </article>
@@ -204,6 +197,8 @@
                 <span>{{ entidad.tipoEntidad || 'Tipo no registrado' }}</span>
               </div>
               @if (enlaceMapa; as enlace) {
+                <div #mapaDirectorio class="mapa-directorio"
+                  role="region" [attr.aria-label]="'Mapa de ubicación de ' + entidad.nombreEntidad"></div>
                 <a [href]="enlace" target="_blank" rel="noopener noreferrer"
                   class="link-mapa-completo">
                   Abrir ubicación en el mapa

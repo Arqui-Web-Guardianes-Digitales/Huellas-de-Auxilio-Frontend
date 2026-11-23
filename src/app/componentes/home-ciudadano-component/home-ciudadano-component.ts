@@ -17,6 +17,8 @@ Chart.register(...registerables);
   styleUrl: './home-ciudadano-component.css',
 })
 export class HomeCiudadanoComponent implements OnInit {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly reporteService = inject(ReporteService);

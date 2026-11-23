@@ -27,7 +27,7 @@
             <img src="/icons/campana.png" alt="Notificaciones" />
           </a>
 
-          <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
+          <a [routerLink]="rutaCuenta" class="btn-cuenta">
             <img src="/icons/user-circle.png" alt="Mi cuenta" />
             <span>Mi cuenta</span>
           </a>
@@ -41,7 +41,7 @@
 
             <div>
               <h3>HuellaAmiga247</h3>
-              <a routerLink="/mi-cuenta-ciudadano">Ver mi perfil</a>
+              <a [routerLink]="rutaCuenta">Ver mi perfil</a>
             </div>
           </div>
 
@@ -124,20 +124,6 @@
 
                 @if (errorContacto) {
                   <p role="status">{{ errorContacto }}</p>
-                }
-
-                @if (tieneDatos(telefono)) {
-                  <div class="acciones-principales">
-                    <a [href]="'tel:' + telefono" class="btn-llamar">
-                      <img src="/icons/llamar.png" alt="" />
-                      Llamar
-                    </a>
-                    <button type="button" class="btn-guardar" id="btnGuardarContacto"
-                      (click)="guardarContacto()" [class.guardado]="contactoGuardado"
-                      [attr.aria-pressed]="contactoGuardado">
-                      {{ contactoGuardado ? 'Contacto guardado' : 'Guardar contacto' }}
-                    </button>
-                  </div>
                 }
               </div>
             </article>

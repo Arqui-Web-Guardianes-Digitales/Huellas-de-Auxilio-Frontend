@@ -25,6 +25,8 @@ interface FilaSolicitud {
   styleUrl: './mis-solicitudes-component.css',
 })
 export class MisSolicitudesComponent implements OnInit {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly solicitudes = inject(SolicitudService);
   private readonly mascotas = inject(MascotaService);
@@ -42,6 +44,7 @@ export class MisSolicitudesComponent implements OnInit {
   error = '';
 
   ngOnInit(): void {
+    console.log("Identificando al ciudadano para consultar sus solicitudes");
     if (!this.auth.token() || !this.auth.roles().includes('ROLE_CIUDADANO')
       || !this.auth.correo()) {
       void this.router.navigateByUrl('/login');
@@ -52,6 +55,7 @@ export class MisSolicitudesComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (perfil) => {
+        console.log("Respuesta recibida: identificando al ciudadano para consultar sus solicitudes", { cantidad: Array.isArray(perfil) ? perfil.length : null, respuestaRecibida: perfil != null });
         const id = perfil?.idCiudadano;
         if (id == null || !Number.isSafeInteger(id) || id <= 0) {
           this.mostrarError('No se pudo identificar tu perfil de ciudadano.');
@@ -62,11 +66,12 @@ export class MisSolicitudesComponent implements OnInit {
         this.cargando = false;
         this.cargarSolicitudes();
       },
-      error: () => this.mostrarError('No se pudo cargar tu perfil. Vuelve a iniciar sesión.'),
+      error: () => (console.log("Error durante la operación: identificando al ciudadano para consultar sus solicitudes"), this.mostrarError('No se pudo cargar tu perfil. Vuelve a iniciar sesión.')),
     });
   }
 
   cargarSolicitudes(): void {
+    console.log("Consultando las solicitudes del ciudadano");
     if (this.idCiudadano === null || this.cargando) return;
 
     this.cargando = true;
@@ -84,15 +89,17 @@ export class MisSolicitudesComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (filas) => {
+        console.log("Respuesta recibida: consultando las solicitudes del ciudadano", { cantidad: Array.isArray(filas) ? filas.length : null, respuestaRecibida: filas != null });
         this.filas = filas;
         this.cargando = false;
         this.cdr.markForCheck();
       },
-      error: () => this.mostrarError('No se pudieron cargar tus solicitudes. Intenta nuevamente.'),
+      error: () => (console.log("Error durante la operación: consultando las solicitudes del ciudadano"), this.mostrarError('No se pudieron cargar tus solicitudes. Intenta nuevamente.')),
     });
   }
 
   limpiarFiltros(): void {
+    console.log("Limpiando los filtros de solicitudes del ciudadano");
     this.nombreMascota = '';
     this.estado = '';
     this.cargarSolicitudes();
@@ -109,6 +116,7 @@ export class MisSolicitudesComponent implements OnInit {
   }
 
   private cargarNombres(solicitudes: Solicitud[]): Observable<FilaSolicitud[]> {
+    console.log("Consultando los nombres de las mascotas de las solicitudes");
     if (solicitudes.length === 0) return of([]);
 
     const ids = [...new Set(solicitudes.map((s) => s.mascotaIdMascota))];

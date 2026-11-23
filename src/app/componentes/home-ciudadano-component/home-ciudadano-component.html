@@ -40,7 +40,7 @@
         <img src="/icons/campana.png" alt="Notificaciones" />
       </a>
 
-      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
+      <a [routerLink]="rutaCuenta" class="btn-cuenta">
         <img src="/icons/user-circle.png" alt="Mi cuenta" />
         <span>Mi cuenta</span>
       </a>
@@ -62,7 +62,7 @@
         <div class="menu-avatar"></div>
         <div>
           <h3>{{ nombreUsuario }}</h3>
-          <a routerLink="/mi-cuenta-ciudadano" (click)="cerrarMenu()">Ver mi perfil</a>
+          <a [routerLink]="rutaCuenta" (click)="cerrarMenu()">Ver mi perfil</a>
         </div>
       </div>
 
