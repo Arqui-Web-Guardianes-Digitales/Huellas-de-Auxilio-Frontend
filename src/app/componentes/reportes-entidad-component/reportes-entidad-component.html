@@ -41,10 +41,10 @@
         <img src="/icons/campana.png" alt="Notificaciones">
       </a>
 
-      <span class="btn-cuenta" title="Mi cuenta: integración pendiente" aria-disabled="true">
+      <a [routerLink]="rutaCuenta" class="btn-cuenta">
         <img src="/icons/user-circle.png" alt="Mi cuenta">
         <span>Mi cuenta</span>
-      </span>
+      </a>
 
     </div>
     <a routerLink="/notificaciones" class="btn-campana-mobile">
@@ -61,7 +61,7 @@
 
         <div>
           <h3>{{ nombreEntidad }}</h3>
-          <span>Ver mi perfil</span>
+          <a [routerLink]="rutaCuenta">Ver mi perfil</a>
         </div>
       </div>
 

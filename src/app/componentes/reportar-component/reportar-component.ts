@@ -16,6 +16,8 @@ import { Ubicacion } from '../../model/reporte';
   styleUrl: './reportar-component.css',
 })
 export class ReportarComponent implements OnInit, AfterViewInit {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly reporteService = inject(ReporteService);
   private readonly router = inject(Router);

@@ -31,7 +31,7 @@
         <img src="/icons/campana.png" alt="Notificaciones" />
       </a>
 
-      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
+      <a [routerLink]="rutaCuenta" class="btn-cuenta">
         <img src="/icons/user-circle.png" alt="Mi cuenta" />
         <span>Mi cuenta</span>
       </a>
@@ -45,7 +45,7 @@
 
         <div>
           <h3>{{ nombreVisible }}</h3>
-          <a routerLink="/mi-cuenta-ciudadano">Ver mi perfil</a>
+          <a [routerLink]="rutaCuenta">Ver mi perfil</a>
         </div>
       </div>
 
@@ -75,7 +75,7 @@
     <div class="linea"></div>
 
     <nav class="menu-cuenta">
-      <a routerLink="/mi-cuenta-ciudadano" class="opcion-cuenta activa">
+      <a [routerLink]="rutaCuenta" class="opcion-cuenta activa">
         <img src="/icons/perfil.png" alt="Perfil" class="icono-opcion" />
         Perfil
       </a>

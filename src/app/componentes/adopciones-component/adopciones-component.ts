@@ -22,6 +22,8 @@ interface FiltrosMascotas {
   styleUrl: './adopciones-component.css',
 })
 export class AdopcionesComponent implements OnInit, OnDestroy {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly mascotaService = inject(MascotaService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);

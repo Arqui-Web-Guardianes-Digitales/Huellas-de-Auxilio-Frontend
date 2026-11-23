@@ -34,6 +34,8 @@ function crearEtiquetasPaginador(): MatPaginatorIntl {
   templateUrl: './reportes-entidad-component.html',
 })
 export class ReportesEntidadComponent implements OnInit {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly reporteService = inject(ReporteService);
   private readonly router = inject(Router);
@@ -60,6 +62,7 @@ export class ReportesEntidadComponent implements OnInit {
   porPagina = 6;
 
   ngOnInit(): void {
+    console.log("Identificando la entidad para consultar sus reportes");
     this.tokenSesion = this.auth.token();
     const roles = this.auth.roles();
     if (!this.tokenSesion || !Array.isArray(roles) || !roles.includes('ROLE_ENTIDAD')) {
@@ -78,10 +81,12 @@ export class ReportesEntidadComponent implements OnInit {
     // Resolver el perfil también al entrar directamente o recargar la ruta.
     this.auth.obtenerPerfilEntidadDB().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (entidad) => {
+        console.log("Respuesta recibida: identificando la entidad para consultar sus reportes", { cantidad: Array.isArray(entidad) ? entidad.length : null, respuestaRecibida: entidad != null });
         if (!this.comprobarSesion()) return;
         if (!entidad) {
           this.cargando = false;
           this.error = 'No se encontró un perfil de entidad asociado a tu cuenta.';
+console.log("Operación detenida o no confirmada:", this.error);
           this.cdr.markForCheck();
           return;
         }
@@ -90,22 +95,25 @@ export class ReportesEntidadComponent implements OnInit {
         this.auth.guardarDatosEntidad(this.idEntidad, this.nombreEntidad);
         this.cargarDatos();
       },
-      error: (error: HttpErrorResponse | Error) => this.mostrarError(error),
+      error: (error: HttpErrorResponse | Error) => (console.log("Error durante la operación: identificando la entidad para consultar sus reportes"), this.mostrarError(error)),
     });
   }
 
   private cargarDatos(): void {
+    console.log("Consultando los reportes y el resumen de la entidad");
     if (!this.comprobarSesion()) return;
     const idEntidad = this.idEntidad;
     if (idEntidad === null || !Number.isSafeInteger(idEntidad) || idEntidad <= 0) {
       this.cargando = false;
       this.error = 'No se pudo identificar una entidad válida.';
+console.log("Operación detenida o no confirmada:", this.error);
       this.cdr.markForCheck();
       return;
     }
 
     this.reporteService.listarPorEntidad(idEntidad).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (lista) => {
+        console.log("Respuesta recibida: consultando los reportes y el resumen de la entidad", { cantidad: Array.isArray(lista) ? lista.length : null, respuestaRecibida: lista != null });
         if (!this.comprobarSesion()) return;
         this.cargando = false;
         // No presentar una respuesta inválida o ajena como una lista vacía.
@@ -114,6 +122,7 @@ export class ReportesEntidadComponent implements OnInit {
           || reporte.entidad?.idEntidad !== idEntidad
           || (reporte.fechaReporte && Number.isNaN(Date.parse(reporte.fechaReporte))))) {
           this.error = 'La API no devolvió un listado válido de reportes de tu entidad.';
+console.log("Operación detenida o no confirmada:", this.error);
           this.cdr.markForCheck();
           return;
         }
@@ -150,11 +159,12 @@ export class ReportesEntidadComponent implements OnInit {
         this.paginaActual = Number.isSafeInteger(pagina) && pagina > 0 ? pagina : 1;
         this.actualizarPagina();
       },
-      error: (error: HttpErrorResponse | Error) => this.mostrarError(error),
+      error: (error: HttpErrorResponse | Error) => (console.log("Error durante la operación: consultando los reportes y el resumen de la entidad"), this.mostrarError(error)),
     });
   }
 
   aplicarFiltros(): void {
+    console.log("Aplicando filtros a los reportes de la entidad");
     if (!this.comprobarSesion()) return;
     const codigo = this.filtroCodigo.trim().toLowerCase();
     this.reportesFiltrados = this.reportesOriginales.filter((reporte) =>
@@ -168,6 +178,7 @@ export class ReportesEntidadComponent implements OnInit {
   }
 
   limpiarFiltros(): void {
+    console.log("Limpiando los filtros de reportes de la entidad");
     this.filtroCodigo = '';
     this.filtroEstado = '';
     this.filtroUrgencia = '';
@@ -176,12 +187,14 @@ export class ReportesEntidadComponent implements OnInit {
   }
 
   cambiarPagina(evento: PageEvent): void {
+    console.log("Cambiando la página de reportes de la entidad");
     if (!this.comprobarSesion()) return;
     this.paginaActual = evento.pageIndex + 1;
     this.actualizarPagina();
   }
 
   cambiarPorPagina(): void {
+    console.log("Modificando la cantidad de reportes por página");
     if (!this.comprobarSesion()) return;
     this.porPagina = this.porPagina === 12 ? 12 : 6;
     this.paginaActual = 1;

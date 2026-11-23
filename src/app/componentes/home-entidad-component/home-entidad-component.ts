@@ -23,6 +23,8 @@ Chart.register(...registerables);
   styleUrl: './home-entidad-component.css',
 })
 export class HomeEntidadComponent implements OnInit, OnDestroy {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -63,6 +65,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
   tieneSolicitudesEntidad: boolean = false;
 
   ngOnInit(): void {
+    console.log("Consultando los datos de inicio de la entidad");
     // No reutilizar la identidad de una entidad de una sesión anterior.
     this.auth.limpiarDatosEntidad();
     const roles = this.auth.roles();
@@ -85,14 +88,17 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (entidad) => {
+          console.log("Respuesta recibida: consultando los datos de inicio de la entidad", { cantidad: Array.isArray(entidad) ? entidad.length : null, respuestaRecibida: entidad != null });
           this.cargando = false;
           if (!this.sesionVigente(tokenSesion)) {
             this.error = 'La sesión cambió. Recarga la página para consultar tu entidad.';
+console.log("Operación detenida o no confirmada:", this.error);
             this.cdr.markForCheck();
             return;
           }
           if (!entidad) {
             this.error = 'No se encontró un perfil de entidad asociado a tu cuenta.';
+console.log("Operación detenida o no confirmada:", this.error);
           } else {
             this.idEntidad = entidad.idEntidad!;
             this.nombreEntidad = entidad.nombreEntidad.trim();
@@ -103,9 +109,11 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
         error: (error: HttpErrorResponse | Error) => {
+          console.log("Error durante la operación: consultando los datos de inicio de la entidad");
           this.cargando = false;
           if (!this.sesionVigente(tokenSesion)) {
             this.error = 'La sesión cambió. Recarga la página para consultar tu entidad.';
+console.log("Operación detenida o no confirmada:", this.error);
             this.cdr.markForCheck();
             return;
           }
@@ -120,6 +128,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
               error instanceof HttpErrorResponse && error.status === 404
                 ? 'No se encontró un perfil de entidad asociado a tu cuenta.'
                 : 'No se pudo cargar el perfil de la entidad. Intenta recargar la página.';
+console.log("Operación detenida o no confirmada:", this.error);
           }
           this.cdr.markForCheck();
         },
@@ -127,6 +136,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
   }
 
   cargarSolicitudes(): void {
+    console.log("Consultando las solicitudes para el inicio de la entidad");
     this.consultaSolicitudes?.unsubscribe();
     this.solicitudesPendientes = null;
     this.solicitudesRecientes = [];
@@ -145,6 +155,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
       !this.sesionVigente(tokenSesion, idEntidad)
     ) {
       this.errorSolicitudes = 'No se pudo identificar una sesión de entidad válida.';
+console.log("Operación detenida o no confirmada:", this.errorSolicitudes);
       return;
     }
 
@@ -200,10 +211,12 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (datos) => {
+          console.log("Respuesta recibida: consultando las solicitudes para el inicio de la entidad", { cantidad: Array.isArray(datos) ? datos.length : null, respuestaRecibida: datos != null });
           this.cargandoSolicitudes = false;
           if (!this.sesionVigente(tokenSesion, idEntidad)) {
             this.errorSolicitudes =
               'La sesión cambió. Recarga la página para consultar tus solicitudes.';
+console.log("Operación detenida o no confirmada:", this.errorSolicitudes);
           } else {
             this.solicitudesPendientes = datos.cantidad;
             this.solicitudesRecientes = datos.recientes;
@@ -218,9 +231,11 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
         error: (error: HttpErrorResponse | Error) => {
+          console.log("Error durante la operación: consultando las solicitudes para el inicio de la entidad");
           this.cargandoSolicitudes = false;
           this.errorSolicitudes =
             'No se pudieron cargar las solicitudes. Intenta recargar la página.';
+console.log("Operación detenida o no confirmada:", this.errorSolicitudes);
           if (
             this.sesionVigente(tokenSesion, idEntidad) &&
             error instanceof HttpErrorResponse &&
@@ -241,6 +256,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
     cantidad: number;
     recientes: { solicitud: Solicitud; mascota: Mascota | null }[];
   }> {
+    console.log("Consultando las mascotas pendientes del inicio de la entidad");
     if (!pendientes.length) return of({ cantidad: 0, recientes: [] });
     const recientes = pendientes.slice(0, 2);
     const ids = recientes.map((solicitud) => solicitud.mascotaIdMascota);
@@ -259,6 +275,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
   }
 
   private consultarMascota(idMascota: number, idEntidad: number): Observable<Mascota | null> {
+    console.log("Consultando una mascota para el inicio de la entidad");
     return this.mascotaService.buscarPorId(idMascota).pipe(
       map((mascota) => {
         if (!mascota || mascota.idMascota !== idMascota || mascota.entidadIdEntidad !== idEntidad) {
@@ -289,6 +306,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
   }
 
   cargarReportes(): void {
+    console.log("Consultando los reportes para el inicio de la entidad");
     this.consultaReportes?.unsubscribe();
     this.resumen = null;
     this.reportesRecientes = [];
@@ -306,6 +324,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
     ) {
       this.cargandoReportes = false;
       this.errorReportes = 'No se pudo identificar una entidad válida para consultar sus reportes.';
+console.log("Operación detenida o no confirmada:", this.errorReportes);
       return;
     }
 
@@ -339,9 +358,11 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (reportes) => {
+          console.log("Respuesta recibida: consultando los reportes para el inicio de la entidad", { cantidad: Array.isArray(reportes) ? reportes.length : null, respuestaRecibida: reportes != null });
           this.cargandoReportes = false;
           if (!this.sesionVigente(tokenSesion, idEntidad)) {
             this.errorReportes = 'La sesión cambió. Recarga la página para consultar tus reportes.';
+console.log("Operación detenida o no confirmada:", this.errorReportes);
             this.cdr.markForCheck();
             return;
           }
@@ -361,8 +382,10 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
         error: (error: HttpErrorResponse | Error) => {
+          console.log("Error durante la operación: consultando los reportes para el inicio de la entidad");
           this.cargandoReportes = false;
           this.errorReportes = 'No se pudieron cargar los reportes. Intenta recargar la página.';
+console.log("Operación detenida o no confirmada:", this.errorReportes);
           if (
             this.sesionVigente(tokenSesion, idEntidad) &&
             error instanceof HttpErrorResponse &&
@@ -383,6 +406,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
     enRevision: number,
     atendidos: number,
   ): void {
+    console.log("Preparando el gráfico de reportes de la entidad");
     if (!this.tieneReportesEntidad || this.idEntidad === null
       || !this.sesionVigente(this.auth.token(), this.idEntidad)) return;
     // Aplicar el cambio de [hidden] antes de medir el canvas.
@@ -423,6 +447,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
     aprobadas: number,
     rechazadas: number,
   ): void {
+    console.log("Preparando el gráfico de solicitudes de la entidad");
     if (!this.tieneSolicitudesEntidad || this.idEntidad === null
       || !this.sesionVigente(this.auth.token(), this.idEntidad)) return;
     this.cdr.detectChanges();

@@ -192,6 +192,8 @@ export class EntidadService {
           fechaAtencionInicio: datos.fechaAtencionInicio || null,
           fechaAtencionFinal: datos.fechaAtencionFinal || null,
           diasAtencion: (datos.diasAtencion || '').trim(),
+          latitud: datos.latitud,
+          longitud: datos.longitud,
         },
         { headers },
       );

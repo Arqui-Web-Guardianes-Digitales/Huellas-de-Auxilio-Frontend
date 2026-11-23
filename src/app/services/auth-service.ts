@@ -119,6 +119,14 @@ export class AuthService {
     }
   }
 
+  rutaMiCuenta(): string {
+    const roles = this.roles();
+    if (!this.token() || !Array.isArray(roles)) return '/login';
+    if (roles.includes('ROLE_CIUDADANO')) return '/mi-cuenta-ciudadano';
+    if (roles.includes('ROLE_ENTIDAD')) return '/mi-cuenta-entidad';
+    return '/login';
+  }
+
   cerrarSesion(): void {
     sessionStorage.clear();
   }

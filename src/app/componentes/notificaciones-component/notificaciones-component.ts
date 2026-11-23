@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, HostListener, OnInit, inject, isDevMode } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, HostListener, OnInit, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
@@ -43,7 +43,7 @@ export class NotificacionesComponent implements OnInit {
   }
 
   get rutaInicio(): string { return this.esEntidad ? '/home-entidad' : '/home-ciudadano'; }
-  get rutaCuenta(): string { return this.esEntidad ? '/mi-cuenta-entidad' : '/mi-cuenta-ciudadano'; }
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
   get hayNoLeidas(): boolean { return this.notificaciones.some(n => !n.estadoNotificacion); }
   get ocupado(): boolean { return this.cargando || this.marcandoTodas || this.marcando.size > 0 || this.abriendoId !== null; }
 
@@ -199,7 +199,7 @@ export class NotificacionesComponent implements OnInit {
   }
 
   private registrar(evento: string, datos: Record<string, unknown>): void {
-    if (isDevMode()) console.log('[Notificaciones] ' + evento, datos);
+    console.log(evento, datos);
   }
 
   abrirMenu(): void { this.menuAbierto = true; }

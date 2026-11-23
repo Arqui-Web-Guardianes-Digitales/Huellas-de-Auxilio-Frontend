@@ -17,8 +17,9 @@
     <ul class="nav-links">
       <li><a routerLink="/home-entidad" class="nav-link">Inicio</a></li>
       <li><a routerLink="/reportes-entidad" class="nav-link">Reportes</a></li>
-      <li><button type="button" class="nav-link" (click)="mostrarPendiente('Adopciones de entidad')">Adopciones</button></li>
-      <li><button type="button" class="nav-link" (click)="mostrarPendiente('Ayuda de entidad')">Ayuda</button></li>
+      <li><a routerLink="/adopciones-entidad" class="nav-link">Adopciones</a></li>
+      <li><button type="button" class="nav-link">Red de apoyo</button></li>
+      <li><button type="button" class="nav-link">Ayuda</button></li>
     </ul>
 
     <div class="header-actions">
@@ -26,7 +27,7 @@
         <img src="/icons/campana.png" alt="Notificaciones" />
       </a>
 
-      <a routerLink="/mi-cuenta-entidad" class="btn-cuenta">
+      <a [routerLink]="rutaCuenta" class="btn-cuenta">
         <img src="/icons/user-circle.png" alt="Mi cuenta" />
         <span>Mi cuenta</span>
       </a>
@@ -40,7 +41,7 @@
 
         <div>
           <h3>{{ entidad.nombreEntidad }}</h3>
-          <a routerLink="/mi-cuenta-entidad">Ver mi perfil</a>
+          <a [routerLink]="rutaCuenta">Ver mi perfil</a>
         </div>
       </div>
 
@@ -52,9 +53,9 @@
     <div class="menu-mobile-links">
       <a routerLink="/home-entidad">Inicio</a>
       <a routerLink="/reportes-entidad">Reportes</a>
-      <button type="button" (click)="mostrarPendiente('Adopciones de entidad')">Adopciones</button>
-      <button type="button" (click)="mostrarPendiente('Red de apoyo')">Red de apoyo</button>
-      <button type="button" (click)="mostrarPendiente('Ayuda de entidad')">Ayuda</button>
+      <a routerLink="/adopciones-entidad">Adopciones</a>
+      <button type="button">Red de apoyo</button>
+      <button type="button">Ayuda</button>
     </div>
   </div>
 </header>
@@ -69,7 +70,7 @@
     <div class="linea"></div>
 
     <nav class="menu-cuenta">
-      <a routerLink="/mi-cuenta-entidad" class="opcion-cuenta activa">
+      <a [routerLink]="rutaCuenta" class="opcion-cuenta activa">
         <img src="/icons/perfil.png" alt="Perfil" class="icono-opcion" />
         Perfil
       </a>
@@ -171,6 +172,27 @@
           } @else { <p>{{ entidad.diasAtencion || 'Sin registrar' }}</p> }
         </div>
       </div>
+      <section class="ubicacion-entidad" aria-labelledby="titulo-ubicacion-entidad">
+        <h3 id="titulo-ubicacion-entidad">Ubicación de la entidad</h3>
+        @if (editando === 'entidad') {
+          <p class="instruccion-mapa">Haz clic en el mapa para seleccionar la ubicación. Se guardará al pulsar Guardar.</p>
+          <div class="contenedor-mapa-entidad" [class.mapa-bloqueado]="guardando || eliminando || requiereLogin">
+            <div #mapaUbicacionEntidad class="mapa-edicion-entidad" role="region" aria-label="Mapa para seleccionar la ubicación de la entidad"></div>
+            @if (guardando || eliminando || requiereLogin) {
+              <p class="bloqueo-mapa" role="status">La selección de ubicación está deshabilitada.</p>
+            }
+          </div>
+          @if (coordenadasValidas(borradorEntidad.latitud, borradorEntidad.longitud)) {
+            <p class="coordenadas-entidad" aria-live="polite">Latitud: {{ borradorEntidad.latitud }} · Longitud: {{ borradorEntidad.longitud }}</p>
+          } @else {
+            <p class="coordenadas-entidad">Sin ubicación seleccionada. El centro del mapa es solo una referencia.</p>
+          }
+        } @else if (coordenadasValidas(entidad.latitud, entidad.longitud)) {
+          <p class="coordenadas-entidad">Latitud: {{ entidad.latitud }} · Longitud: {{ entidad.longitud }}</p>
+        } @else {
+          <p class="coordenadas-entidad">Sin ubicación registrada</p>
+        }
+      </section>
     </form>
       @if (guardando) {
         <p class="mensaje-cuenta" role="status">Guardando cambios. Espera la confirmación.</p>

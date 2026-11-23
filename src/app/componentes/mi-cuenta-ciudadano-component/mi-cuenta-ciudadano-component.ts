@@ -33,6 +33,8 @@ interface TarjetaPerfil {
   styleUrl: './mi-cuenta-ciudadano-component.css',
 })
 export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly servicio = inject(CiudadanoService);
   private readonly router = inject(Router);
@@ -151,6 +153,7 @@ export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
       }
       this.borrador = { ...this.datos };
       this.editando[id] = true;
+      console.log('Edición iniciada', { seccion: id });
       return;
     }
 
@@ -161,6 +164,7 @@ export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
       };
       if (!datos.nombreCompleto || !/^\d{8}$/.test(datos.dni) || !datos.distrito) {
         this.errores[id] = 'Completa nombre completo, DNI de 8 dígitos y distrito.';
+        console.log('Validación rechazada', { seccion: id });
         return;
       }
       const idCiudadano = this.perfil.idCiudadano;
@@ -169,6 +173,7 @@ export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
         Object.assign(this.perfil!, datos);
         this.auth.guardarDatosCiudadano(idCiudadano, datos.nombreCompleto);
         this.mensaje = 'Datos personales actualizados correctamente.';
+        console.log('Datos personales actualizados');
       });
     } else if (id === 'correo') {
       const datos = {
@@ -177,6 +182,7 @@ export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
       };
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.correo) || !/^\d{9}$/.test(datos.telefono)) {
         this.errores[id] = 'Ingresa un correo válido y un teléfono de 9 dígitos.';
+        console.log('Validación rechazada', { seccion: id });
         return;
       }
       const cambiaCorreo = datos.correo !== this.perfil.correo.trim().toLowerCase();
@@ -184,7 +190,9 @@ export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
         Object.assign(this.datos, datos);
         Object.assign(this.perfil!, datos);
         this.mensaje = 'Datos de contacto actualizados correctamente.';
+        console.log('Contacto actualizado', { correoModificado: cambiaCorreo });
         if (cambiaCorreo) {
+          console.log('Cerrando sesión por cambio de correo');
           this.auth.cerrarSesion();
           this.requiereLogin = true;
           this.correoActualizado = datos.correo;
@@ -202,15 +210,18 @@ export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
         || new TextEncoder().encode(datos.nuevaContrasena).length > 72
         || datos.nuevaContrasena !== datos.confirmarContrasena) {
         this.errores[id] = 'Ingresa la contraseña actual y confirma una nueva de al menos 8 caracteres y hasta 72 bytes.';
+        console.log('Validación rechazada', { seccion: id });
         return;
       }
       this.guardar(id, this.servicio.cambiarContrasena(this.perfil.correo, datos), () => {
         this.mensaje = 'Contraseña actualizada correctamente.';
+        console.log('Cambio de contraseña confirmado');
       });
     }
   }
 
   private guardar(id: TarjetaId, operacion: Observable<void>, confirmar: () => void): void {
+    console.log('Guardando cambios', { seccion: id });
     this.guardando = true;
     operacion.pipe(
       timeout(20000),
@@ -220,11 +231,13 @@ export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
       next: () => {
         if (!this.comprobarSesion()) return;
         confirmar();
+        console.log('Actualización confirmada', { seccion: id });
         this.editando[id] = false;
         this.limpiarContrasenas();
         this.cdr.markForCheck();
       },
       error: (error: unknown) => {
+        console.log('Error al guardar cambios', { seccion: id, estadoHTTP: error instanceof HttpErrorResponse ? error.status : null });
         if (this.comprobarSesion()) this.errores[id] = this.obtenerMensajeError(error);
         this.cdr.markForCheck();
       },
@@ -233,6 +246,7 @@ export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
 
   cancelarEdicion(id: TarjetaId): void {
     if (this.guardando || this.eliminando) return;
+    console.log('Edición cancelada', { seccion: id });
     this.borrador = { ...this.datos };
     this.limpiarContrasenas();
     this.editando[id] = false;
@@ -279,6 +293,7 @@ export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
   }
 
   cerrarSesion(): void {
+    console.log('Cerrando sesión');
     this.limpiarContrasenas();
     this.contrasenaEliminar = '';
     this.dialogoEliminarRef?.close();
@@ -292,6 +307,7 @@ export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
 
     this.contrasenaEliminar = '';
     this.errorEliminar = '';
+    console.log('Abriendo confirmación de eliminación lógica');
     this.dialogoEliminarRef = this.dialog.open(this.dialogoEliminar, {
       width: '440px',
       maxWidth: '95vw',
@@ -309,6 +325,7 @@ export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
 
   cancelarEliminacion(): void {
     if (this.eliminando) return;
+    console.log('Eliminación lógica cancelada');
     this.contrasenaEliminar = '';
     this.errorEliminar = '';
     this.dialogoEliminarRef?.close();
@@ -318,10 +335,12 @@ export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
     if (this.eliminando || !this.dialogoEliminarRef || !this.perfil || !this.comprobarSesion()) return;
     if (!this.contrasenaEliminar.trim()) {
       this.errorEliminar = 'Ingresa tu contraseña actual.';
+      console.log('Eliminación detenida: falta la contraseña actual');
       return;
     }
 
     const idUsuario = this.perfil.idUsuario;
+    console.log('Solicitando eliminación lógica', { idUsuario });
     this.eliminando = true;
     this.errorEliminar = '';
 
@@ -336,6 +355,7 @@ export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
 
         if (!usuario || usuario.idUsuario !== idUsuario || usuario.estadoUsuario !== false) {
           this.errorEliminar = 'No se pudo desactivar la cuenta. Verifica tu contraseña.';
+          console.log('El servidor no confirmó la eliminación lógica', { idUsuario });
           this.cdr.markForCheck();
           return;
         }
@@ -343,12 +363,14 @@ export class MiCuentaCiudadanoComponent implements OnInit, OnDestroy {
         this.limpiarContrasenas();
         this.dialogoEliminarRef?.close();
         this.auth.cerrarSesion();
+        console.log('Eliminación lógica confirmada y sesión cerrada', { idUsuario, estadoUsuario: usuario.estadoUsuario });
         this.cuentaDesactivada = true;
         this.requiereLogin = true;
         this.mensaje = 'Tu cuenta fue desactivada correctamente.';
         this.cdr.markForCheck();
       },
       error: (error: unknown) => {
+        console.log('Error al eliminar lógicamente la cuenta', { estadoHTTP: error instanceof HttpErrorResponse ? error.status : null });
         this.contrasenaEliminar = '';
         if (this.comprobarSesion()) {
           this.errorEliminar = error instanceof TimeoutError

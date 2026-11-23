@@ -25,6 +25,8 @@ interface FilaSolicitud {
   styleUrl: './mis-solicitudes-component.css',
 })
 export class MisSolicitudesComponent implements OnInit, OnDestroy {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly solicitudes = inject(SolicitudService);
   private readonly mascotas = inject(MascotaService);
@@ -140,6 +142,7 @@ export class MisSolicitudesComponent implements OnInit, OnDestroy {
   }
 
   private cargarNombres(solicitudes: Solicitud[]): Observable<FilaSolicitud[]> {
+    console.log("Consultando los nombres de las mascotas de las solicitudes");
     if (solicitudes.length === 0) return of([]);
 
     const ids = [...new Set(solicitudes.map((s) => s.mascotaIdMascota))];
