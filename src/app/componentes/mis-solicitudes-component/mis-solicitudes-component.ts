@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -24,7 +24,7 @@ interface FilaSolicitud {
   templateUrl: './mis-solicitudes-component.html',
   styleUrl: './mis-solicitudes-component.css',
 })
-export class MisSolicitudesComponent implements OnInit {
+export class MisSolicitudesComponent implements OnInit, OnDestroy {
   get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
 
   private readonly auth = inject(AuthService);
@@ -44,62 +44,83 @@ export class MisSolicitudesComponent implements OnInit {
   error = '';
 
   ngOnInit(): void {
-    console.log("Identificando al ciudadano para consultar sus solicitudes");
-    if (!this.auth.token() || !this.auth.roles().includes('ROLE_CIUDADANO')
-      || !this.auth.correo()) {
+    console.log('[MisSolicitudesComponent] Entrada al componente.');
+    if (
+      !this.auth.token() ||
+      !this.auth.roles().includes('ROLE_CIUDADANO') ||
+      !this.auth.correo()
+    ) {
+      console.warn('[MisSolicitudesComponent] Acceso no autorizado; se solicita volver al login.');
       void this.router.navigateByUrl('/login');
       return;
     }
 
-    this.auth.obtenerPerfilCiudadanoDB().pipe(
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe({
-      next: (perfil) => {
-        console.log("Respuesta recibida: identificando al ciudadano para consultar sus solicitudes", { cantidad: Array.isArray(perfil) ? perfil.length : null, respuestaRecibida: perfil != null });
-        const id = perfil?.idCiudadano;
-        if (id == null || !Number.isSafeInteger(id) || id <= 0) {
-          this.mostrarError('No se pudo identificar tu perfil de ciudadano.');
-          return;
-        }
-        this.idCiudadano = id;
-        this.nombreCiudadano = perfil.nombreCompleto?.trim() || 'Ciudadano';
-        this.cargando = false;
-        this.cargarSolicitudes();
-      },
-      error: () => (console.log("Error durante la operación: identificando al ciudadano para consultar sus solicitudes"), this.mostrarError('No se pudo cargar tu perfil. Vuelve a iniciar sesión.')),
-    });
+    this.auth
+      .obtenerPerfilCiudadanoDB()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (perfil) => {
+          const id = perfil?.idCiudadano;
+          if (id == null || !Number.isSafeInteger(id) || id <= 0) {
+            this.mostrarError('No se pudo identificar tu perfil de ciudadano.');
+            return;
+          }
+          console.log(
+            '[MisSolicitudesComponent] Perfil confirmado; se consultarán las solicitudes.',
+          );
+          this.idCiudadano = id;
+          this.nombreCiudadano = perfil.nombreCompleto?.trim() || 'Ciudadano';
+          this.cargando = false;
+          this.cargarSolicitudes();
+        },
+        error: () => this.mostrarError('No se pudo cargar tu perfil. Vuelve a iniciar sesión.'),
+      });
   }
 
   cargarSolicitudes(): void {
-    console.log("Consultando las solicitudes del ciudadano");
-    if (this.idCiudadano === null || this.cargando) return;
+    if (this.idCiudadano === null || this.cargando) {
+      console.warn(
+        '[MisSolicitudesComponent] Consulta omitida: falta el perfil o hay una carga en curso.',
+      );
+      return;
+    }
 
     this.cargando = true;
     this.error = '';
     const nombre = this.nombreMascota.trim();
-    const peticion = nombre || this.estado
-      ? this.solicitudes.filtrarSolicitudes(this.idCiudadano, nombre, this.estado)
-      : this.solicitudes.listarPorCiudadano(this.idCiudadano);
-
-    peticion.pipe(
-      switchMap((datos) => {
-        if (datos === null) throw new Error('La API no devolvió una lista.');
-        return this.cargarNombres(datos);
-      }),
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe({
-      next: (filas) => {
-        console.log("Respuesta recibida: consultando las solicitudes del ciudadano", { cantidad: Array.isArray(filas) ? filas.length : null, respuestaRecibida: filas != null });
-        this.filas = filas;
-        this.cargando = false;
-        this.cdr.markForCheck();
-      },
-      error: () => (console.log("Error durante la operación: consultando las solicitudes del ciudadano"), this.mostrarError('No se pudieron cargar tus solicitudes. Intenta nuevamente.')),
+    console.log('[MisSolicitudesComponent] Consulta de solicitudes iniciada.', {
+      busquedaPorNombre: Boolean(nombre),
+      estado: this.estado || 'TODOS',
     });
+    const peticion =
+      nombre || this.estado
+        ? this.solicitudes.filtrarSolicitudes(this.idCiudadano, nombre, this.estado)
+        : this.solicitudes.listarPorCiudadano(this.idCiudadano);
+
+    peticion
+      .pipe(
+        switchMap((datos) => {
+          if (datos === null) throw new Error('La API no devolvió una lista.');
+          return this.cargarNombres(datos);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (filas) => {
+          this.filas = filas;
+          console.log('[MisSolicitudesComponent] Solicitudes recibidas.', {
+            cantidad: filas.length,
+          });
+          this.cargando = false;
+          this.cdr.markForCheck();
+        },
+        error: () =>
+          this.mostrarError('No se pudieron cargar tus solicitudes. Intenta nuevamente.'),
+      });
   }
 
   limpiarFiltros(): void {
-    console.log("Limpiando los filtros de solicitudes del ciudadano");
+    console.log('[MisSolicitudesComponent] Limpiar filtros.');
     this.nombreMascota = '';
     this.estado = '';
     this.cargarSolicitudes();
@@ -107,11 +128,16 @@ export class MisSolicitudesComponent implements OnInit {
 
   etiquetaEstado(estado?: string): string {
     switch (estado) {
-      case 'ENVIADA': return 'Enviada';
-      case 'EN_REVISION': return 'En revisión';
-      case 'APROBADA': return 'Aprobada';
-      case 'RECHAZADA': return 'Rechazada';
-      default: return 'Estado no disponible';
+      case 'ENVIADA':
+        return 'Enviada';
+      case 'EN_REVISION':
+        return 'En revisión';
+      case 'APROBADA':
+        return 'Aprobada';
+      case 'RECHAZADA':
+        return 'Rechazada';
+      default:
+        return 'Estado no disponible';
     }
   }
 
@@ -120,9 +146,19 @@ export class MisSolicitudesComponent implements OnInit {
     if (solicitudes.length === 0) return of([]);
 
     const ids = [...new Set(solicitudes.map((s) => s.mascotaIdMascota))];
-    return forkJoin(ids.map((id) => this.mascotas.buscarPorId(id).pipe(
-      catchError(() => of(null)),
-    ))).pipe(
+    return forkJoin(
+      ids.map((id) =>
+        this.mascotas.buscarPorId(id).pipe(
+          catchError(() => {
+            console.warn(
+              '[MisSolicitudesComponent] No se pudo completar la información de una mascota.',
+              { idMascota: id },
+            );
+            return of(null);
+          }),
+        ),
+      ),
+    ).pipe(
       switchMap((mascotas) => {
         const porId = new Map<number, Mascota | null>();
         ids.forEach((id, i) => porId.set(id, mascotas[i] ?? null));
@@ -132,33 +168,86 @@ export class MisSolicitudesComponent implements OnInit {
         }
         const idsEntidad = [...entidades];
         const contactos = idsEntidad.length
-          ? forkJoin(idsEntidad.map((id) => this.mascotas.buscarEntidadPorId(id).pipe(
-            map((entidad) => entidad?.nombreEntidad ?? 'Entidad no disponible'),
-            catchError(() => of('Entidad no disponible')),
-          )))
+          ? forkJoin(
+              idsEntidad.map((id) =>
+                this.mascotas.buscarEntidadPorId(id).pipe(
+                  map((entidad) => entidad?.nombreEntidad ?? 'Entidad no disponible'),
+                  catchError(() => {
+                    console.warn(
+                      '[MisSolicitudesComponent] No se pudo completar la información de una entidad.',
+                      { idEntidad: id },
+                    );
+                    return of('Entidad no disponible');
+                  }),
+                ),
+              ),
+            )
           : of([] as string[]);
 
-        return contactos.pipe(map((nombres) => {
-          const porEntidad = new Map<number, string>();
-          idsEntidad.forEach((id, i) => porEntidad.set(id, nombres[i]));
-          return solicitudes.map((solicitud) => {
-            const mascota = porId.get(solicitud.mascotaIdMascota);
-            return {
-              solicitud,
-              fotoMascota: mascota?.urlFoto?.trim() || null,
-              nombreMascota: mascota?.nombre ?? 'Mascota no disponible',
-              nombreEntidad: porEntidad.get(mascota?.entidadIdEntidad ?? 0)
-                ?? 'Entidad no disponible',
-            };
-          });
-        }));
+        return contactos.pipe(
+          map((nombres) => {
+            const porEntidad = new Map<number, string>();
+            idsEntidad.forEach((id, i) => porEntidad.set(id, nombres[i]));
+            return solicitudes.map((solicitud) => {
+              const mascota = porId.get(solicitud.mascotaIdMascota);
+              return {
+                solicitud,
+                fotoMascota: mascota?.urlFoto?.trim() || null,
+                nombreMascota: mascota?.nombre ?? 'Mascota no disponible',
+                nombreEntidad:
+                  porEntidad.get(mascota?.entidadIdEntidad ?? 0) ?? 'Entidad no disponible',
+              };
+            });
+          }),
+        );
       }),
     );
   }
 
   private mostrarError(mensaje: string): void {
+    console.error('[MisSolicitudesComponent]', mensaje);
     this.error = mensaje;
     this.cargando = false;
     this.cdr.markForCheck();
+  }
+
+  cambiarEstado(estado: string): void {
+    console.log('[MisSolicitudesComponent] Filtro de estado modificado.', {
+      estado: estado || 'TODOS',
+    });
+    this.estado = estado;
+    this.cargarSolicitudes();
+  }
+
+  ocultarFoto(fila: FilaSolicitud): void {
+    console.warn(
+      '[MisSolicitudesComponent] Foto no disponible; se mostrará el icono de respaldo.',
+      {
+        idSolicitud: fila.solicitud.idSolicitud,
+      },
+    );
+    fila.fotoMascota = null;
+  }
+
+  alternarMenu(): void {
+    this.menuAbierto = !this.menuAbierto;
+    console.log('[MisSolicitudesComponent] Menú móvil modificado.', { abierto: this.menuAbierto });
+  }
+
+  cerrarMenu(): void {
+    this.menuAbierto = false;
+    console.log('[MisSolicitudesComponent] Menú móvil cerrado.');
+  }
+
+  registrarCambioBusqueda(): void {
+    console.log('[MisSolicitudesComponent] Texto de búsqueda modificado.');
+  }
+
+  registrarNavegacion(destino: string | (string | number)[]): void {
+    console.log('[MisSolicitudesComponent] Navegación solicitada.', { destino });
+  }
+
+  ngOnDestroy(): void {
+    console.log('[MisSolicitudesComponent] Salida del componente.');
   }
 }

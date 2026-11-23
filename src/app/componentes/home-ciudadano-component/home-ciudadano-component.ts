@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, ViewChild, ElementRef, } from '@angular/core';
+import { PercentPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { AuthService } from '../../services/auth-service';
@@ -12,7 +13,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-home-ciudadano-component',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, PercentPipe],
   templateUrl: './home-ciudadano-component.html',
   styleUrl: './home-ciudadano-component.css',
 })
@@ -36,6 +37,11 @@ export class HomeCiudadanoComponent implements OnInit {
   ultimoReporte: Reporte | null = null;
   fotoReciente: string = '/img/evidencia-foto-3.png';
   nombreUsuario: string = 'Ciudadano';
+
+  resumenGraficoReportes: { recibidos: number; enRevision: number; atendidos: number } | null =
+    null;
+  resumenGraficoSolicitudes: { enRevision: number; aprobadas: number; rechazadas: number } | null =
+    null;
 
   tieneReportes: boolean = false;
   tieneSolicitudes: boolean = false;
@@ -106,7 +112,9 @@ export class HomeCiudadanoComponent implements OnInit {
           this.renderizarGraficoReportes(reportes);
         } else {
           this.tieneReportes = false;
-          this.renderizarGraficoReportes([]);
+          this.resumenGraficoReportes = null;
+          this.chartReportes?.destroy();
+          this.chartReportes = null;
         }
         this.cdr.detectChanges();
       },
@@ -118,7 +126,13 @@ export class HomeCiudadanoComponent implements OnInit {
         console.log('Solicitudes de adopción recibidas en Home:', solicitudes);
         const lista = solicitudes || [];
         this.tieneSolicitudes = lista.length > 0;
-        this.renderizarGraficoSolicitudes(lista);
+        if (this.tieneSolicitudes) {
+          this.renderizarGraficoSolicitudes(lista);
+        } else {
+          this.resumenGraficoSolicitudes = null;
+          this.chartSolicitudes?.destroy();
+          this.chartSolicitudes = null;
+        }
         this.cdr.detectChanges();
       },
       error: (err) => console.log('Error al listar solicitudes en Home:', err),
@@ -129,74 +143,88 @@ export class HomeCiudadanoComponent implements OnInit {
     const recibidos = reportes.filter((r) => r.estado === 'R').length;
     const enRevision = reportes.filter((r) => r.estado === 'ER').length;
     const atendidos = reportes.filter((r) => r.estado === 'AT').length;
-    console.log('Datos gráfico reportes (Ciudadano):', { recibidos, enRevision, atendidos });
+    this.resumenGraficoReportes = { recibidos, enRevision, atendidos };
+    console.log('Datos gráfico reportes (Ciudadano):', this.resumenGraficoReportes);
 
-    setTimeout(() => {
-      if (!this.chartReportesCanvas?.nativeElement) return;
-      this.chartReportes?.destroy();
+    this.cdr.detectChanges();
+    if (!this.chartReportesCanvas?.nativeElement) return;
+    this.chartReportes?.destroy();
 
-      this.chartReportes = new Chart(this.chartReportesCanvas.nativeElement, {
-        type: 'doughnut',
-        data: {
-          labels: ['Recibidos', 'En revisión', 'Atendidos'],
-          datasets: [
-            {
-              data: [recibidos, enRevision, atendidos],
-              backgroundColor: ['#007476', '#ff9800', '#7da766'],
-              borderWidth: 2,
-              borderColor: '#ffffff',
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom' },
+    this.chartReportes = new Chart(this.chartReportesCanvas.nativeElement, {
+      type: 'doughnut',
+      data: {
+        labels: ['Recibidos', 'En revisión', 'Atendidos'],
+        datasets: [
+          {
+            label: 'Reportes',
+            data: [recibidos, enRevision, atendidos],
+            backgroundColor: ['#007476', '#ff9800', '#7da766'],
+            borderRadius: 4,
+            borderWidth: 2,
+            borderColor: '#ffffff',
+            hoverOffset: 4,
           },
-        },
-      });
-    }, 0);
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        cutout: '72%',
+        layout: { padding: 6 },
+      },
+    });
   }
 
   private renderizarGraficoSolicitudes(solicitudes: Solicitud[]): void {
     const enRevision = solicitudes.filter((s) => s.estadoSolicitud === 'EN_REVISION').length;
     const aprobadas = solicitudes.filter((s) => s.estadoSolicitud === 'APROBADA').length;
     const rechazadas = solicitudes.filter((s) => s.estadoSolicitud === 'RECHAZADA').length;
-    console.log('Datos gráfico solicitudes (Ciudadano):', { enRevision, aprobadas, rechazadas });
+    this.resumenGraficoSolicitudes = { enRevision, aprobadas, rechazadas };
+    console.log('Datos gráfico solicitudes (Ciudadano):', this.resumenGraficoSolicitudes);
 
-    setTimeout(() => {
-      if (!this.chartSolicitudesCanvas?.nativeElement) return;
-      this.chartSolicitudes?.destroy();
+    this.cdr.detectChanges();
+    if (!this.chartSolicitudesCanvas?.nativeElement) return;
+    this.chartSolicitudes?.destroy();
 
-      this.chartSolicitudes = new Chart(this.chartSolicitudesCanvas.nativeElement, {
-        type: 'bar',
-        data: {
-          labels: ['En revisión', 'Aprobadas', 'Rechazadas'],
-          datasets: [
-            {
-              label: 'Solicitudes',
-              data: [enRevision, aprobadas, rechazadas],
-              backgroundColor: ['#005aa0', '#7da766', '#e23737'],
-              borderRadius: 8,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
+    this.chartSolicitudes = new Chart(this.chartSolicitudesCanvas.nativeElement, {
+      type: 'bar',
+      data: {
+        labels: ['En revisión', 'Aprobadas', 'Rechazadas'],
+        datasets: [
+          {
+            label: 'Solicitudes',
+            data: [enRevision, aprobadas, rechazadas],
+            backgroundColor: ['#005aa0', '#2d8a65', '#e23737'],
+            borderRadius: 6,
+            maxBarThickness: 64,
           },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: { stepSize: 1 },
-            },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false } },
+          y: {
+            beginAtZero: true,
+            suggestedMax: 1,
+            ticks: { stepSize: 1, precision: 0 },
+            title: { display: true, text: 'Cantidad de solicitudes' },
           },
         },
-      });
-    }, 0);
+      },
+    });
+  }
+
+  get totalReportesGrafico(): number {
+    const c = this.resumenGraficoReportes;
+    return c ? c.recibidos + c.enRevision + c.atendidos : 0;
+  }
+
+  porcentajeReportes(cantidad: number): number {
+    return this.totalReportesGrafico > 0 ? cantidad / this.totalReportesGrafico : 0;
   }
 
   abrirMenu(): void {

@@ -13,5 +13,7 @@ export class Solicitud {
   tipoVivienda!: string;
   motivo!: string;
   experiencia: boolean | null = null;
+  // Se envía al registrar para validar la aceptación; no es una columna de la solicitud.
+  aceptoTerminos?: boolean;
   estadoSolicitud?: string;
 }
