@@ -2,14 +2,13 @@ import { Component, OnDestroy, OnInit, inject, ChangeDetectorRef } from '@angula
 
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
 
 import { Mascota } from '../../model/mascota';
 import { Ciudadano } from '../../model/ciudadano';
-import { Usuario } from '../../model/usuario';
 import { Solicitud } from '../../model/solicitud';
 
 import { MascotaService } from '../../services/mascota-service';
@@ -18,7 +17,7 @@ import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-solicitud-adopcion-component',
-  imports: [RouterLink, FormsModule, DatePipe],
+  imports: [RouterLink, ReactiveFormsModule, DatePipe],
   templateUrl: './solicitud-adopcion-component.html',
   styleUrl: './solicitud-adopcion-component.css',
 })
@@ -29,6 +28,19 @@ export class SolicitudAdopcionComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly fb = inject(FormBuilder);
+
+  solicitudForm = this.fb.nonNullable.group({
+    tipoVivienda: [
+      '',
+      [Validators.required, Validators.pattern(/^(casa|departamento|habitacion)$/)],
+    ],
+    motivo: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(255)]],
+    experiencia: this.fb.control<boolean | null>(null, Validators.required),
+    aceptoTerminos: [false, Validators.requiredTrue],
+  });
+
+  intentoEnvio = false;
 
   mascota: Mascota | null = null;
   ciudadano: Ciudadano | null = null;
@@ -39,7 +51,6 @@ export class SolicitudAdopcionComponent implements OnInit, OnDestroy {
   solicitud = new Solicitud();
   solicitudEnviada: Solicitud | null = null;
 
-  aceptoTerminos = false;
   cargando = true;
   enviando = false;
   error = '';
@@ -166,39 +177,40 @@ export class SolicitudAdopcionComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (
-      !this.solicitud.tipoVivienda?.trim() ||
-      !this.solicitud.motivo?.trim() ||
-      this.solicitud.experiencia == null
-    ) {
+    this.intentoEnvio = true;
+    this.solicitudForm.markAllAsTouched();
+    const valores = this.solicitudForm.getRawValue();
+
+    if (this.solicitudForm.invalid || valores.experiencia === null) {
+      const camposInvalidos = Object.entries(this.solicitudForm.controls)
+        .filter(([, control]) => control.invalid)
+        .map(([campo]) => campo);
+
       console.warn(
-        '[SolicitudAdopcionComponent] Validación fallida: campos obligatorios incompletos.',
+        '[SolicitudAdopcionComponent] Validación fallida: revisa los campos del formulario.',
         {
-          faltaTipoVivienda: !this.solicitud.tipoVivienda?.trim(),
-          faltaMotivo: !this.solicitud.motivo?.trim(),
-          faltaExperiencia: this.solicitud.experiencia == null,
+          camposInvalidos,
         },
       );
-      this.error = 'Completa todos los campos de la solicitud.';
+      this.error = 'Revisa los campos indicados antes de enviar la solicitud.';
       return;
     }
 
-    if (!this.aceptoTerminos) {
-      console.warn(
-        '[SolicitudAdopcionComponent] Validación fallida: términos de adopción sin aceptar.',
-      );
-      this.error = 'Debes aceptar los términos de adopción.';
-      return;
-    }
+    this.solicitud.tipoVivienda = valores.tipoVivienda;
+    this.solicitud.motivo = valores.motivo.trim();
+    this.solicitud.experiencia = valores.experiencia;
+    this.solicitud.aceptoTerminos = valores.aceptoTerminos;
 
     console.log('[SolicitudAdopcionComponent] Validaciones superadas; enviando a la API.', {
       idMascota: this.solicitud.mascotaIdMascota,
     });
     this.enviando = true;
+    this.solicitudForm.disable({ emitEvent: false });
 
     this.solicitudService.insertar(this.ciudadano.idCiudadano, this.solicitud).subscribe({
       next: (respuesta) => {
         this.enviando = false;
+        this.solicitudForm.enable({ emitEvent: false });
 
         if (!respuesta?.idSolicitud) {
           console.warn(
@@ -226,20 +238,33 @@ export class SolicitudAdopcionComponent implements OnInit, OnDestroy {
           estadoHttp: e.status,
         });
         this.enviando = false;
+        this.solicitudForm.enable({ emitEvent: false });
 
         this.error =
           e.status === 0
             ? 'Se perdió la conexión. Antes de reenviar, comprueba ' +
               'en Mis solicitudes si se registró.'
-            : 'No se pudo completar el envío de la solicitud.';
+            : e.status === 400
+              ? 'El backend rechazó los datos. Revisa los campos y acepta los términos de adopción.'
+              : 'No se pudo completar el envío de la solicitud.';
 
         this.cdr.markForCheck();
       },
     });
   }
 
+  campoInvalido(campo: string): boolean {
+    const control = this.solicitudForm.get(campo);
+    return !!control && control.invalid && (control.touched || control.dirty || this.intentoEnvio);
+  }
+
   registrarCambioCampo(campo: string): void {
-    console.log('[SolicitudAdopcionComponent] Campo del formulario modificado.', { campo });
+    const control = this.solicitudForm.get(campo);
+    console.log('[SolicitudAdopcionComponent] Campo del formulario modificado.', {
+      campo,
+      valido: control?.valid,
+      errores: Object.keys(control?.errors ?? {}),
+    });
   }
 
   registrarErrorImagen(): void {

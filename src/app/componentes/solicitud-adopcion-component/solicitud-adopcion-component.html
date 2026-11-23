@@ -85,8 +85,8 @@
         <section class="solicitud-contenido">
           <form
             class="formulario-solicitud"
-            (ngSubmit)="enviarSolicitud()"
-            #formulario="ngForm">
+            [formGroup]="solicitudForm"
+            (ngSubmit)="enviarSolicitud()">
 
             <h2>Tus datos</h2>
 
@@ -142,12 +142,13 @@
                 <select
                   id="vivienda"
                   name="tipoVivienda"
-                  [(ngModel)]="solicitud.tipoVivienda"
-                  (ngModelChange)="registrarCambioCampo('tipo de vivienda')"
-                  [disabled]="enviando"
+                  formControlName="tipoVivienda"
+                  (change)="registrarCambioCampo('tipoVivienda')"
+                  [attr.aria-invalid]="campoInvalido('tipoVivienda')"
+                  [attr.aria-describedby]="campoInvalido('tipoVivienda') ? 'vivienda-error' : null"
                   required>
 
-                  <option [ngValue]="undefined">
+                  <option value="">
                     Selecciona el tipo de vivienda
                   </option>
 
@@ -155,20 +156,26 @@
                   <option value="departamento">Departamento</option>
                   <option value="habitacion">Habitación</option>
                 </select>
+                @if (campoInvalido('tipoVivienda')) {
+                  <p class="validacion-error" id="vivienda-error" role="alert">
+                    Selecciona Casa, Departamento o Habitación.
+                  </p>
+                }
               </div>
 
               <div class="form-group experiencia">
-                <label>¿Tienes experiencia con mascotas?</label>
+                <label id="experiencia-etiqueta">¿Tienes experiencia con mascotas?</label>
 
-                <div class="radio-group">
+                <div class="radio-group" role="radiogroup" aria-labelledby="experiencia-etiqueta"
+                     [attr.aria-invalid]="campoInvalido('experiencia')"
+                     [attr.aria-describedby]="campoInvalido('experiencia') ? 'experiencia-error' : null">
                   <label>
                     <input
                       type="radio"
                       name="experiencia"
                       [value]="true"
-                      [(ngModel)]="solicitud.experiencia"
-                      (ngModelChange)="registrarCambioCampo('experiencia con mascotas')"
-                      [disabled]="enviando"
+                      formControlName="experiencia"
+                      (change)="registrarCambioCampo('experiencia')"
                       required />
                     Sí
                   </label>
@@ -178,13 +185,17 @@
                       type="radio"
                       name="experiencia"
                       [value]="false"
-                      [(ngModel)]="solicitud.experiencia"
-                      (ngModelChange)="registrarCambioCampo('experiencia con mascotas')"
-                      [disabled]="enviando"
+                      formControlName="experiencia"
+                      (change)="registrarCambioCampo('experiencia')"
                       required />
                     No
                   </label>
                 </div>
+                @if (campoInvalido('experiencia')) {
+                  <p class="validacion-error" id="experiencia-error" role="alert">
+                    Indica si tienes experiencia con mascotas. Puedes seleccionar Sí o No.
+                  </p>
+                }
               </div>
 
               <div class="form-group">
@@ -194,11 +205,25 @@
                   id="motivo"
                   name="motivo"
                   placeholder="Cuéntanos por qué deseas adoptar"
-                  [(ngModel)]="solicitud.motivo"
-                  (change)="registrarCambioCampo('motivo de adopción')"
-                  [disabled]="enviando"
+                  formControlName="motivo"
+                  (change)="registrarCambioCampo('motivo')"
+                  maxlength="255"
+                  [attr.aria-invalid]="campoInvalido('motivo')"
+                  aria-describedby="motivo-ayuda motivo-error"
                   required>
                 </textarea>
+                <p class="validacion-ayuda" id="motivo-ayuda">
+                  Máximo 255 caracteres. {{ solicitudForm.controls.motivo.value.length }}/255
+                </p>
+                @if (campoInvalido('motivo')) {
+                  <p class="validacion-error" id="motivo-error" role="alert">
+                    @if (solicitudForm.controls.motivo.hasError('maxlength')) {
+                      El motivo no puede superar los 255 caracteres.
+                    } @else {
+                      Escribe el motivo de la adopción; no puede quedar vacío ni contener solo espacios.
+                    }
+                  </p>
+                }
               </div>
             </div>
 
@@ -207,9 +232,10 @@
                 id="terminos"
                 type="checkbox"
                 name="aceptoTerminos"
-                [(ngModel)]="aceptoTerminos"
-                (ngModelChange)="registrarCambioCampo('aceptación de términos')"
-                [disabled]="enviando"
+                formControlName="aceptoTerminos"
+                (change)="registrarCambioCampo('aceptoTerminos')"
+                [attr.aria-invalid]="campoInvalido('aceptoTerminos')"
+                [attr.aria-describedby]="campoInvalido('aceptoTerminos') ? 'terminos-error' : null"
                 required />
 
               <label for="terminos">
@@ -219,13 +245,19 @@
               </label>
             </div>
 
+            @if (campoInvalido('aceptoTerminos')) {
+              <p class="validacion-error" id="terminos-error" role="alert">
+                Debes aceptar los términos de adopción responsable.
+              </p>
+            }
+
             <div class="linea-form"></div>
 
             <div class="acciones-form">
               <button
                 type="submit"
                 class="btn-enviar"
-                [disabled]="enviando || formulario.invalid">
+                [disabled]="enviando || cargando">
                 {{ enviando ? 'Enviando...' : 'Enviar solicitud' }}
               </button>
 
