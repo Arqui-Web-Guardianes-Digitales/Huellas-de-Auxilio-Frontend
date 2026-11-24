@@ -1,5 +1,5 @@
 <main class="detalle-solicitud-page">
-  <a routerLink="/mis-solicitudes" class="btn-volver">← Volver a mis solicitudes</a>
+  <a routerLink="/mis-solicitudes" class="btn-volver" (click)="registrarNavegacion('/mis-solicitudes')">← Volver a mis solicitudes</a>
   <h1>Detalle de solicitud</h1>
 
   @if (cargando) {
@@ -26,12 +26,12 @@
         @if (mascota; as m) {
           @if (m.urlFoto && !fotoNoDisponible) {
             <img class="mascota-img" [src]="m.urlFoto" [alt]="m.nombre"
-                 (error)="fotoNoDisponible = true" />
+                 (error)="ocultarFoto()" />
           }
           <h2>{{ m.nombre }}</h2>
           <p>{{ m.especie }} · {{ m.edad }} · {{ m.distrito }}</p>
           <p>{{ m.descripcion }}</p>
-          <a [routerLink]="['/detalle-mascota', m.idMascota]">Ver ficha de la mascota</a>
+          <a [routerLink]="['/detalle-mascota', m.idMascota]" (click)="registrarNavegacion(['/detalle-mascota', m.idMascota])">Ver ficha de la mascota</a>
         } @else {
           <h2>Mascota de la solicitud</h2>
           <p>Información de la mascota no disponible.</p>

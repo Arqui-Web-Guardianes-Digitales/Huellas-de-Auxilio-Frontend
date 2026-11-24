@@ -1,1 +1,255 @@
-<p>directorio-component works!</p>
+<header class="header-ciudadano">
+      <nav class="navbar">
+        <button type="button" class="btn-menu" id="btnMenu" aria-label="Abrir menú" (click)="abrirMenu()" [attr.aria-expanded]="menuAbierto" aria-controls="menuMobile">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <a routerLink="/home-ciudadano" class="logo">
+          <img src="/img/logo.png" alt="Logo Huellas de Auxilio" />
+        </a>
+
+        <a routerLink="/reportar" class="btn-reporte-mobile">Reporte</a>
+
+        <ul class="nav-links">
+          <li><a routerLink="/home-ciudadano" class="nav-link">Inicio</a></li>
+          <li><a routerLink="/mis-reportes" class="nav-link">Mis reportes</a></li>
+          <li><a routerLink="/directorio" class="nav-link activo">Directorio</a></li>
+          <li><a routerLink="/adopciones" class="nav-link">Adopciones</a></li>
+          <li><a routerLink="/ayuda" class="nav-link">Ayuda</a></li>
+        </ul>
+
+        <div class="header-actions">
+          <a routerLink="/reportar" class="btn-reportar">Reportar</a>
+
+          <a routerLink="/notificaciones" class="btn-campana">
+            <img src="/icons/campana.png" alt="Notificaciones" />
+          </a>
+
+          <a [routerLink]="rutaCuenta" class="btn-cuenta">
+            <img src="/icons/user-circle.png" alt="Mi cuenta" />
+            <span>Mi cuenta</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="menu-mobile" id="menuMobile" [class.activo]="menuAbierto" [attr.inert]="menuAbierto ? null : ''" (click)="cerrarMenu()">
+        <div class="menu-mobile-top">
+          <div class="menu-user">
+            <div class="menu-avatar"></div>
+
+            <div>
+              <h3>HuellaAmiga247</h3>
+              <a [routerLink]="rutaCuenta">Ver mi perfil</a>
+            </div>
+          </div>
+
+          <button type="button" class="btn-cerrar-menu" id="btnCerrarMenu" aria-label="Cerrar menú" (click)="cerrarMenu()">
+            ×
+          </button>
+        </div>
+
+        <div class="menu-mobile-links">
+          <a routerLink="/home-ciudadano">Inicio</a>
+          <a routerLink="/mis-reportes">Mis reportes</a>
+          <a routerLink="/directorio">Directorio</a>
+          <a routerLink="/adopciones">Adopciones</a>
+          <a routerLink="/ayuda">Ayuda</a>
+          <a routerLink="/notificaciones">Notificaciones</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="directorio-page">
+      <section class="hero-directorio">
+        <div class="hero-img">
+          <img src="/img/banner-ciudadano.png" alt="Directorio de apoyo" />
+        </div>
+
+        <div class="hero-text">
+          <h1>Directorio <span>de apoyo</span></h1>
+          <p>
+            Encuentra entidades y contactos de ayuda para orientar o atender
+            casos de maltrato animal.
+          </p>
+        </div>
+      </section>
+
+      <section class="busqueda-directorio">
+        <div class="buscador-principal">
+          <img src="/icons/buscar.png" alt="Buscar" />
+          <input
+            type="text"
+            id="buscarDirectorio" aria-label="Buscar en el directorio" [(ngModel)]="busqueda" (ngModelChange)="actualizarMapa()"
+            placeholder="Buscar entidad, distrito o tipo de atención"
+          />
+        </div>
+
+        <div class="filtros-directorio">
+          <div class="filtro-box">
+            <label for="filtroDistrito">Zona de atención</label>
+            <select id="filtroDistrito" [(ngModel)]="distrito" (ngModelChange)="actualizarMapa()">
+              <option value="">Todas las zonas</option>
+              @for (zona of zonas; track zona) {
+                <option [value]="zona">{{ zona }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="filtro-box">
+            <label for="filtroTipo">Tipo de atención</label>
+            <select id="filtroTipo" [(ngModel)]="tipo" (ngModelChange)="actualizarMapa()">
+              <option value="">Todos los tipos</option>
+              @for (tipoEntidad of tipos; track tipoEntidad) {
+                <option [value]="tipoEntidad">{{ tipoEntidad }}</option>
+              }
+            </select>
+          </div>
+
+          <button type="button" id="btnLimpiarDirectorio" class="btn-limpiar" (click)="limpiarFiltrosDirectorio()">
+            Limpiar filtros
+          </button>
+        </div>
+      </section>
+
+      @if (cargando) {
+        <p class="estado-directorio" role="status">Cargando entidades...</p>
+      } @else if (error) {
+        <div class="estado-directorio" role="alert">
+          <p>{{ error }}</p>
+          <button type="button" class="btn-limpiar" (click)="cargarEntidades()">
+            Reintentar
+          </button>
+        </div>
+      } @else {
+        <p class="contador-entidades" role="status">
+          {{ entidadesFiltradas.length }} entidades encontradas
+        </p>
+
+        <section class="directorio-contenido">
+          <section class="entidades-directorio" aria-label="Entidades registradas">
+            @for (entidad of entidadesFiltradas; track entidad.idEntidad) {
+              <article class="entidad-card" tabindex="0"
+                [attr.aria-label]="'Mostrar ubicación de ' + entidad.nombreEntidad"
+                (click)="seleccionarEntidad(entidad)"
+                (keydown.enter)="seleccionarConTeclado($event, entidad)"
+                (keydown.space)="seleccionarConTeclado($event, entidad)"
+                [class.activa-mapa]="entidadVisible?.idEntidad === entidad.idEntidad">
+                <div class="entidad-avatar">
+                  <img src="/icons/casita.png" alt="" />
+                </div>
+                <div class="entidad-info">
+                  <div class="entidad-title">
+                    <h2>{{ entidad.nombreEntidad }}</h2>
+                    <span class="badge badge-refugio">
+                      {{ entidad.tipoEntidad || 'Tipo no registrado' }}
+                    </span>
+                  </div>
+                  <p class="entidad-ubicacion">
+                    <img src="/icons/ubicacion-verde.png" alt="" />
+                    {{ entidad.zonaAtencion || 'Zona no registrada' }}
+                  </p>
+                  <div class="entidad-contacto">
+                    <span>
+                      <img src="/icons/telefono-negro.png" alt="" />
+                      {{ entidad.telefono || 'Teléfono no disponible' }}
+                    </span>
+                    <span>
+                      <img src="/icons/reloj-verde.png" alt="" />
+                      {{ entidad.diasAtencion || 'Días no registrados' }}
+                    </span>
+                    @if (entidad.fechaAtencionInicio && entidad.fechaAtencionFinal) {
+                      <span>
+                        {{ entidad.fechaAtencionInicio.slice(0, 5) }}
+                        - {{ entidad.fechaAtencionFinal.slice(0, 5) }}
+                      </span>
+                    } @else {
+                      <span>Horario no registrado</span>
+                    }
+                  </div>
+                  <div class="entidad-acciones">
+                    <a class="btn-detalle"
+                      [routerLink]="['/detalle-entidad', entidad.idEntidad]">
+                      Ver detalle
+                      <img src="/icons/flecha-verde.png" alt="" />
+                    </a>
+                  </div>
+                </div>
+              </article>
+            } @empty {
+              <p class="mensaje-vacio visible" role="status">
+                @if (entidades.length === 0) {
+                  No hay entidades activas registradas.
+                } @else {
+                  No se encontraron entidades con esos filtros.
+                }
+              </p>
+            }
+          </section>
+
+          <aside class="mapa-directorio-card" aria-live="polite">
+            <h2>Ubicación</h2>
+            @if (entidadVisible; as entidad) {
+              <div class="entidad-mapa-activa">
+                <strong>{{ entidad.nombreEntidad }}</strong>
+                <span>{{ entidad.zonaAtencion || 'Zona no registrada' }}</span>
+                <span>{{ entidad.tipoEntidad || 'Tipo no registrado' }}</span>
+              </div>
+              @if (enlaceMapa; as enlace) {
+                <div #mapaDirectorio class="mapa-directorio"
+                  role="region" [attr.aria-label]="'Mapa de ubicación de ' + entidad.nombreEntidad"></div>
+                <a [href]="enlace" target="_blank" rel="noopener noreferrer"
+                  class="link-mapa-completo">
+                  Abrir ubicación en el mapa
+                  <img src="/icons/salir.png" alt="" />
+                </a>
+              } @else {
+                <p class="estado-ubicacion">Esta entidad no tiene coordenadas válidas registradas.</p>
+              }
+            } @else {
+              <p class="estado-ubicacion">No hay una entidad para mostrar.</p>
+            }
+          </aside>
+        </section>
+      }
+    </main>
+
+    <footer class="footer-compacto">
+      <div class="footer-compacto-container">
+        <div class="footer-compacto-brand">
+          <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+
+          <p>
+            © 2026 Huellas de Auxilio. Todos<br />
+            los derechos reservados.
+          </p>
+        </div>
+
+        <div class="footer-compacto-links">
+          <a routerLink="/ayuda">Soporte</a>
+
+          <a href="/documentos/politica-privacidad.pdf" target="_blank" rel="noopener noreferrer">
+            Política de Privacidad
+          </a>
+
+          <a href="/documentos/terminos-condiciones.pdf" target="_blank" rel="noopener noreferrer">
+            Términos y condiciones
+          </a>
+        </div>
+
+        <div class="footer-social">
+          <a href="https://www.facebook.com/">
+            <img src="/icons/facebook.png" alt="Facebook" />
+          </a>
+
+          <a href="https://x.com/">
+            <img src="/icons/x.png" alt="X" />
+          </a>
+
+          <a href="https://www.instagram.com/">
+            <img src="/icons/instagram.png" alt="Instagram" />
+          </a>
+        </div>
+      </div>
+    </footer>

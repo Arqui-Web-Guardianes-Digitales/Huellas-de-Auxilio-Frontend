@@ -7,7 +7,7 @@
       class="btn-menu"
       aria-label="Abrir menú"
       (click)="abrirMenu()">
-      <span></span>
+      <span></span>S
       <span></span>
       <span></span>
     </button>
@@ -31,28 +31,25 @@
         <a routerLink="/adopciones-entidad" class="nav-link">Adopciones</a>
       </li>
       <li>
-        <span class="nav-link ruta-pendiente">Red de apoyo</span>
-      </li>
-      <li>
         <span class="nav-link ruta-pendiente">Ayuda</span>
       </li>
     </ul>
 
     <!-- Acciones de escritorio -->
     <div class="header-actions">
-      <span class="btn-campana" title="Notificaciones: integración pendiente" aria-disabled="true">
+      <a routerLink="/notificaciones" class="btn-campana">
         <img src="/icons/campana.png" alt="Notificaciones">
-      </span>
+      </a>
 
-      <span class="btn-cuenta" title="Mi cuenta: integración pendiente" aria-disabled="true">
+      <a [routerLink]="rutaCuenta" class="btn-cuenta">
         <img src="/icons/user-circle.png" alt="Mi cuenta">
         <span>Mi cuenta</span>
-      </span>
+      </a>
 
     </div>
-    <span class="btn-campana-mobile" title="Notificaciones: integración pendiente" aria-disabled="true">
+    <a routerLink="/notificaciones" class="btn-campana-mobile">
       <img src="/icons/campana.png" alt="Notificaciones">
-    </span>
+    </a>
   </nav>
 
   <!-- Menú móvil -->
@@ -64,7 +61,7 @@
 
         <div>
           <h3>{{ nombreEntidad }}</h3>
-          <span>Ver mi perfil</span>
+          <a [routerLink]="rutaCuenta">Ver mi perfil</a>
         </div>
       </div>
 
@@ -86,7 +83,6 @@
 
       <a routerLink="/reportes-entidad" class="activo" aria-current="page" (click)="cerrarMenu()">Reportes</a>
       <a routerLink="/adopciones-entidad" (click)="cerrarMenu()">Adopciones</a>
-      <span>Red de apoyo</span>
       <span>Ayuda</span>
 
     </div>

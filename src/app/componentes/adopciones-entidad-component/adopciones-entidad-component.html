@@ -31,28 +31,25 @@
         <a routerLink="/adopciones-entidad" class="nav-link activo" aria-current="page">Adopciones</a>
       </li>
       <li>
-        <span class="nav-link ruta-pendiente">Red de apoyo</span>
-      </li>
-      <li>
         <span class="nav-link ruta-pendiente">Ayuda</span>
       </li>
     </ul>
 
     <!-- Acciones de escritorio -->
     <div class="header-actions">
-      <span class="btn-campana" title="Notificaciones: integración pendiente" aria-disabled="true">
+      <a routerLink="/notificaciones" class="btn-campana">
         <img src="/icons/campana.png" alt="Notificaciones">
-      </span>
+      </a>
 
-      <span class="btn-cuenta" title="Mi cuenta: integración pendiente" aria-disabled="true">
+      <a [routerLink]="rutaCuenta" class="btn-cuenta">
         <img src="/icons/user-circle.png" alt="Mi cuenta">
         <span>Mi cuenta</span>
-      </span>
+      </a>
 
     </div>
-    <span class="btn-campana-mobile" title="Notificaciones: integración pendiente" aria-disabled="true">
+    <a routerLink="/notificaciones" class="btn-campana-mobile">
       <img src="/icons/campana.png" alt="Notificaciones">
-    </span>
+    </a>
   </nav>
 
   <!-- Menú móvil -->
@@ -64,7 +61,7 @@
 
         <div>
           <h3>{{ nombreEntidad }}</h3>
-          <span>Ver mi perfil</span>
+          <a [routerLink]="rutaCuenta">Ver mi perfil</a>
         </div>
       </div>
 
@@ -86,7 +83,6 @@
 
       <a routerLink="/reportes-entidad" (click)="cerrarMenu()">Reportes</a>
       <a routerLink="/adopciones-entidad" class="activo" aria-current="page" (click)="cerrarMenu()">Adopciones</a>
-      <span>Red de apoyo</span>
       <span>Ayuda</span>
 
     </div>
@@ -107,9 +103,9 @@
       <a routerLink="/adopciones-entidad" class="tab activo" aria-current="page">
         <img src="/icons/huella-verde.png" alt="">Mascotas publicadas
       </a>
-      <button type="button" class="tab" disabled title="Solicitudes de adopción: pendiente de HU30/HU31">
+      <a routerLink="/solicitudes-entidad" class="tab">
         <img src="/icons/documento-verde.png" alt="">Solicitudes de adopción
-      </button>
+      </a>
     </div>
     <a routerLink="/publicar-mascota" class="btn-publicar">Publicar mascota</a>
   </section>
@@ -151,8 +147,8 @@
           </div>
           <p class="descripcion">{{ mascota.descripcion || 'Sin descripción registrada.' }}</p>
           <div class="mascota-botones">
-            <button type="button" class="btn-editar" disabled title="Editar mascota: pendiente de HU29">Editar</button>
-            <button type="button" class="btn-solicitudes" disabled title="Ver solicitudes: pendiente de HU30">Ver solicitudes</button>
+            <a class="btn-editar" [routerLink]="['/editar-mascota', mascota.idMascota]">Editar</a>
+            <a class="btn-solicitudes" [routerLink]="['/solicitudes-mascota', mascota.idMascota]">Ver solicitudes</a>
           </div>
         </div>
       </article>

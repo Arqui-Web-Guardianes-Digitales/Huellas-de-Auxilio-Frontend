@@ -1,3 +1,4 @@
+import { AuthService } from '../../services/auth-service';
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -136,25 +137,29 @@ export class AyudaComponent {
     }
   ];
 
-  constructor(private readonly router: Router) {}
+  constructor(private readonly router: Router, private readonly auth: AuthService) {}
 
   cambiarVista(vista: VistaAyuda): void {
+    console.log("Cambiando la vista de ayuda");
     this.vista = vista;
     this.menuAbierto = false;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   seleccionarPregunta(pregunta: PreguntaFrecuente): void {
+    console.log("Seleccionando una pregunta frecuente");
     this.cambiarVista('chat');
     this.agregarConversacion(pregunta.pregunta, pregunta.respuesta);
   }
 
   preguntar(texto: string): void {
+    console.log("Consultando una opción de ayuda");
     this.cambiarVista('chat');
     this.agregarConversacion(texto, this.buscarRespuesta(texto));
   }
 
   enviarConsulta(): void {
+    console.log("Intentando enviar la consulta de ayuda");
     const texto = this.consulta.trim();
     if (!texto) return;
     this.agregarConversacion(texto, this.buscarRespuesta(texto));
@@ -162,7 +167,12 @@ export class AyudaComponent {
   }
 
   navegar(destino: Destino): void {
+    console.log("Intentando navegar desde la pantalla de ayuda");
     this.menuAbierto = false;
+    if (destino === 'cuenta') {
+      void this.router.navigateByUrl(this.auth.rutaMiCuenta());
+      return;
+    }
     if (destino === 'ayuda') {
       this.cambiarVista('centro');
       return;

@@ -1,1 +1,162 @@
-<p>notificaciones-component works!</p>
+<header class="header-ciudadano">
+  <nav class="navbar">
+    <button type="button" class="btn-menu" aria-label="Abrir menú" (click)="abrirMenu()"
+      [attr.aria-expanded]="menuAbierto" aria-controls="menuMobile">
+      <span></span><span></span><span></span>
+    </button>
+    <a [routerLink]="rutaInicio" class="logo"><img src="/img/logo.png" alt="Huellas de Auxilio" /></a>
+    @if (!esEntidad) { <a routerLink="/reportar" class="btn-reporte-mobile">Reporte</a> }
+    <ul class="nav-links">
+      <li><a [routerLink]="rutaInicio" class="nav-link">Inicio</a></li>
+      @if (esEntidad) {
+        <li><a routerLink="/reportes-entidad" class="nav-link">Reportes</a></li>
+        <li><a routerLink="/adopciones-entidad" class="nav-link">Adopciones</a></li>
+        <li><a routerLink="/solicitudes-entidad" class="nav-link">Solicitudes</a></li>
+      } @else {
+        <li><a routerLink="/mis-reportes" class="nav-link">Mis reportes</a></li>
+        <li><a routerLink="/directorio" class="nav-link">Directorio</a></li>
+        <li><a routerLink="/adopciones" class="nav-link">Adopciones</a></li>
+        <li><a routerLink="/ayuda" class="nav-link">Ayuda</a></li>
+      }
+    </ul>
+    <div class="header-actions">
+      @if (!esEntidad) { <a routerLink="/reportar" class="btn-reportar">Reportar</a> }
+      <a routerLink="/notificaciones" class="btn-campana" aria-current="page">
+        <img src="/icons/campana.png" alt="Notificaciones" />
+      </a>
+      <a [routerLink]="rutaCuenta" class="btn-cuenta">
+        <img src="/icons/user-circle.png" alt="" /><span>Mi cuenta</span>
+      </a>
+    </div>
+  </nav>
+  <div class="menu-mobile" id="menuMobile" [class.activo]="menuAbierto"
+    [attr.inert]="menuAbierto ? null : ''" (click)="cerrarMenu()">
+    <div class="menu-mobile-top">
+      <div class="menu-user"><div class="menu-avatar"></div><div>
+        <h3>{{ sesion?.nombre || 'Mi cuenta' }}</h3>
+        <a [routerLink]="rutaCuenta">Ver mi perfil</a>
+      </div></div>
+      <button type="button" class="btn-cerrar-menu" aria-label="Cerrar menú" (click)="cerrarMenu()">×</button>
+    </div>
+    <div class="menu-mobile-links">
+      <a [routerLink]="rutaInicio">Inicio</a>
+      @if (esEntidad) {
+        <a routerLink="/reportes-entidad">Reportes</a>
+        <a routerLink="/adopciones-entidad">Adopciones</a>
+        <a routerLink="/solicitudes-entidad">Solicitudes</a>
+      } @else {
+        <a routerLink="/mis-reportes">Mis reportes</a>
+        <a routerLink="/directorio">Directorio</a>
+        <a routerLink="/adopciones">Adopciones</a>
+        <a routerLink="/ayuda">Ayuda</a>
+      }
+      <a routerLink="/notificaciones" aria-current="page">Notificaciones</a>
+    </div>
+  </div>
+</header>
+
+<main class="notificaciones-page">
+  <section class="notificaciones-header">
+    <div class="titulo-con-volver">
+      <a mat-icon-button [routerLink]="rutaInicio" class="btn-volver" aria-label="Volver al inicio">
+        <img src="/icons/flecha-volver.png" alt="" />
+      </a>
+      <div><h1>Notificaciones</h1><p>Revisa los avisos internos sobre tus reportes y solicitudes de adopción.</p></div>
+    </div>
+  </section>
+
+  <section class="acciones-notificaciones">
+    <h2>Centro de notificaciones</h2>
+    <div class="acciones-centro">
+      <button mat-button type="button" (click)="actualizar()" [disabled]="ocupado">Actualizar</button>
+      <button mat-button type="button" class="btn-marcar" (click)="marcarTodasLeidas()"
+        [disabled]="ocupado || !hayNoLeidas">{{ marcandoTodas ? 'Marcando...' : 'Marcar todo como leído' }}</button>
+    </div>
+  </section>
+
+  <p class="estado-notificaciones" role="status" aria-live="polite">{{ mensaje }}</p>
+  @if (errorOperacion) { <p class="error-notificaciones" role="alert">{{ errorOperacion }}</p> }
+
+  @if (cargando) {
+    <p class="carga-notificaciones" role="status">Cargando notificaciones...</p>
+  } @else if (error) {
+    <div role="alert" class="error-notificaciones"><p>{{ error }}</p>
+      <button mat-button type="button" (click)="actualizar()">Reintentar</button>
+    </div>
+  } @else {
+    <section class="lista-notificaciones" aria-label="Tus notificaciones">
+      @for (notificacion of notificaciones; track notificacion.idNotificacion) {
+        <mat-card appearance="outlined" class="notificacion-card" role="group" tabindex="0"
+          [class.no-leida]="!notificacion.estadoNotificacion"
+          [attr.aria-labelledby]="'titulo-notificacion-' + notificacion.idNotificacion"
+          [attr.aria-busy]="marcando.has(notificacion.idNotificacion) || abriendoId === notificacion.idNotificacion"
+          (click)="seleccionarNotificacion(notificacion)" (keydown)="teclaNotificacion($event, notificacion)">
+          <div class="notificacion-icono" [class.azul]="!!notificacion.reporteIdReporte"
+            [class.morado]="!!notificacion.solicitudIdSolicitud">
+            <img [src]="notificacion.solicitudIdSolicitud ? '/icons/ticket-verde.png' : '/icons/campana.png'" alt="" />
+          </div>
+          <mat-card-content class="notificacion-contenido">
+            <div class="notificacion-top">
+              <h3 mat-card-title [id]="'titulo-notificacion-' + notificacion.idNotificacion">{{ notificacion.titulo }}</h3>
+              @if (notificacion.fechaNotificacion) { <span>{{ notificacion.fechaNotificacion | date:'dd/MM/yyyy HH:mm' }}</span> }
+            </div>
+            <span class="estado-lectura">{{ notificacion.estadoNotificacion ? 'Leída' : 'No leída' }}</span>
+            <p>{{ notificacion.descripcion }}</p>
+            <div class="acciones-aviso">
+              @if (!notificacion.estadoNotificacion) {
+                <button mat-button type="button" [disabled]="ocupado"
+                  (click)="$event.stopPropagation(); seleccionarNotificacion(notificacion)">Marcar como leída</button>
+              }
+              @if (tieneDetalle(notificacion)) {
+                <button mat-button type="button" [disabled]="ocupado"
+                  (click)="$event.stopPropagation(); abrirDetalle(notificacion)">
+                  {{ abriendoId === notificacion.idNotificacion ? 'Abriendo...' : 'Ver detalle' }}
+                  <img src="/icons/flecha-verde.png" alt="" />
+                </button>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      } @empty { <p class="lista-vacia" role="status">No tienes notificaciones para mostrar.</p> }
+    </section>
+  }
+</main>
+
+<footer class="footer-compacto">
+      <div class="footer-compacto-container">
+        <div class="footer-compacto-brand">
+          <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+
+          <p>
+            © 2026 Huellas de Auxilio. Todos<br />
+            los derechos reservados.
+          </p>
+        </div>
+
+        <div class="footer-compacto-links">
+          <a routerLink="/ayuda">Soporte</a>
+
+          <a href="/documentos/politica-privacidad.pdf" target="_blank" rel="noopener noreferrer">
+            Política de Privacidad
+          </a>
+
+          <a href="/documentos/terminos-condiciones.pdf" target="_blank" rel="noopener noreferrer">
+            Términos y condiciones
+          </a>
+        </div>
+
+        <div class="footer-social">
+          <a href="https://www.facebook.com/">
+            <img src="/icons/facebook.png" alt="Facebook" />
+          </a>
+
+          <a href="https://x.com/">
+            <img src="/icons/x.png" alt="X" />
+          </a>
+
+          <a href="https://www.instagram.com/">
+            <img src="/icons/instagram.png" alt="Instagram" />
+          </a>
+        </div>
+      </div>
+    </footer>

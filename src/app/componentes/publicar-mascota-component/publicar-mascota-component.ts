@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, inject } f
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth-service';
 import { MascotaService } from '../../services/mascota-service';
 import { ReporteService } from '../../services/reporte-service';
@@ -21,10 +21,16 @@ function edadPositiva(control: AbstractControl): ValidationErrors | null {
   styleUrl: './publicar-mascota-component.css',
 })
 export class PublicarMascotaComponent implements OnInit, OnDestroy {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly mascotaService = inject(MascotaService);
   private readonly reporteService = inject(ReporteService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  edicion = this.route.snapshot.paramMap.has('idMascota');
+  private idMascota = Number(this.route.snapshot.paramMap.get('idMascota'));
+  edadAnterior = '';
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -59,6 +65,7 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
   mascotaPublicada: Mascota | null = null;
 
   ngOnInit(): void {
+    console.log("Abriendo el formulario de publicación o edición de mascota");
     this.tokenSesion = this.auth.token();
     const roles = this.auth.roles();
     if (!this.tokenSesion || !this.auth.correoEntidad() || !Array.isArray(roles) || !roles.includes('ROLE_ENTIDAD')) {
@@ -69,25 +76,91 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
     this.auth.limpiarDatosEntidad();
     this.auth.obtenerPerfilEntidadDB().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (entidad) => {
+        console.log("Respuesta recibida: abriendo el formulario de publicación o edición de mascota", { cantidad: Array.isArray(entidad) ? entidad.length : null, respuestaRecibida: entidad != null });
         if (!this.comprobarSesion()) return;
         this.cargando = false;
         if (!entidad) {
           this.errorSesion = 'No se encontró un perfil de entidad asociado a tu cuenta.';
+console.log("Operación detenida o no confirmada:", this.errorSesion);
         } else {
           this.idEntidad = entidad.idEntidad!;
           this.nombreEntidad = entidad.nombreEntidad.trim();
           this.auth.guardarDatosEntidad(this.idEntidad, this.nombreEntidad);
+          if (this.edicion) this.cargarMascota();
         }
         this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse | Error) => {
+        console.log("Error durante la operación: abriendo el formulario de publicación o edición de mascota");
         if (!this.comprobarSesion()) return;
         this.cargando = false;
         this.errorSesion = 'No se pudo cargar tu perfil de entidad. Intenta recargar la página.';
+console.log("Operación detenida o no confirmada:", this.errorSesion);
         this.tratarAutenticacion(error);
         this.cdr.markForCheck();
       },
     });
+  }
+
+  private cargarMascota(): void {
+    console.log("Consultando la mascota que se va a editar");
+    if (!Number.isSafeInteger(this.idMascota) || this.idMascota <= 0) {
+      this.errorSesion = 'El identificador de mascota no es válido.';
+console.log("Operación detenida o no confirmada:", this.errorSesion);
+      return;
+    }
+    this.cargando = true;
+    this.mascotaService.buscarPorId(this.idMascota).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (mascota) => {
+        console.log("Respuesta recibida: consultando la mascota que se va a editar", { cantidad: Array.isArray(mascota) ? mascota.length : null, respuestaRecibida: mascota != null });
+        if (!this.comprobarSesion()) return;
+        this.cargando = false;
+        if (!mascota || mascota.entidadIdEntidad !== this.idEntidad) {
+          this.errorSesion = 'No se encontró una mascota de tu entidad con ese identificador.';
+console.log("Operación detenida o no confirmada:", this.errorSesion);
+        } else {
+          this.cargarFormulario(mascota);
+        }
+        this.cdr.markForCheck();
+      },
+      error: (error: HttpErrorResponse) => {
+        console.log("Error durante la operación: consultando la mascota que se va a editar");
+        if (!this.comprobarSesion()) return;
+        this.cargando = false;
+        this.errorSesion = 'No se pudo cargar la mascota. Regresa a Adopciones e intenta nuevamente.';
+console.log("Operación detenida o no confirmada:", this.errorSesion);
+        this.tratarAutenticacion(error);
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  private cargarFormulario(mascota: Mascota): void {
+    console.log("Cargando los datos de la mascota en el formulario");
+    this.quitarFoto();
+    const edad = mascota.edad.trim().toLowerCase();
+    const partes = edad.match(/^([0-9]+(?:[.,][0-9]+)?(?:e[+-]?[0-9]+)?)\s+(mes|meses|año|años)$/);
+    this.edadAnterior = partes ? '' : mascota.edad;
+    this.mascotaForm.get('edad')!.setValidators(this.edadAnterior ? [edadPositiva] : [Validators.required, edadPositiva]);
+    this.mascotaForm.patchValue({
+      nombre: mascota.nombre, especie: mascota.especie, sexo: mascota.sexo,
+      edad: partes ? Number(partes[1].replace(',', '.')) : null,
+      unidadEdad: partes && partes[2].startsWith('año') ? 'años' : 'meses',
+      distrito: mascota.distrito, tamaño: mascota.tamaño, descripcion: mascota.descripcion,
+      foto: mascota.urlFoto,
+    });
+    this.urlFoto = mascota.urlFoto;
+    this.vistaPrevia = this.mascotaService.urlFotoMascota(mascota.urlFoto);
+    this.mascotaForm.markAsPristine();
+    this.mascotaForm.markAsUntouched();
+    this.error = '';
+  }
+
+  seguirEditando(): void {
+    console.log("Continuando la edición de la mascota");
+    if (!this.comprobarSesion() || !this.mascotaPublicada) return;
+    this.cargarFormulario(this.mascotaPublicada);
+    this.mascotaPublicada = null;
   }
 
   campoInvalido(nombre: string): boolean {
@@ -96,6 +169,7 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
   }
 
   seleccionarFoto(evento: Event): void {
+    console.log("Comprobando la fotografía seleccionada para la mascota");
     if (this.guardando || !this.comprobarSesion()) return;
     const entrada = evento.target as HTMLInputElement;
     const archivos = entrada.files;
@@ -108,6 +182,7 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
     if (cantidadArchivos !== 1 || !['image/png', 'image/jpeg', 'image/webp'].includes(foto.type)
       || foto.size === 0 || foto.size > 1024 * 1024) {
       this.errorFoto = 'Selecciona una sola imagen PNG, JPG o WebP de hasta 1 MB.';
+console.log("Operación detenida o no confirmada:", this.errorFoto);
       return;
     }
     this.leyendoFoto = true;
@@ -129,12 +204,14 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
       if (revision !== this.revisionFoto || !this.comprobarSesion()) return;
       this.leyendoFoto = false;
       this.errorFoto = 'El archivo no contiene una imagen válida. Selecciona otra fotografía.';
+console.log("Operación detenida o no confirmada:", this.errorFoto);
       this.cdr.markForCheck();
     };
     imagen.src = url;
   }
 
   quitarFoto(): void {
+    console.log("Quitando la fotografía de la mascota");
     if (this.guardando) return;
     this.revisionFoto++;
     if (this.vistaPrevia) URL.revokeObjectURL(this.vistaPrevia);
@@ -147,21 +224,24 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
   }
 
   publicar(): void {
+    console.log("Validando el formulario antes de guardar la mascota");
     if (this.guardando || this.leyendoFoto || this.cargando || this.mascotaPublicada || !this.comprobarSesion()) return;
     this.mascotaForm.markAllAsTouched();
-    if (this.mascotaForm.invalid || !this.archivo || this.idEntidad === null) return;
+    if (this.mascotaForm.invalid || (!this.archivo && !this.urlFoto) || this.idEntidad === null) return;
     this.guardando = true;
     this.error = '';
     if (this.urlFoto) {
       this.guardarMascota();
       return;
     }
-    this.reporteService.subirImagen(this.archivo).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.reporteService.subirImagen(this.archivo!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (respuesta) => {
+        console.log("Respuesta recibida: validando el formulario antes de guardar la mascota", { cantidad: Array.isArray(respuesta) ? respuesta.length : null, respuestaRecibida: respuesta != null });
         if (!this.comprobarSesion()) return;
         if (typeof respuesta?.url !== 'string' || !respuesta.url.trim() || respuesta.url.length > 255) {
           this.guardando = false;
           this.error = 'La subida no devolvió una URL válida. No se pudo registrar la mascota.';
+console.log("Operación detenida o no confirmada:", this.error);
           this.cdr.markForCheck();
           return;
         }
@@ -169,10 +249,12 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
         this.guardarMascota();
       },
       error: (error: HttpErrorResponse) => {
+        console.log("Error durante la operación: validando el formulario antes de guardar la mascota");
         if (!this.comprobarSesion()) return;
         this.guardando = false;
         this.error = error.status === 413 ? 'La imagen supera el tamaño permitido por el servidor.'
           : 'No se pudo subir la fotografía. Intenta nuevamente.';
+console.log("Operación detenida o no confirmada:", this.error);
         this.tratarAutenticacion(error);
         this.cdr.markForCheck();
       },
@@ -180,6 +262,7 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
   }
 
   private guardarMascota(): void {
+    console.log("Intentando guardar los datos de la mascota");
     if (!this.comprobarSesion() || this.idEntidad === null) return;
     const valores = this.mascotaForm.value;
     const cantidad = Number(valores.edad);
@@ -188,36 +271,46 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
     const mascota = new Mascota();
     mascota.nombre = valores.nombre.trim();
     mascota.especie = valores.especie;
-    mascota.edad = cantidad + ' ' + unidad;
+    mascota.edad = this.edadAnterior && (valores.edad === null || valores.edad === '')
+      ? this.edadAnterior : cantidad + ' ' + unidad;
     mascota.sexo = valores.sexo;
     mascota.distrito = valores.distrito;
     mascota.tamaño = valores.tamaño;
     mascota.descripcion = valores.descripcion.trim();
     mascota.urlFoto = this.urlFoto;
     const idEntidad = this.idEntidad;
-    this.mascotaService.publicarMascota(idEntidad, mascota).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    (this.edicion ? this.mascotaService.editarMascota(this.idMascota, mascota)
+      : this.mascotaService.publicarMascota(idEntidad, mascota)).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (respuesta) => {
+        console.log("Respuesta recibida: intentando guardar los datos de la mascota", { cantidad: Array.isArray(respuesta) ? respuesta.length : null, respuestaRecibida: respuesta != null });
         if (!this.comprobarSesion()) return;
         this.guardando = false;
         if (!respuesta || !Number.isSafeInteger(respuesta.idMascota) || respuesta.idMascota <= 0
-          || respuesta.entidadIdEntidad !== idEntidad || respuesta.estado !== true) {
-          this.error = 'No se pudo confirmar el registro. Comprueba Adopciones antes de reintentar.';
+          || respuesta.entidadIdEntidad !== idEntidad || (this.edicion ? respuesta.idMascota !== this.idMascota : respuesta.estado !== true)) {
+          this.error = 'No se pudo confirmar el guardado. Comprueba Adopciones antes de reintentar.';
+console.log("Operación detenida o no confirmada:", this.error);
         } else {
           this.mascotaPublicada = respuesta;
+          console.log('Guardado de mascota confirmado:', { idMascota: respuesta.idMascota, edicion: this.edicion });
         }
         this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
+        console.log("Error durante la operación: intentando guardar los datos de la mascota");
         if (!this.comprobarSesion()) return;
         this.guardando = false;
         if (error.status === 403) {
-          this.error = 'Solo puedes publicar mascotas para tu propia entidad.';
+          this.error = 'Solo puedes guardar mascotas de tu propia entidad.';
+console.log("Operación detenida o no confirmada:", this.error);
         } else if (error.status === 404) {
-          this.error = 'No se encontró la entidad asociada a tu cuenta.';
+          this.error = this.edicion ? 'La mascota ya no existe. Regresa a Adopciones.' : 'No se encontró la entidad asociada a tu cuenta.';
+console.log("Operación detenida o no confirmada:", this.error);
         } else if (error.status === 400) {
           this.error = 'Revisa los campos del formulario. El servidor rechazó los datos enviados.';
+console.log("Operación detenida o no confirmada:", this.error);
         } else {
-          this.error = 'No se pudo confirmar la publicación. Comprueba Adopciones antes de reintentar. La fotografía subida se conserva.';
+          this.error = 'No se pudo confirmar el guardado. Comprueba Adopciones antes de reintentar. La fotografía se conserva.';
+console.log("Operación detenida o no confirmada:", this.error);
         }
         this.tratarAutenticacion(error);
         this.cdr.markForCheck();
@@ -226,6 +319,7 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
   }
 
   publicarOtra(): void {
+    console.log("Preparando el formulario para otra mascota");
     if (!this.comprobarSesion()) return;
     this.mascotaPublicada = null;
     this.mascotaForm.reset({ nombre: '', especie: '', edad: null, unidadEdad: 'meses', sexo: '', distrito: '', tamaño: '', descripcion: '', foto: '' });
@@ -234,6 +328,7 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
   }
 
   cancelar(): void {
+    console.log("Cancelando el formulario de mascota");
     if (!this.guardando) void this.router.navigateByUrl('/adopciones-entidad');
   }
 

@@ -44,10 +44,10 @@
         <img src="/icons/campana.png" alt="Notificaciones">
       </span>
 
-      <span class="btn-cuenta" title="Mi cuenta: integración pendiente" aria-disabled="true">
+      <a [routerLink]="rutaCuenta" class="btn-cuenta">
         <img src="/icons/user-circle.png" alt="Mi cuenta">
         <span>Mi cuenta</span>
-      </span>
+      </a>
 
     </div>
     <span class="btn-campana-mobile" title="Notificaciones: integración pendiente" aria-disabled="true">
@@ -64,7 +64,7 @@
 
         <div>
           <h3>{{ nombreEntidad }}</h3>
-          <span>Ver mi perfil</span>
+          <a [routerLink]="rutaCuenta">Ver mi perfil</a>
         </div>
       </div>
 
@@ -100,10 +100,10 @@
           <span></span>
         </div>
 
-        <h1>¡Mascota publicada!</h1>
+        <h1>{{ edicion ? '¡Cambios guardados!' : '¡Mascota publicada!' }}</h1>
 
         <p class="mensaje-confirmacion">
-          La mascota fue publicada correctamente en la sección de adopciones.
+          {{ edicion ? 'La información de la mascota se actualizó correctamente.' : 'La mascota fue publicada correctamente en la sección de adopciones.' }}
         </p>
 
         <div class="resumen-confirmacion">
@@ -145,7 +145,7 @@
         </div>
 
         <p class="texto-extra">
-          Ahora los ciudadanos podrán ver esta mascota y enviar solicitudes de adopción.
+          {{ edicion ? 'La disponibilidad de la mascota se conserva.' : 'Ahora los ciudadanos podrán ver esta mascota y enviar solicitudes de adopción.' }}
         </p>
 
         <div class="acciones-confirmacion">
@@ -153,8 +153,8 @@
             Volver a adopciones
           </a>
 
-          <button type="button" class="btn-secundario" (click)="publicarOtra()">
-            Publicar otra mascota
+          <button type="button" class="btn-secundario" (click)="edicion ? seguirEditando() : publicarOtra()">
+            {{ edicion ? 'Seguir editando' : 'Publicar otra mascota' }}
           </button>
         </div>
       </section>
@@ -168,10 +168,10 @@
             <img src="/icons/flecha-volver.png" alt="Volver" />
           </a>
 
-          <h1>Publicar mascota</h1>
+          <h1>{{ edicion ? 'Editar mascota' : 'Publicar mascota' }}</h1>
         </div>
 
-        <p>Completa la información para publicar una mascota en adopción</p>
+        <p>{{ edicion ? 'Actualiza la información de tu mascota publicada' : 'Completa la información para publicar una mascota en adopción' }}</p>
       </section>
 
       @if (cargando) { <p class="angular-info" role="status">Cargando tu perfil de entidad...</p> }
@@ -198,11 +198,12 @@
           <div class="campo" [class.campo-invalido]="campoInvalido('edad')">
             <label for="edad">Edad</label>
             <div class="edad-controles">
-              <input type="number" id="edad" formControlName="edad" placeholder="Ej: 6" min="0" step="any" required />
+              <input type="number" id="edad" formControlName="edad" placeholder="Ej: 6" min="0" step="any" [required]="!edadAnterior" />
               <select formControlName="unidadEdad" aria-label="Unidad de edad" required>
                 <option value="meses">Meses</option><option value="años">Años</option>
               </select>
             </div>
+            @if (edadAnterior) { <small>Edad registrada: {{ edadAnterior }}. Si no conoces la edad exacta, deja el número vacío para conservarla.</small> }
             @if (campoInvalido('edad')) { <small class="error-campo">Ingresa una edad numérica mayor que cero.</small> }
             @if (campoInvalido('unidadEdad')) { <small class="error-campo">Selecciona meses o años.</small> }
           </div>
@@ -270,7 +271,7 @@
 
         <div class="acciones-form">
           <button type="button" class="btn-cancelar" [disabled]="guardando" (click)="cancelar()">Cancelar</button>
-          <button type="submit" class="btn-guardar" [disabled]="cargando || guardando || leyendoFoto || !!errorSesion">{{ guardando ? 'Publicando...' : 'Publicar mascota' }}</button>
+          <button type="submit" class="btn-guardar" [disabled]="cargando || guardando || leyendoFoto || !!errorSesion">{{ guardando ? 'Guardando...' : (edicion ? 'Guardar cambios' : 'Publicar mascota') }}</button>
         </div>
       </form>
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, DestroyRef, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, DestroyRef, inject, ChangeDetectorRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -21,7 +21,9 @@ interface FiltrosMascotas {
   templateUrl: './adopciones-component.html',
   styleUrl: './adopciones-component.css',
 })
-export class AdopcionesComponent implements OnInit {
+export class AdopcionesComponent implements OnInit, OnDestroy {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly mascotaService = inject(MascotaService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
@@ -34,9 +36,11 @@ export class AdopcionesComponent implements OnInit {
   }
 
   mostrarFotoDeRespaldo(evento: Event): void {
+    console.warn(
+      '[AdopcionesComponent] No se pudo cargar una foto; se usará la imagen de respaldo.',
+    );
     this.mascotaService.mostrarFotoDeRespaldo(evento);
   }
-
 
   menuAbierto = false;
   nombreCiudadano = 'Ciudadano';
@@ -52,57 +56,81 @@ export class AdopcionesComponent implements OnInit {
   readonly tarjetasPorPagina = 6;
 
   ngOnInit(): void {
+    console.log('[AdopcionesComponent] Entrada al componente.');
     if (!this.auth.token() || !this.auth.roles().includes('ROLE_CIUDADANO')) {
+      console.warn('[AdopcionesComponent] Acceso no autorizado; se solicita volver al login.');
       void this.router.navigateByUrl('/login');
       return;
     }
     this.nombreCiudadano = this.auth.nombreCiudadano();
 
-    this.consultas.pipe(
-      switchMap(({ nombre, especie, edad, distrito }) => {
-        const filtrando = Boolean(nombre || especie || edad || distrito);
-        this.cargando = true;
-        this.error = '';
-        this.pagina = 1;
-        this.filtrosAplicados = filtrando;
+    this.consultas
+      .pipe(
+        switchMap(({ nombre, especie, edad, distrito }) => {
+          const filtrando = Boolean(nombre || especie || edad || distrito);
+          this.cargando = true;
+          this.error = '';
+          this.pagina = 1;
+          this.filtrosAplicados = filtrando;
 
-        const peticion = filtrando
-          ? this.mascotaService.filtrarMascotas(nombre, especie, edad, distrito)
-          : this.mascotaService.listarDisponibles();
+          console.log('[AdopcionesComponent] Consulta de mascotas iniciada.', {
+            filtrando,
+            busquedaPorNombre: Boolean(nombre),
+            filtroEspecie: Boolean(especie),
+            filtroEdad: Boolean(edad),
+            filtroDistrito: Boolean(distrito),
+          });
 
-        return peticion.pipe(
-          map((mascotas) => ({ mascotas: mascotas ?? [], filtrando, fallo: false })),
-          catchError(() => of({ mascotas: [] as Mascota[], filtrando, fallo: true })),
-        );
-      }),
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe(({ mascotas, filtrando, fallo }) => {
-      this.mascotas = mascotas;
-      this.cargando = false;
-      if (fallo) {
-        this.error = 'No se pudieron cargar las mascotas. Vuelve a intentar la búsqueda.';
-      } else if (!filtrando) {
-        // Las opciones salen del listado completo, no del resultado filtrado.
-        this.especies = this.opcionesDe(mascotas, 'especie');
-        this.edades = this.opcionesDe(mascotas, 'edad');
-        this.distritos = this.opcionesDe(mascotas, 'distrito');
-      }
-      this.cdr.markForCheck();
-    });
+          const peticion = filtrando
+            ? this.mascotaService.filtrarMascotas(nombre, especie, edad, distrito)
+            : this.mascotaService.listarDisponibles();
+
+          return peticion.pipe(
+            map((mascotas) => ({ mascotas: mascotas ?? [], filtrando, fallo: false })),
+            catchError(() => {
+              console.error('[AdopcionesComponent] Error al consultar las mascotas en la API.');
+              return of({ mascotas: [] as Mascota[], filtrando, fallo: true });
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(({ mascotas, filtrando, fallo }) => {
+        this.mascotas = mascotas;
+        this.cargando = false;
+        if (fallo) {
+          this.error = 'No se pudieron cargar las mascotas. Vuelve a intentar la búsqueda.';
+        } else if (!filtrando) {
+          // Las opciones salen del listado completo, no del resultado filtrado.
+          this.especies = this.opcionesDe(mascotas, 'especie');
+          this.edades = this.opcionesDe(mascotas, 'edad');
+          this.distritos = this.opcionesDe(mascotas, 'distrito');
+        }
+        if (!fallo) {
+          console.log('[AdopcionesComponent] Mascotas recibidas.', { cantidad: mascotas.length });
+        }
+        this.cdr.markForCheck();
+      });
 
     this.buscarMascotas();
   }
 
   buscarMascotas(): void {
+    console.log('[AdopcionesComponent] Búsqueda o actualización del catálogo solicitada.');
     this.consultas.next({ ...this.filtros, nombre: this.filtros.nombre.trim() });
   }
 
   cambiarFiltro(campo: 'especie' | 'edad' | 'distrito', valor: string): void {
+    console.log('[AdopcionesComponent] Filtro modificado.', {
+      campo,
+      seleccionado: Boolean(valor),
+    });
     this.filtros[campo] = valor;
     this.buscarMascotas();
   }
 
   limpiarFiltros(): void {
+    console.log('[AdopcionesComponent] Limpiar filtros.');
     this.filtros = { nombre: '', especie: '', edad: '', distrito: '' };
     this.buscarMascotas();
   }
@@ -117,7 +145,12 @@ export class AdopcionesComponent implements OnInit {
   }
 
   cambiarPagina(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalPaginas) this.pagina = pagina;
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.pagina = pagina;
+      console.log('[AdopcionesComponent] Página del catálogo modificada.', { pagina });
+    } else {
+      console.warn('[AdopcionesComponent] Cambio de página omitido: página fuera de rango.');
+    }
   }
 
   private opcionesDe(mascotas: Mascota[], campo: 'especie' | 'edad' | 'distrito'): string[] {
@@ -127,5 +160,27 @@ export class AdopcionesComponent implements OnInit {
       if (valor) opciones.set(valor.toLowerCase(), valor);
     }
     return [...opciones.values()].sort((a, b) => a.localeCompare(b, 'es'));
+  }
+
+  alternarMenu(): void {
+    this.menuAbierto = !this.menuAbierto;
+    console.log('[AdopcionesComponent] Menú móvil modificado.', { abierto: this.menuAbierto });
+  }
+
+  cerrarMenu(): void {
+    this.menuAbierto = false;
+    console.log('[AdopcionesComponent] Menú móvil cerrado.');
+  }
+
+  registrarCambioBusqueda(): void {
+    console.log('[AdopcionesComponent] Texto de búsqueda modificado.');
+  }
+
+  registrarNavegacion(destino: string | (string | number)[]): void {
+    console.log('[AdopcionesComponent] Navegación solicitada.', { destino });
+  }
+
+  ngOnDestroy(): void {
+    console.log('[AdopcionesComponent] Salida del componente.');
   }
 }

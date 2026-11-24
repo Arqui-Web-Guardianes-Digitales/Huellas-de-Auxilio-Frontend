@@ -14,6 +14,8 @@ import { Mascota } from '../../model/mascota';
   styleUrl: './adopciones-entidad-component.css',
 })
 export class AdopcionesEntidadComponent implements OnInit {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   readonly mascotaService = inject(MascotaService);
   private readonly router = inject(Router);
@@ -36,6 +38,7 @@ export class AdopcionesEntidadComponent implements OnInit {
   readonly porPagina = 6;
 
   ngOnInit(): void {
+    console.log("Identificando la entidad para consultar sus mascotas");
     this.tokenSesion = this.auth.token();
     const roles = this.auth.roles();
     if (!this.tokenSesion || !Array.isArray(roles) || !roles.includes('ROLE_ENTIDAD')) {
@@ -55,10 +58,12 @@ export class AdopcionesEntidadComponent implements OnInit {
     });
     this.auth.obtenerPerfilEntidadDB().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (entidad) => {
+        console.log("Respuesta recibida: identificando la entidad para consultar sus mascotas", { cantidad: Array.isArray(entidad) ? entidad.length : null, respuestaRecibida: entidad != null });
         if (!this.comprobarSesion()) return;
         if (!entidad) {
           this.cargando = false;
           this.error = 'No se encontró un perfil de entidad asociado a tu cuenta.';
+console.log("Operación detenida o no confirmada:", this.error);
           this.cdr.markForCheck();
           return;
         }
@@ -67,13 +72,15 @@ export class AdopcionesEntidadComponent implements OnInit {
         this.auth.guardarDatosEntidad(this.idEntidad, this.nombreEntidad);
         this.cargarMascotas(this.idEntidad);
       },
-      error: (error: HttpErrorResponse | Error) => this.mostrarError(error),
+      error: (error: HttpErrorResponse | Error) => (console.log("Error durante la operación: identificando la entidad para consultar sus mascotas"), this.mostrarError(error)),
     });
   }
 
   private cargarMascotas(idEntidad: number): void {
+    console.log("Consultando las mascotas de la entidad");
     this.mascotaService.listarPorEntidad(idEntidad).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (lista) => {
+        console.log("Respuesta recibida: consultando las mascotas de la entidad", { cantidad: Array.isArray(lista) ? lista.length : null, respuestaRecibida: lista != null });
         if (!this.comprobarSesion()) return;
         this.cargando = false;
         if (!Array.isArray(lista) || lista.some((mascota) => !mascota
@@ -82,6 +89,7 @@ export class AdopcionesEntidadComponent implements OnInit {
           || typeof mascota.nombre !== 'string' || typeof mascota.especie !== 'string'
           || typeof mascota.edad !== 'string')) {
           this.error = 'La API no devolvió un listado válido de mascotas de tu entidad.';
+console.log("Operación detenida o no confirmada:", this.error);
           this.cdr.markForCheck();
           return;
         }
@@ -89,11 +97,12 @@ export class AdopcionesEntidadComponent implements OnInit {
           .sort((a, b) => b.idMascota - a.idMascota);
         this.aplicarFiltros();
       },
-      error: (error: HttpErrorResponse | Error) => this.mostrarError(error),
+      error: (error: HttpErrorResponse | Error) => (console.log("Error durante la operación: consultando las mascotas de la entidad"), this.mostrarError(error)),
     });
   }
 
   aplicarFiltros(): void {
+    console.log("Aplicando filtros a las mascotas de la entidad");
     if (!this.comprobarSesion()) return;
     const nombre = (this.filtrosForm.value.nombre || '').trim().toLowerCase();
     const especie = this.filtrosForm.value.especie || '';
@@ -108,11 +117,13 @@ export class AdopcionesEntidadComponent implements OnInit {
   }
 
   limpiarFiltros(): void {
+    console.log("Limpiando filtros de mascotas de la entidad");
     this.filtrosForm.reset({ nombre: '', especie: '', edad: '' }, { emitEvent: false });
     this.aplicarFiltros();
   }
 
   cambiarPagina(pagina: number): void {
+    console.log("Cambiando la página de mascotas de la entidad");
     if (!this.comprobarSesion()) return;
     this.paginaActual = Math.max(1, Math.min(pagina, this.paginas.length || 1));
     const inicio = (this.paginaActual - 1) * this.porPagina;

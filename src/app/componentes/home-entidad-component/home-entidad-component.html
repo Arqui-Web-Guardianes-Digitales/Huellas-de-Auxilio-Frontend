@@ -35,28 +35,25 @@
         <a routerLink="/adopciones-entidad" class="nav-link">Adopciones</a>
       </li>
       <li>
-        <span class="nav-link ruta-pendiente">Red de apoyo</span>
-      </li>
-      <li>
         <span class="nav-link ruta-pendiente">Ayuda</span>
       </li>
     </ul>
 
     <!-- Acciones de escritorio -->
     <div class="header-actions">
-      <span class="btn-campana" title="Notificaciones: integración pendiente" aria-disabled="true">
+      <a routerLink="/notificaciones" class="btn-campana">
         <img src="/icons/campana.png" alt="Notificaciones">
-      </span>
+      </a>
 
-      <span class="btn-cuenta" title="Mi cuenta: integración pendiente" aria-disabled="true">
-        <img src="/icons/user-circle.png" alt="Mi cuenta">
+      <a [routerLink]="rutaCuenta" class="btn-cuenta">
+        <img src="/icons/user-circle.png" alt="">
         <span>Mi cuenta</span>
-      </span>
+      </a>
 
     </div>
-    <span class="btn-campana-mobile" title="Notificaciones: integración pendiente" aria-disabled="true">
+    <a routerLink="/notificaciones" class="btn-campana-mobile">
       <img src="/icons/campana.png" alt="Notificaciones">
-    </span>
+    </a>
   </nav>
 
   <!-- Menú móvil -->
@@ -68,7 +65,7 @@
 
         <div>
           <h3>{{ nombreEntidad }}</h3>
-          <span>Ver mi perfil</span>
+          <a [routerLink]="rutaCuenta" (click)="cerrarMenu()">Ver mi perfil</a>
         </div>
       </div>
 
@@ -91,7 +88,6 @@
 
       <a routerLink="/reportes-entidad" (click)="cerrarMenu()">Reportes</a>
       <a routerLink="/adopciones-entidad" (click)="cerrarMenu()">Adopciones</a>
-      <span>Red de apoyo</span>
       <span>Ayuda</span>
 
     </div>
@@ -349,10 +345,10 @@
         }
       }
 
-      <span class="btn-panel" aria-disabled="true" title="Listado pendiente de integración (HU31)">
+      <a routerLink="/solicitudes-entidad" class="btn-panel">
         Revisar solicitudes
         <img src="/icons/flecha-verde.png" alt="">
-      </span>
+      </a>
     </article>
 
 
@@ -377,29 +373,6 @@
       </span>
     </article>
 
-
-    <!-- Red de apoyo -->
-    <article class="panel-card">
-
-      <div class="panel-titulo">
-        <div class="panel-icono">
-          <img src="/icons/compartir verde.png" alt="Red de apoyo">
-        </div>
-
-        <div>
-          <h3>Red de apoyo</h3>
-        </div>
-      </div>
-
-      <p class="texto-red">
-        Trabaja junto a otras entidades para brindar más ayuda.
-      </p>
-
-      <span class="btn-panel">
-        Ver entidades aliadas
-        <img src="/icons/flecha-verde.png" alt="">
-      </span>
-    </article>
 
   </section>
 </main>

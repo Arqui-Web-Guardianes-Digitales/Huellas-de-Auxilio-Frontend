@@ -16,10 +16,9 @@
     <div class="header-actions">
       <a routerLink="/reportar" class="btn-reportar">Reportar</a>
       <a routerLink="/notificaciones" class="btn-campana"><img src="/icons/campana.png" alt="Notificaciones" /></a>
-      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
+      <a [routerLink]="rutaCuenta" class="btn-cuenta">
         <img src="/icons/user-circle.png" alt="Mi cuenta" /><span>Mi cuenta</span>
       </a>
-      <button type="button" class="btn-salir" (click)="cerrarSesion()" title="Cerrar sesión">Salir</button>
     </div>
     <a routerLink="/reportar" class="btn-reporte-mobile">Reporte</a>
   </nav>
@@ -28,7 +27,7 @@
     <div class="menu-mobile-top">
       <div class="menu-user">
         <div class="menu-avatar"></div>
-        <div><h3>{{ nombreUsuario }}</h3><a routerLink="/mi-cuenta-ciudadano" (click)="cerrarMenu()">Ver mi perfil</a></div>
+        <div><h3>{{ nombreUsuario }}</h3><a [routerLink]="rutaCuenta" (click)="cerrarMenu()">Ver mi perfil</a></div>
       </div>
       <button class="btn-cerrar-menu" (click)="cerrarMenu()">×</button>
     </div>
