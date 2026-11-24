@@ -12,21 +12,38 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly url = environment.apiURL;
 
-  // HU03: Request del backend: { correo, contraseña }. Response: { jwt, roles }.
+  // HU03. Igual que en clase: leer el JWT de la cabecera Authorization.
+  // Se conservan los nombres correo/contraseña propios de Huellas de Auxilio.
   login(correo: string, contraseña: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.url}/authenticate`, { correo, contraseña });
+    return this.http.post<AuthResponse>(
+      `${this.url}/authenticate`, { correo, contraseña }, { observe: 'response' }
+    ).pipe(
+      map((respuesta) => {
+        const autorizacion = respuesta.headers.get('Authorization');
+        const jwt = autorizacion?.replace(/^Bearer\s+/i, '').trim();
+        const roles = respuesta.body?.roles;
+        if (!jwt || !Array.isArray(roles) || roles.length === 0 ||
+            (respuesta.body?.jwt && jwt !== respuesta.body.jwt)) {
+          throw new Error('El servidor no devolvió la autenticación esperada.');
+        }
+        return { jwt, roles };
+      })
+    );
   }
 
   iniciarSesion(respuesta: AuthResponse, correo?: string): void {
-    sessionStorage.setItem('jwt', respuesta.jwt);
-    sessionStorage.setItem('roles', JSON.stringify(respuesta.roles));
+    this.cerrarSesion();
+    // Mismas claves usadas en clase por el interceptor y el guard.
+    localStorage.setItem('token', respuesta.jwt);
+    localStorage.setItem('roles', JSON.stringify(respuesta.roles));
+    localStorage.setItem('rol', respuesta.roles[0]);
     if (correo) {
       sessionStorage.setItem('correo', correo.trim().toLowerCase());
     }
   }
 
   correo(): string | null {
-    return sessionStorage.getItem('correo');
+    return sessionStorage.getItem('correo') || this.correoEntidad();
   }
 
   // El login de entidad conserva el JWT, cuyo subject es el correo del usuario.
@@ -95,7 +112,8 @@ export class AuthService {
   }
 
   idCiudadano(): number {
-    return Number(sessionStorage.getItem('idCiudadano')) || 1;
+    const id = Number(sessionStorage.getItem('idCiudadano'));
+    return Number.isSafeInteger(id) && id > 0 ? id : 0;
   }
 
   guardarDatosCiudadano(id: number, nombre: string): void {
@@ -108,12 +126,12 @@ export class AuthService {
   }
 
   token(): string | null {
-    return sessionStorage.getItem('jwt');
+    return localStorage.getItem('token');
   }
 
   roles(): string[] {
     try {
-      return JSON.parse(sessionStorage.getItem('roles') || '[]') as string[];
+      return JSON.parse(localStorage.getItem('roles') || '[]') as string[];
     } catch {
       return [];
     }
@@ -127,7 +145,15 @@ export class AuthService {
     return '/login';
   }
 
+  // El guard usa la vigencia del JWT y los roles; la firma la verifica el backend.
+  sesionVigente(): boolean {
+    return !!this.token() && !!this.correoEntidad() && this.roles().length > 0;
+  }
+
   cerrarSesion(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('roles');
+    localStorage.removeItem('rol');
     sessionStorage.clear();
   }
 
