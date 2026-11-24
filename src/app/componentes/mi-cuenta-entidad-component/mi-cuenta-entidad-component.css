@@ -1,0 +1,945 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
+
+.header-entidad {
+width: 100%;
+background-color: #ffffff;
+border-bottom: none;
+position: sticky;
+top: 0;
+z-index: 100;
+}
+
+.navbar {
+width: 100%;
+height: 72px;
+padding: 0 58px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+.logo img {
+width: 145px;
+display: block;
+}
+
+.nav-links {
+list-style: none;
+display: flex;
+align-items: center;
+gap: 48px;
+}
+
+.nav-link {
+color: #253b3b;
+text-decoration: none;
+font-size: 14px;
+font-weight: 600;
+padding: 8px 9px;
+border-radius: 8px;
+transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.nav-link:hover {
+color: #007476;
+background-color: #eaf3f2;
+}
+
+.nav-link.activo {
+color: #007476;
+font-weight: 800;
+}
+
+.header-actions {
+display: flex;
+align-items: center;
+gap: 24px;
+}
+
+.btn-campana {
+width: 38px;
+height: 38px;
+display: flex;
+align-items: center;
+justify-content: center;
+text-decoration: none;
+}
+
+.btn-campana img {
+width: 24px;
+height: 24px;
+object-fit: contain;
+}
+
+.btn-campana:hover {
+background-color: #eaf3f2;
+border-radius: 50%;
+}
+
+.btn-cuenta {
+min-width: 145px;
+height: 46px;
+border: 2px solid #d9dddd;
+border-radius: 18px;
+text-decoration: none;
+color: #253b3b;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 9px;
+font-weight: 700;
+font-size: 14px;
+transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-cuenta:hover {
+background-color: #eaf3f2;
+border-color: #007476;
+}
+
+.btn-cuenta img {
+width: 35px;
+height: 35px;
+object-fit: contain;
+}
+
+@media (max-width: 1180px) {
+.navbar {
+  padding: 0 32px;
+}
+
+.nav-links {
+  gap: 24px;
+}
+
+.nav-link {
+  font-size: 12px;
+}
+
+.header-actions {
+  gap: 16px;
+}
+}
+
+.btn-menu {
+  display: none;
+  width: 32px;
+  height: 28px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0;
+}
+
+.btn-menu span {
+  width: 100%;
+  height: 3px;
+  background-color: #082f3d;
+  border-radius: 8px;
+  display: block;
+}
+
+.btn-campana-mobile {
+  display: none;
+}
+
+.menu-mobile {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .navbar {
+    height: 86px;
+    padding: 0 24px;
+    position: relative;
+    justify-content: center;
+  }
+
+  .btn-menu {
+    display: flex;
+    position: absolute;
+    left: 24px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .logo img {
+    width: 118px;
+  }
+
+  .nav-links,
+  .header-actions {
+    display: none;
+  }
+
+  .btn-campana-mobile {
+    display: flex;
+    position: absolute;
+    right: 22px;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+
+  .btn-campana-mobile img {
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
+  }
+
+  .menu-mobile {
+    width: 88%;
+    max-width: 330px;
+    min-height: calc(100vh - 86px);
+    background-color: #ffffff;
+    position: fixed;
+    top: 86px;
+    left: -100%;
+    z-index: 200;
+    display: block;
+    transition: left 0.25s ease;
+    box-shadow: 8px 0 18px rgba(0, 0, 0, 0.08);
+  }
+
+  .menu-mobile.activo {
+    left: 0;
+  }
+
+  .menu-mobile-top {
+    height: 95px;
+    padding: 20px 22px;
+    border-bottom: 1px solid #d9dddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .menu-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .menu-avatar {
+    width: 42px;
+    height: 42px;
+    background-color: #e5f1f0;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .menu-user h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0b5559;
+    margin-bottom: 4px;
+  }
+
+  .menu-user a {
+    color: #007476;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .menu-user a:hover {
+    text-decoration: underline;
+  }
+
+  .btn-cerrar-menu {
+    border: none;
+    background-color: transparent;
+    color: #666666;
+    font-size: 42px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .btn-cerrar-menu:hover {
+    color: #007476;
+  }
+
+  .menu-mobile-links {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 22px;
+  }
+
+  .menu-mobile-links a {
+    color: #0b5559;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 16px 0;
+  }
+
+  .menu-mobile-links a:hover,
+  .menu-mobile-links a.activo {
+    color: #007476;
+  }
+}
+
+@media (max-width: 430px) {
+  .navbar {
+    height: 86px;
+    padding: 0 18px;
+  }
+
+  .btn-menu {
+    left: 22px;
+    width: 28px;
+    height: 24px;
+  }
+
+  .btn-menu span {
+    height: 3px;
+  }
+
+  .logo img {
+    width: 116px;
+  }
+
+  .btn-campana-mobile {
+    right: 22px;
+  }
+
+  .btn-campana-mobile img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .menu-mobile {
+    width: 88%;
+    max-width: 315px;
+    top: 86px;
+    min-height: calc(100vh - 86px);
+  }
+
+  .menu-mobile-top {
+    height: 94px;
+    padding: 20px 22px;
+  }
+
+  .menu-avatar {
+    width: 42px;
+    height: 42px;
+  }
+
+  .menu-user h3 {
+    font-size: 15px;
+  }
+
+  .menu-user a {
+    font-size: 13px;
+  }
+
+  .menu-mobile-links a {
+    font-size: 16px;
+    padding: 15px 0;
+  }
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #eaf3f2;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  color: #082f3d;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.mi-cuenta-entidad-page {
+  width: 100%;
+  max-width: 1360px;
+  min-height: calc(100vh - 215px);
+  margin: 0 auto;
+  padding: 92px 40px 50px;
+  display: grid;
+  grid-template-columns: minmax(240px, 395px) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.panel-lateral {
+  background-color: #ffffff;
+  border: 3px solid #d9dddd;
+  border-radius: 9px;
+  min-height: 640px;
+  padding: 70px 28px 34px;
+}
+
+.saludo-box h2 {
+  font-size: 24px;
+  font-weight: 500;
+  color: #000000;
+}
+
+.saludo-box p {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1b746f;
+  margin-top: 4px;
+}
+
+.linea {
+  width: 100%;
+  height: 1px;
+  background-color: #000000;
+  margin: 26px 0 34px;
+}
+
+.menu-cuenta {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.opcion-cuenta {
+  width: 100%;
+  height: 64px;
+  background-color: #ffffff;
+  border: 1.8px solid #d9dddd;
+  border-radius: 9px;
+  color: #000000;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 18px;
+  white-space: nowrap;
+}
+
+.opcion-cuenta.activa {
+  background-color: #e5f1ec;
+  color: #1b746f;
+}
+
+.opcion-cuenta.eliminar {
+  color: #ed1c24;
+}
+
+.icono-opcion {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.contenido-cuenta {
+  background-color: #ffffff;
+  border: 3px solid #d9dddd;
+  border-radius: 9px;
+  min-height: 640px;
+  padding: 42px 34px 34px;
+}
+
+.contenido-cuenta h1 {
+  font-size: 34px;
+  color: #1b746f;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+.card-datos {
+  background-color: #f7fbfa;
+  border: 2px solid #d9dddd;
+  border-radius: 9px;
+  padding: 16px 26px 22px;
+  margin-bottom: 26px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.card-datos h2 {
+  font-size: 16px;
+  color: #000000;
+  font-weight: 700;
+}
+
+.btn-editar {
+  width: 102px;
+  height: 32px;
+  border: 2px solid #1b746f;
+  border-radius: 9px;
+  background-color: #ffffff;
+  color: #1b746f;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-editar:hover {
+  background-color: #eaf3f2;
+}
+
+.datos-grid {
+  display: grid;
+  gap: 40px;
+}
+
+.entidad-grid {
+  grid-template-columns: 1.1fr 0.9fr 1.2fr;
+}
+
+.contacto-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.dato-item label {
+  display: block;
+  font-size: 14px;
+  color: #1b746f;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.dato-item p {
+  font-size: 15px;
+  color: #000000;
+  font-weight: 400;
+}
+
+.dato-item input {
+  width: 100%;
+  height: 36px;
+  border: 2px solid #d9dddd;
+  border-radius: 7px;
+  padding: 0 10px;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  outline: none;
+  color: #263b3b;
+  background-color: #ffffff;
+}
+
+.dato-item input:focus {
+  border-color: #1b746f;
+}
+
+.card-editando {
+  border-color: #1b746f;
+}
+
+.btn-campana-mobile {
+  display: none;
+}
+
+.btn-campana-mobile img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+@media (max-width: 960px) {
+  .mi-cuenta-entidad-page {
+    background-color: #eaf3f2;
+    padding: 24px 26px 36px;
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .btn-campana-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    text-decoration: none;
+  }
+
+  .header-actions {
+    display: none;
+  }
+
+  .panel-lateral {
+    min-height: auto;
+    padding: 30px 24px 44px;
+  }
+
+  .saludo-box {
+    text-align: center;
+  }
+
+  .saludo-box h2 {
+    font-size: 22px;
+  }
+
+  .saludo-box p {
+    font-size: 21px;
+  }
+
+  .linea {
+    margin: 24px 0 26px;
+  }
+
+  .menu-cuenta {
+    gap: 22px;
+  }
+
+  .opcion-cuenta {
+    height: 60px;
+    min-height: 60px;
+    font-size: 18px;
+    gap: 18px;
+    padding: 0 18px;
+    white-space: nowrap;
+  }
+
+  .icono-opcion {
+    width: 30px;
+    height: 30px;
+  }
+
+  .contenido-cuenta {
+    min-height: auto;
+    padding: 28px 26px 36px;
+  }
+
+  .contenido-cuenta h1 {
+    font-size: 32px;
+  }
+
+  .entidad-grid,
+  .contacto-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .card-header {
+    gap: 18px;
+  }
+}
+
+@media (max-width: 600px) {
+  .mi-cuenta-entidad-page {
+    padding: 24px 26px 0;
+  }
+
+  .panel-lateral {
+    border-radius: 9px;
+  }
+
+  .contenido-cuenta {
+    padding: 28px 26px 36px;
+  }
+
+  .contenido-cuenta h1 {
+    font-size: 30px;
+    margin-bottom: 24px;
+  }
+
+  .card-datos {
+    padding: 18px;
+  }
+
+  .card-header {
+    align-items: flex-start;
+  }
+
+  .card-header h2 {
+    max-width: 170px;
+    line-height: 1.3;
+  }
+}
+
+@media (max-width: 430px) {
+  .mi-cuenta-entidad-page {
+    padding: 24px 25px 0;
+  }
+
+  .panel-lateral {
+    padding: 30px 23px 46px;
+  }
+
+  .opcion-cuenta {
+    height: 60px;
+    min-height: 60px;
+    font-size: 17px;
+    gap: 16px;
+    padding: 0 16px;
+    white-space: nowrap;
+  }
+
+  .icono-opcion {
+    width: 29px;
+    height: 29px;
+  }
+
+  .contenido-cuenta h1 {
+    font-size: 29px;
+  }
+
+  .dato-item label {
+    font-size: 13px;
+  }
+
+  .dato-item p,
+  .dato-item input {
+    font-size: 14px;
+  }
+
+  .btn-editar {
+    width: 102px;
+    height: 32px;
+  }
+}
+
+.footer-compacto {
+  width: 100%;
+  background-color: #1d5053;
+  color: #ffffff;
+  padding: 24px 65px;
+}
+
+.footer-compacto-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.footer-compacto-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.footer-compacto-brand > img {
+  width: 140px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.footer-compacto-brand p {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #ffffff;
+}
+
+.footer-compacto-links {
+  display: flex;
+  align-items: center;
+  gap: 70px;
+}
+
+.footer-compacto-links a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.footer-compacto-links a:hover {
+  text-decoration: underline;
+}
+
+.footer-social {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.footer-social a {
+  width: 42px;
+  height: 42px;
+  border: 1.7px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.footer-social a:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.footer-social img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .footer-compacto {
+    padding: 24px 40px;
+  }
+
+  .footer-compacto-container {
+    gap: 28px;
+  }
+
+  .footer-compacto-links {
+    gap: 36px;
+  }
+
+  .footer-compacto-links a {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-compacto {
+    padding: 30px 24px;
+  }
+
+  .footer-compacto-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 24px;
+  }
+
+  .footer-compacto-brand {
+    align-items: center;
+  }
+
+  .footer-compacto-links {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .footer-social {
+    gap: 18px;
+  }
+}
+
+@media (max-width: 430px) {
+  .footer-social a {
+    width: 40px;
+    height: 40px;
+  }
+
+  .footer-social img {
+    width: 19px;
+    height: 19px;
+  }
+}
+
+
+button { font: inherit; cursor: pointer; }
+button.nav-link, button.btn-campana, button.btn-campana-mobile {
+  border: 0; background: transparent;
+}
+button.nav-link:hover { background-color: #eaf3f2; }
+.menu-mobile-links button {
+  color: #0b5559; font-size: 16px; font-weight: 700;
+  text-align: left; padding: 16px 0; border: 0; background: transparent;
+}
+.menu-mobile-links button:hover { color: #007476; }
+.enlace-footer { border: 0; background: transparent; color: white; padding: 0; font-size: 16px; }
+.enlace-footer:hover { text-decoration: underline; }
+.panel-lateral, .contenido-cuenta, .dato-item { min-width: 0; }
+.dato-item p, .saludo-box p, .menu-user h3 { overflow-wrap: anywhere; }
+.menu-user { min-width: 0; }
+.acciones-edicion { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn-editar { flex-shrink: 0; }
+.aviso-demo, .mensaje-cuenta, .error-cuenta {
+  padding: 12px; margin-bottom: 16px; border-radius: 8px;
+  font-size: 14px; line-height: 1.5; color: #155263; background: #eaf3f2;
+}
+.error-cuenta { color: #a82330; background: #fff1f2; }
+.nota-cuenta { font-size: 13px; line-height: 1.5; margin-bottom: 16px; color: #155263; }
+button:disabled { opacity: .6; cursor: default; }
+button:focus-visible, a:focus-visible { outline: 3px solid #1b746f; outline-offset: 3px; }
+@media (max-width: 960px) {
+  .header-entidad { z-index: 300; }
+  .menu-mobile { height: calc(100dvh - 86px); overflow-y: auto; visibility: hidden; }
+  .menu-mobile.activo { visibility: visible; }
+}
+@media (max-width: 1024px) { .enlace-footer { font-size: 14px; } }
+@media (max-width: 600px) {
+  .card-header { flex-wrap: wrap; gap: 14px; }
+  .acciones-edicion { width: 100%; }
+}
+
+.btn-editar:disabled { opacity: 0.55; cursor: not-allowed; }
+.dato-item input:disabled { opacity: 0.7; cursor: wait; }
+
+.aviso-eliminar { margin-bottom: 20px; line-height: 1.6; }
+mat-dialog-actions { gap: 8px; }
+.btn-desactivar { width: auto; min-width: 112px; padding: 0 12px; border-color: #a82330; color: #a82330; }
+.btn-desactivar:hover:not(:disabled) { background-color: #fff1f2; }
+
+.ubicacion-entidad {
+  margin-top: 24px;
+}
+
+.ubicacion-entidad h3 {
+  margin: 0 0 12px;
+  color: #1b746f;
+  font-size: 18px;
+}
+
+.instruccion-mapa, .coordenadas-entidad {
+  margin: 12px 0;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.contenedor-mapa-entidad {
+  position: relative;
+  border: 2px solid #d9dddd;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.mapa-edicion-entidad {
+  width: 100%;
+  height: 340px;
+  z-index: 0;
+}
+
+.mapa-bloqueado .mapa-edicion-entidad {
+  pointer-events: none;
+}
+
+.bloqueo-mapa {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  margin: 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #155263;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .mapa-edicion-entidad { height: 280px; }
+}

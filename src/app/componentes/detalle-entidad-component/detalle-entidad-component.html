@@ -1,0 +1,243 @@
+<header class="header-ciudadano">
+      <nav class="navbar">
+        <button type="button" class="btn-menu" id="btnMenu" aria-label="Abrir menú" (click)="abrirMenu()" [attr.aria-expanded]="menuAbierto" aria-controls="menuMobile">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <a routerLink="/home-ciudadano" class="logo">
+          <img src="/img/logo.png" alt="Logo Huellas de Auxilio" />
+        </a>
+
+        <a routerLink="/reportar" class="btn-reporte-mobile">Reporte</a>
+
+        <ul class="nav-links">
+          <li><a routerLink="/home-ciudadano" class="nav-link">Inicio</a></li>
+          <li><a routerLink="/mis-reportes" class="nav-link">Mis reportes</a></li>
+          <li><a routerLink="/directorio" class="nav-link activo">Directorio</a></li>
+          <li><a routerLink="/adopciones" class="nav-link">Adopciones</a></li>
+          <li><a routerLink="/ayuda" class="nav-link">Ayuda</a></li>
+        </ul>
+
+        <div class="header-actions">
+          <a routerLink="/reportar" class="btn-reportar">Reportar</a>
+
+          <a routerLink="/notificaciones" class="btn-campana">
+            <img src="/icons/campana.png" alt="Notificaciones" />
+          </a>
+
+          <a [routerLink]="rutaCuenta" class="btn-cuenta">
+            <img src="/icons/user-circle.png" alt="Mi cuenta" />
+            <span>Mi cuenta</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="menu-mobile" id="menuMobile" [class.activo]="menuAbierto" [attr.inert]="menuAbierto ? null : ''" (click)="cerrarMenu()">
+        <div class="menu-mobile-top">
+          <div class="menu-user">
+            <div class="menu-avatar"></div>
+
+            <div>
+              <h3>HuellaAmiga247</h3>
+              <a [routerLink]="rutaCuenta">Ver mi perfil</a>
+            </div>
+          </div>
+
+          <button type="button" class="btn-cerrar-menu" id="btnCerrarMenu" aria-label="Cerrar menú" (click)="cerrarMenu()">
+            ×
+          </button>
+        </div>
+
+        <div class="menu-mobile-links">
+          <a routerLink="/home-ciudadano">Inicio</a>
+          <a routerLink="/mis-reportes">Mis reportes</a>
+          <a routerLink="/directorio">Directorio</a>
+          <a routerLink="/adopciones">Adopciones</a>
+          <a routerLink="/ayuda">Ayuda</a>
+          <a routerLink="/notificaciones">Notificaciones</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="detalle-entidad-page">
+      <section class="detalle-entidad-header">
+        <div class="titulo-con-volver">
+          <a routerLink="/directorio" class="btn-volver" aria-label="Volver al directorio">
+            <img src="/icons/flecha-volver.png" alt="Volver" />
+          </a>
+
+          <h1>Detalle de entidad</h1>
+        </div>
+      </section>
+
+      @if (cargando) {
+        <p class="estado-detalle" role="status">Cargando entidad...</p>
+      } @else if (error) {
+        <p class="estado-detalle error-detalle" role="alert">{{ error }}</p>
+      } @else if (entidad; as datos) {
+        <section class="detalle-entidad-contenido" [class.sin-mapa]="!enlaceMapa"
+          [class.sin-inferiores]="!tieneContacto && !tieneHorario">
+          <section class="bloque-principal">
+            <article class="card-presentacion">
+              <div class="entidad-imagen">
+                <img src="/icons/home-verde.png" [alt]="datos.nombreEntidad || ''" />
+              </div>
+
+              <div class="entidad-datos">
+                <div class="entidad-titulo">
+                  @if (tieneDatos(datos.nombreEntidad)) {
+                    <h2>{{ datos.nombreEntidad }}</h2>
+                  }
+                  @if (tieneDatos(datos.tipoEntidad)) {
+                    <span>{{ datos.tipoEntidad }}</span>
+                  }
+                </div>
+
+                <ul class="lista-datos">
+                  @if (tieneDatos(datos.zonaAtencion)) {
+                    <li>
+                      <img src="/icons/ubicacion-verde.png" alt="Zona de atención" />
+                      {{ datos.zonaAtencion }}
+                    </li>
+                  }
+                  @if (tieneDatos(telefono)) {
+                    <li>
+                      <img src="/icons/telefono-negro.png" alt="Teléfono" />
+                      {{ telefono }}
+                    </li>
+                  }
+                  @if (tieneDatos(datos.diasAtencion)) {
+                    <li>
+                      <img src="/icons/reloj-verde.png" alt="Días de atención" />
+                      {{ datos.diasAtencion }}
+                    </li>
+                  }
+                  @if (horario) {
+                    <li>
+                      <img src="/icons/reloj-verde.png" alt="Horario" />
+                      {{ horario }}
+                    </li>
+                  }
+                </ul>
+
+                @if (errorContacto) {
+                  <p role="status">{{ errorContacto }}</p>
+                }
+              </div>
+            </article>
+
+            @if (tieneContacto || tieneHorario) {
+              <section class="cards-inferiores">
+                @if (tieneContacto) {
+                  <article class="info-card contacto-card">
+                    <div class="card-titulo">
+                      <img src="/icons/user-verde.png" alt="" />
+                      <h2>Datos de contacto</h2>
+                    </div>
+                    <ul>
+                      @if (tieneDatos(telefono)) {
+                        <li>
+                          <img src="/icons/telefono-negro.png" alt="Teléfono" />
+                          {{ telefono }}
+                        </li>
+                      }
+                      @if (tieneDatos(datos.sitioWeb)) {
+                        <li>
+                          <img src="/icons/mundo-verde.png" alt="Sitio web" />
+                          @if (enlaceSitioWeb; as enlace) {
+                            <a [href]="enlace" target="_blank" rel="noopener noreferrer">
+                              {{ datos.sitioWeb }}
+                            </a>
+                          } @else {
+                            {{ datos.sitioWeb }}
+                          }
+                        </li>
+                      }
+                      @if (tieneDatos(datos.zonaAtencion)) {
+                        <li>
+                          <img src="/icons/ubicacion-verde.png" alt="Zona de atención" />
+                          {{ datos.zonaAtencion }}
+                        </li>
+                      }
+                    </ul>
+                  </article>
+                }
+
+                @if (tieneHorario) {
+                  <article class="info-card horario-card">
+                    <div class="card-titulo">
+                      <img src="/icons/reloj-verde.png" alt="" />
+                      <h2>Horario de atención</h2>
+                    </div>
+                    @if (tieneDatos(datos.diasAtencion)) {
+                      <p>{{ datos.diasAtencion }}</p>
+                    }
+                    @if (horario) {
+                      <div class="horario-linea">
+                        <span>Horario</span>
+                        <strong>{{ horario }}</strong>
+                      </div>
+                    }
+                  </article>
+                }
+              </section>
+            }
+          </section>
+
+          @if (enlaceMapa; as enlace) {
+            <aside class="bloque-lateral">
+              <article class="card-mapa">
+                <h2>Ubicación</h2>
+                <div #mapaEntidad class="mapa-entidad mapa-interactivo" role="region"
+                  [attr.aria-label]="datos.nombreEntidad ? 'Ubicación de ' + datos.nombreEntidad : 'Ubicación de la entidad'">
+                </div>
+                <a [href]="enlace" target="_blank" rel="noopener noreferrer" class="link-mapa">
+                  Ver ubicación en el mapa
+                  <img src="/icons/salir.png" alt="" />
+                </a>
+              </article>
+            </aside>
+          }
+        </section>
+      }
+    </main>
+
+    <footer class="footer-compacto">
+      <div class="footer-compacto-container">
+        <div class="footer-compacto-brand">
+          <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
+
+          <p>
+            © 2026 Huellas de Auxilio. Todos<br />
+            los derechos reservados.
+          </p>
+        </div>
+
+        <div class="footer-compacto-links">
+          <a routerLink="/ayuda">Soporte</a>
+
+          <a href="/documentos/politica-privacidad.pdf" target="_blank" rel="noopener noreferrer">
+            Política de Privacidad
+          </a>
+
+          <a href="/documentos/terminos-condiciones.pdf" target="_blank" rel="noopener noreferrer">
+            Términos y condiciones
+          </a>
+        </div>
+<div class="footer-social">
+          <a href="https://www.facebook.com/">
+            <img src="/icons/facebook.png" alt="Facebook" />
+          </a>
+
+          <a href="https://x.com/">
+            <img src="/icons/x.png" alt="X" />
+          </a>
+
+          <a href="https://www.instagram.com/">
+            <img src="/icons/instagram.png" alt="Instagram" />
+          </a>
+        </div>
+      </div>
+    </footer>
