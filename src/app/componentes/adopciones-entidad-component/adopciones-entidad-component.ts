@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject, isDevMode } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -38,7 +38,7 @@ export class AdopcionesEntidadComponent implements OnInit {
   readonly porPagina = 6;
 
   ngOnInit(): void {
-    console.log("Identificando la entidad para consultar sus mascotas");
+
     this.tokenSesion = this.auth.token();
     const roles = this.auth.roles();
     if (!this.tokenSesion || !Array.isArray(roles) || !roles.includes('ROLE_ENTIDAD')) {
@@ -58,12 +58,12 @@ export class AdopcionesEntidadComponent implements OnInit {
     });
     this.auth.obtenerPerfilEntidadDB().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (entidad) => {
-        console.log("Respuesta recibida: identificando la entidad para consultar sus mascotas", { cantidad: Array.isArray(entidad) ? entidad.length : null, respuestaRecibida: entidad != null });
+
         if (!this.comprobarSesion()) return;
         if (!entidad) {
           this.cargando = false;
           this.error = 'No se encontró un perfil de entidad asociado a tu cuenta.';
-console.log("Operación detenida o no confirmada:", this.error);
+
           this.cdr.markForCheck();
           return;
         }
@@ -72,15 +72,15 @@ console.log("Operación detenida o no confirmada:", this.error);
         this.auth.guardarDatosEntidad(this.idEntidad, this.nombreEntidad);
         this.cargarMascotas(this.idEntidad);
       },
-      error: (error: HttpErrorResponse | Error) => (console.log("Error durante la operación: identificando la entidad para consultar sus mascotas"), this.mostrarError(error)),
+      error: (error: HttpErrorResponse | Error) => (this.mostrarError(error)),
     });
   }
 
   private cargarMascotas(idEntidad: number): void {
-    console.log("Consultando las mascotas de la entidad");
+
     this.mascotaService.listarPorEntidad(idEntidad).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (lista) => {
-        console.log("Respuesta recibida: consultando las mascotas de la entidad", { cantidad: Array.isArray(lista) ? lista.length : null, respuestaRecibida: lista != null });
+
         if (!this.comprobarSesion()) return;
         this.cargando = false;
         if (!Array.isArray(lista) || lista.some((mascota) => !mascota
@@ -89,20 +89,21 @@ console.log("Operación detenida o no confirmada:", this.error);
           || typeof mascota.nombre !== 'string' || typeof mascota.especie !== 'string'
           || typeof mascota.edad !== 'string')) {
           this.error = 'La API no devolvió un listado válido de mascotas de tu entidad.';
-console.log("Operación detenida o no confirmada:", this.error);
+
           this.cdr.markForCheck();
           return;
         }
+        if (isDevMode()) console.log('[HU27] Mascotas consultadas correctamente.');
         this.mascotas = lista.filter((mascota) => mascota.estado === true)
           .sort((a, b) => b.idMascota - a.idMascota);
         this.aplicarFiltros();
       },
-      error: (error: HttpErrorResponse | Error) => (console.log("Error durante la operación: consultando las mascotas de la entidad"), this.mostrarError(error)),
+      error: (error: HttpErrorResponse | Error) => (this.mostrarError(error)),
     });
   }
 
   aplicarFiltros(): void {
-    console.log("Aplicando filtros a las mascotas de la entidad");
+
     if (!this.comprobarSesion()) return;
     const nombre = (this.filtrosForm.value.nombre || '').trim().toLowerCase();
     const especie = this.filtrosForm.value.especie || '';
@@ -117,13 +118,13 @@ console.log("Operación detenida o no confirmada:", this.error);
   }
 
   limpiarFiltros(): void {
-    console.log("Limpiando filtros de mascotas de la entidad");
+
     this.filtrosForm.reset({ nombre: '', especie: '', edad: '' }, { emitEvent: false });
     this.aplicarFiltros();
   }
 
   cambiarPagina(pagina: number): void {
-    console.log("Cambiando la página de mascotas de la entidad");
+
     if (!this.comprobarSesion()) return;
     this.paginaActual = Math.max(1, Math.min(pagina, this.paginas.length || 1));
     const inicio = (this.paginaActual - 1) * this.porPagina;
@@ -148,10 +149,11 @@ console.log("Operación detenida o no confirmada:", this.error);
   }
 
   private mostrarError(error: HttpErrorResponse | Error): void {
+    if (isDevMode()) console.error(error instanceof HttpErrorResponse ? `[HU27] Error HTTP ${error.status}.` : '[HU27] No se pudo completar la consulta.');
     if (!this.comprobarSesion()) return;
     this.cargando = false;
     this.error = 'No se pudieron cargar las mascotas de tu entidad. Intenta recargar la página.';
-    if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
+    if (error instanceof HttpErrorResponse && error.status === 401) {
       this.auth.cerrarSesion();
       void this.router.navigateByUrl('/login');
     }

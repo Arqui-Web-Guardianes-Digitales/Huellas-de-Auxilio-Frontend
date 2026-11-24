@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, ElementRef, OnDestroy, OnInit, ViewChild, inject, isDevMode } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -72,14 +72,14 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log("Abriendo el detalle del reporte de la entidad");
+
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((parametros) => {
       this.cargarDetalle(parametros.get('id'));
     });
   }
 
   private cargarDetalle(id: string | null): void {
-    console.log("Consultando los datos del reporte de la entidad");
+
     this.consultas.unsubscribe();
     this.consultas = new Subscription();
     this.limpiarDetalle();
@@ -102,14 +102,14 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
     if (!id || !/^[1-9]\d*$/.test(id) || !Number.isSafeInteger(this.idReporte)) {
       this.cargando = false;
       this.error = 'El identificador del reporte no es válido.';
-console.log("Operación detenida o no confirmada:", this.error);
+
       return;
     }
     this.auth.limpiarDatosEntidad();
     const idReporte = this.idReporte;
     this.consultas.add(this.auth.obtenerPerfilEntidadDB().subscribe({
       next: (entidad) => {
-        console.log("Respuesta recibida: consultando los datos del reporte de la entidad", { cantidad: Array.isArray(entidad) ? entidad.length : null, respuestaRecibida: entidad != null });
+
         if (!this.comprobarSesion()) return;
         if (!entidad || !Number.isSafeInteger(entidad.idEntidad) || entidad.idEntidad! <= 0) {
           this.mostrarMensaje('No se encontró un perfil de entidad válido asociado a tu cuenta.');
@@ -120,7 +120,7 @@ console.log("Operación detenida o no confirmada:", this.error);
         this.auth.guardarDatosEntidad(this.idEntidad, this.nombreEntidad);
         this.consultas.add(this.reporteService.obtenerReporteEntidadPorId(idReporte).subscribe({
           next: (reporte) => {
-            console.log("Respuesta recibida: consultando los datos del reporte de la entidad", { cantidad: Array.isArray(reporte) ? reporte.length : null, respuestaRecibida: reporte != null });
+
             if (!this.comprobarSesion()) return;
             if (!reporte) {
               this.mostrarMensaje('El reporte solicitado no existe.');
@@ -135,6 +135,7 @@ console.log("Operación detenida o no confirmada:", this.error);
               return;
             }
             this.reporte = reporte;
+            if (isDevMode()) console.log('[HU26] Detalle del reporte cargado correctamente.');
             this.fechaReporte = reporte.fechaReporte && !Number.isNaN(Date.parse(reporte.fechaReporte))
               ? reporte.fechaReporte : null;
             const lat = reporte.ubicacion?.latitud;
@@ -146,37 +147,37 @@ console.log("Operación detenida o no confirmada:", this.error);
             this.cargarHistorial();
             this.cdr.markForCheck();
           },
-          error: (error: HttpErrorResponse | Error) => (console.log("Error durante la operación: consultando los datos del reporte de la entidad"), this.mostrarError(error)),
+          error: (error: HttpErrorResponse | Error) => (this.mostrarError(error)),
         }));
       },
-      error: (error: HttpErrorResponse | Error) => (console.log("Error durante la operación: consultando los datos del reporte de la entidad"), this.mostrarError(error)),
+      error: (error: HttpErrorResponse | Error) => (this.mostrarError(error)),
     }));
   }
 
   private cargarEvidencias(idReporte: number): void {
-    console.log("Consultando las evidencias del reporte");
+
     this.cargandoEvidencias = true;
     this.consultas.add(this.reporteService.obtenerEvidencias(idReporte).subscribe({
       next: (lista) => {
-        console.log("Respuesta recibida: consultando las evidencias del reporte", { cantidad: Array.isArray(lista) ? lista.length : null, respuestaRecibida: lista != null });
+
         if (!this.comprobarSesion()) return;
         this.cargandoEvidencias = false;
         if (!Array.isArray(lista) || lista.some((evidencia) => !evidencia
           || evidencia.idReporte !== idReporte || !Number.isSafeInteger(evidencia.idEvidencia)
           || typeof evidencia.urlEvidencia !== 'string' || !evidencia.urlEvidencia.trim())) {
           this.errorEvidencias = 'La API no devolvió evidencias válidas para este reporte.';
-console.log("Operación detenida o no confirmada:", this.errorEvidencias);
+
         } else {
           this.evidencias = lista.map((evidencia) => ({ ...evidencia, noDisponible: false }));
         }
         this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse | Error) => {
-        console.log("Error durante la operación: consultando las evidencias del reporte");
+
         if (!this.comprobarSesion()) return;
         this.cargandoEvidencias = false;
         this.errorEvidencias = 'No se pudieron consultar las evidencias del reporte.';
-console.log("Operación detenida o no confirmada:", this.errorEvidencias);
+
         if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
           this.mostrarError(error);
         }
@@ -203,17 +204,18 @@ console.log("Operación detenida o no confirmada:", this.errorEvidencias);
   }
 
   private mostrarError(error: HttpErrorResponse | Error): void {
+    if (isDevMode()) console.error(error instanceof HttpErrorResponse ? `[HU26] Error HTTP ${error.status}.` : '[HU26] No se pudo completar la consulta.');
     if (!this.comprobarSesion()) return;
     this.mostrarMensaje(error instanceof HttpErrorResponse && error.status === 404
       ? 'El reporte solicitado no existe.' : 'No se pudo cargar el detalle del reporte. Intenta recargar la página.');
-    if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
+    if (error instanceof HttpErrorResponse && error.status === 401) {
       this.auth.cerrarSesion();
       void this.router.navigateByUrl('/login');
     }
   }
 
   private iniciarMapa(contenedor: HTMLDivElement): void {
-    console.log("Inicializando el mapa del reporte de la entidad");
+
     if (!this.comprobarSesion() || !this.tieneCoordenadas || !this.reporte?.ubicacion) return;
     const { latitud, longitud } = this.reporte.ubicacion;
     this.mapa = L.map(contenedor, { zoomControl: false, dragging: false, scrollWheelZoom: false })
@@ -223,7 +225,7 @@ console.log("Operación detenida o no confirmada:", this.errorEvidencias);
     }).on('tileerror', () => {
       if (!this.comprobarSesion()) return;
       this.errorMapa = 'No se pudo cargar parte del mapa. La dirección y las coordenadas siguen disponibles.';
-console.log("Operación detenida o no confirmada:", this.errorMapa);
+
       this.cdr.markForCheck();
     }).addTo(this.mapa);
     const icono = L.icon({ iconUrl: '/icons/map2.png', iconSize: [36, 36], iconAnchor: [18, 36] });
@@ -253,7 +255,7 @@ console.log("Operación detenida o no confirmada:", this.errorMapa);
   }
 
   async copiarCodigo(codigo: string): Promise<void> {
-    console.log("Intentando copiar el código del reporte");
+
     const reporte = this.reporte;
     let mensaje: string;
     try {
@@ -273,14 +275,14 @@ console.log("Operación detenida o no confirmada:", this.errorMapa);
   }
 
   seleccionarEstado(estado: string): void {
-    console.log("Seleccionando el nuevo estado del reporte");
+
     if (!this.guardando && estado === this.siguienteEstado()) {
       this.estadoForm.patchValue({ nuevoEstado: estado });
     }
   }
 
   abrirConfirmacion(): void {
-    console.log("Comprobando si se puede confirmar el cambio de estado");
+
     if (this.guardando || !this.comprobarSesion()) return;
     this.errorActualizacion = '';
     this.mensajeActualizacion = '';
@@ -288,19 +290,20 @@ console.log("Operación detenida o no confirmada:", this.errorMapa);
     if (this.estadoForm.invalid || !this.siguienteEstado()
       || this.estadoForm.value.nuevoEstado !== this.siguienteEstado()) {
       this.errorActualizacion = 'Selecciona el siguiente estado permitido.';
-console.log("Operación detenida o no confirmada:", this.errorActualizacion);
+      if (isDevMode()) console.warn('[HU06] Revisa el estado y la observación.');
+
       return;
     }
     this.confirmacion?.nativeElement.showModal();
   }
 
   cerrarConfirmacion(): void {
-    console.log("Cerrando la confirmación del cambio de estado");
+
     if (!this.guardando) this.confirmacion?.nativeElement.close();
   }
 
   confirmarActualizacion(): void {
-    console.log("Intentando actualizar el estado del reporte");
+
     if (this.guardando || !this.reporte || !this.comprobarSesion()) return;
     if (this.estadoForm.invalid || !this.siguienteEstado()
       || this.estadoForm.value.nuevoEstado !== this.siguienteEstado()) return;
@@ -311,43 +314,46 @@ console.log("Operación detenida o no confirmada:", this.errorActualizacion);
     this.errorActualizacion = '';
     this.consultas.add(this.reporteService.actualizarEstado(idReporte, estado, observacion).subscribe({
       next: (reporte) => {
-        console.log("Respuesta recibida: intentando actualizar el estado del reporte", { cantidad: Array.isArray(reporte) ? reporte.length : null, respuestaRecibida: reporte != null });
+
         if (!this.comprobarSesion()) return;
         this.guardando = false;
         if (!reporte || reporte.idReporte !== idReporte || reporte.entidad?.idEntidad !== this.idEntidad
           || reporte.estado !== estado) {
           this.errorActualizacion = 'La respuesta no permite confirmar el cambio. Recarga el reporte antes de reintentar.';
-console.log("Operación detenida o no confirmada:", this.errorActualizacion);
+
           this.cdr.markForCheck();
           return;
         }
         this.reporte = reporte;
+        if (isDevMode()) console.log('[HU06] Estado del reporte actualizado correctamente.');
         this.estadoForm.reset({ nuevoEstado: '', observacion: '' });
         this.confirmacion?.nativeElement.close();
         this.mensajeActualizacion = 'Estado actualizado correctamente.';
-        console.log('Cambio de estado del reporte confirmado:', { idReporte, estado });
+
         this.cargarHistorial();
         this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
-        console.log("Error durante la operación: intentando actualizar el estado del reporte");
+
         if (!this.comprobarSesion()) return;
         this.guardando = false;
+        if (isDevMode()) console.error(`[HU06] Error en la operación: HTTP ${error.status}.`);
         if (error.status === 400) {
-          this.errorActualizacion = 'Revisa el estado seleccionado y la observación (máximo 150 caracteres).';
-console.log("Operación detenida o no confirmada:", this.errorActualizacion);
+          this.errorActualizacion = error.error?.code === 'VALIDATION_ERROR' && typeof error.error.message === 'string'
+            ? error.error.message : 'Revisa el estado seleccionado y la observación (máximo 150 caracteres).';
+
         } else if (error.status === 403) {
           this.errorActualizacion = 'Tu cuenta no tiene permiso para actualizar este reporte.';
-console.log("Operación detenida o no confirmada:", this.errorActualizacion);
+
         } else if (error.status === 404) {
           this.errorActualizacion = 'El reporte ya no existe.';
-console.log("Operación detenida o no confirmada:", this.errorActualizacion);
+
         } else if (error.status === 409) {
           this.errorActualizacion = 'El estado cambió o la transición no está permitida. Recarga el reporte para consultar su estado actual.';
-console.log("Operación detenida o no confirmada:", this.errorActualizacion);
+
         } else {
           this.errorActualizacion = 'No se pudo confirmar la actualización. Recarga el reporte antes de reintentar.';
-console.log("Operación detenida o no confirmada:", this.errorActualizacion);
+
         }
         if (error.status === 401) {
           this.auth.cerrarSesion();
@@ -359,7 +365,7 @@ console.log("Operación detenida o no confirmada:", this.errorActualizacion);
   }
 
   cargarHistorial(): void {
-    console.log("Consultando el historial del reporte");
+
     if (!this.reporte || !this.comprobarSesion()) return;
     this.consultaHistorial?.unsubscribe();
     this.cargandoHistorial = true;
@@ -367,14 +373,14 @@ console.log("Operación detenida o no confirmada:", this.errorActualizacion);
     const idReporte = this.idReporte;
     this.consultaHistorial = this.reporteService.obtenerHistorial(idReporte).subscribe({
       next: (lista) => {
-        console.log("Respuesta recibida: consultando el historial del reporte", { cantidad: Array.isArray(lista) ? lista.length : null, respuestaRecibida: lista != null });
+
         if (!this.comprobarSesion()) return;
         this.cargandoHistorial = false;
         if (!Array.isArray(lista) || lista.some((item) => !item || item.reporteIdReporte !== idReporte
           || !Number.isSafeInteger(item.idActualizacion) || typeof item.descripcionActu !== 'string'
           || !item.fechaActualizacion || Number.isNaN(Date.parse(item.fechaActualizacion)))) {
           this.errorHistorial = 'La API devolvió un historial incompleto.';
-console.log("Operación detenida o no confirmada:", this.errorHistorial);
+
         } else {
           this.historial = [...lista].sort((a, b) => Date.parse(b.fechaActualizacion) - Date.parse(a.fechaActualizacion)
             || b.idActualizacion - a.idActualizacion);
@@ -382,11 +388,11 @@ console.log("Operación detenida o no confirmada:", this.errorHistorial);
         this.cdr.markForCheck();
       },
       error: () => {
-        console.log("Error durante la operación: consultando el historial del reporte");
+
         if (!this.comprobarSesion()) return;
         this.cargandoHistorial = false;
         this.errorHistorial = 'No se pudo cargar el historial del reporte.';
-console.log("Operación detenida o no confirmada:", this.errorHistorial);
+
         this.cdr.markForCheck();
       },
     });

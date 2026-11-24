@@ -131,7 +131,9 @@ export class AuthService {
 
   roles(): string[] {
     try {
-      return JSON.parse(localStorage.getItem('roles') || '[]') as string[];
+      const roles: unknown = JSON.parse(localStorage.getItem('roles') || '[]');
+      return Array.isArray(roles) && roles.every(rol => typeof rol === 'string' && rol.trim().length > 0)
+        ? roles.map(rol => rol.trim()) : [];
     } catch {
       return [];
     }

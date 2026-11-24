@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, DestroyRef, ViewChild, ElementRef, } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, DestroyRef, ViewChild, ElementRef, isDevMode } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PercentPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -65,7 +65,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
   tieneSolicitudesEntidad: boolean = false;
 
   ngOnInit(): void {
-    console.log("Consultando los datos de inicio de la entidad");
+
     // No reutilizar la identidad de una entidad de una sesión anterior.
     this.auth.limpiarDatosEntidad();
     const roles = this.auth.roles();
@@ -88,17 +88,17 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (entidad) => {
-          console.log("Respuesta recibida: consultando los datos de inicio de la entidad", { cantidad: Array.isArray(entidad) ? entidad.length : null, respuestaRecibida: entidad != null });
+
           this.cargando = false;
           if (!this.sesionVigente(tokenSesion)) {
             this.error = 'La sesión cambió. Recarga la página para consultar tu entidad.';
-console.log("Operación detenida o no confirmada:", this.error);
+
             this.cdr.markForCheck();
             return;
           }
           if (!entidad) {
             this.error = 'No se encontró un perfil de entidad asociado a tu cuenta.';
-console.log("Operación detenida o no confirmada:", this.error);
+
           } else {
             this.idEntidad = entidad.idEntidad!;
             this.nombreEntidad = entidad.nombreEntidad.trim();
@@ -109,11 +109,12 @@ console.log("Operación detenida o no confirmada:", this.error);
           this.cdr.markForCheck();
         },
         error: (error: HttpErrorResponse | Error) => {
-          console.log("Error durante la operación: consultando los datos de inicio de la entidad");
+          if (isDevMode()) console.error(error instanceof HttpErrorResponse ? `[Home Entidad] Error HTTP ${error.status}.` : '[Home Entidad] Consulta no completada.');
+
           this.cargando = false;
           if (!this.sesionVigente(tokenSesion)) {
             this.error = 'La sesión cambió. Recarga la página para consultar tu entidad.';
-console.log("Operación detenida o no confirmada:", this.error);
+
             this.cdr.markForCheck();
             return;
           }
@@ -128,7 +129,7 @@ console.log("Operación detenida o no confirmada:", this.error);
               error instanceof HttpErrorResponse && error.status === 404
                 ? 'No se encontró un perfil de entidad asociado a tu cuenta.'
                 : 'No se pudo cargar el perfil de la entidad. Intenta recargar la página.';
-console.log("Operación detenida o no confirmada:", this.error);
+
           }
           this.cdr.markForCheck();
         },
@@ -136,7 +137,7 @@ console.log("Operación detenida o no confirmada:", this.error);
   }
 
   cargarSolicitudes(): void {
-    console.log("Consultando las solicitudes para el inicio de la entidad");
+
     this.consultaSolicitudes?.unsubscribe();
     this.solicitudesPendientes = null;
     this.solicitudesRecientes = [];
@@ -155,7 +156,7 @@ console.log("Operación detenida o no confirmada:", this.error);
       !this.sesionVigente(tokenSesion, idEntidad)
     ) {
       this.errorSolicitudes = 'No se pudo identificar una sesión de entidad válida.';
-console.log("Operación detenida o no confirmada:", this.errorSolicitudes);
+
       return;
     }
 
@@ -211,12 +212,12 @@ console.log("Operación detenida o no confirmada:", this.errorSolicitudes);
       )
       .subscribe({
         next: (datos) => {
-          console.log("Respuesta recibida: consultando las solicitudes para el inicio de la entidad", { cantidad: Array.isArray(datos) ? datos.length : null, respuestaRecibida: datos != null });
+
           this.cargandoSolicitudes = false;
           if (!this.sesionVigente(tokenSesion, idEntidad)) {
             this.errorSolicitudes =
               'La sesión cambió. Recarga la página para consultar tus solicitudes.';
-console.log("Operación detenida o no confirmada:", this.errorSolicitudes);
+
           } else {
             this.solicitudesPendientes = datos.cantidad;
             this.solicitudesRecientes = datos.recientes;
@@ -231,11 +232,12 @@ console.log("Operación detenida o no confirmada:", this.errorSolicitudes);
           this.cdr.markForCheck();
         },
         error: (error: HttpErrorResponse | Error) => {
-          console.log("Error durante la operación: consultando las solicitudes para el inicio de la entidad");
+          if (isDevMode()) console.error(error instanceof HttpErrorResponse ? `[Home Entidad] Error HTTP ${error.status}.` : '[Home Entidad] Consulta no completada.');
+
           this.cargandoSolicitudes = false;
           this.errorSolicitudes =
             'No se pudieron cargar las solicitudes. Intenta recargar la página.';
-console.log("Operación detenida o no confirmada:", this.errorSolicitudes);
+
           if (
             this.sesionVigente(tokenSesion, idEntidad) &&
             error instanceof HttpErrorResponse &&
@@ -256,7 +258,7 @@ console.log("Operación detenida o no confirmada:", this.errorSolicitudes);
     cantidad: number;
     recientes: { solicitud: Solicitud; mascota: Mascota | null }[];
   }> {
-    console.log("Consultando las mascotas pendientes del inicio de la entidad");
+
     if (!pendientes.length) return of({ cantidad: 0, recientes: [] });
     const recientes = pendientes.slice(0, 2);
     const ids = recientes.map((solicitud) => solicitud.mascotaIdMascota);
@@ -275,7 +277,7 @@ console.log("Operación detenida o no confirmada:", this.errorSolicitudes);
   }
 
   private consultarMascota(idMascota: number, idEntidad: number): Observable<Mascota | null> {
-    console.log("Consultando una mascota para el inicio de la entidad");
+
     return this.mascotaService.buscarPorId(idMascota).pipe(
       map((mascota) => {
         if (!mascota || mascota.idMascota !== idMascota || mascota.entidadIdEntidad !== idEntidad) {
@@ -284,7 +286,7 @@ console.log("Operación detenida o no confirmada:", this.errorSolicitudes);
         return mascota;
       }),
       catchError((error: HttpErrorResponse | Error) => {
-        if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
+        if (error instanceof HttpErrorResponse && error.status === 401) {
           throw error;
         }
         return of(null);
@@ -306,7 +308,7 @@ console.log("Operación detenida o no confirmada:", this.errorSolicitudes);
   }
 
   cargarReportes(): void {
-    console.log("Consultando los reportes para el inicio de la entidad");
+
     this.consultaReportes?.unsubscribe();
     this.resumen = null;
     this.reportesRecientes = [];
@@ -324,7 +326,7 @@ console.log("Operación detenida o no confirmada:", this.errorSolicitudes);
     ) {
       this.cargandoReportes = false;
       this.errorReportes = 'No se pudo identificar una entidad válida para consultar sus reportes.';
-console.log("Operación detenida o no confirmada:", this.errorReportes);
+
       return;
     }
 
@@ -358,11 +360,11 @@ console.log("Operación detenida o no confirmada:", this.errorReportes);
       )
       .subscribe({
         next: (reportes) => {
-          console.log("Respuesta recibida: consultando los reportes para el inicio de la entidad", { cantidad: Array.isArray(reportes) ? reportes.length : null, respuestaRecibida: reportes != null });
+
           this.cargandoReportes = false;
           if (!this.sesionVigente(tokenSesion, idEntidad)) {
             this.errorReportes = 'La sesión cambió. Recarga la página para consultar tus reportes.';
-console.log("Operación detenida o no confirmada:", this.errorReportes);
+
             this.cdr.markForCheck();
             return;
           }
@@ -373,6 +375,7 @@ console.log("Operación detenida o no confirmada:", this.errorReportes);
             atendidos: reportes.filter((reporte) => reporte.estado === 'AT').length,
           };
           this.reportesRecientes = reportes.slice(0, 3);
+          if (isDevMode()) console.log('[Home Entidad] Reportes consultados correctamente.');
           this.tieneReportesEntidad = reportes.length > 0;
           this.renderizarGraficoReportes(
             this.resumen.recibidos,
@@ -382,10 +385,11 @@ console.log("Operación detenida o no confirmada:", this.errorReportes);
           this.cdr.markForCheck();
         },
         error: (error: HttpErrorResponse | Error) => {
-          console.log("Error durante la operación: consultando los reportes para el inicio de la entidad");
+          if (isDevMode()) console.error(error instanceof HttpErrorResponse ? `[Home Entidad] Error HTTP ${error.status}.` : '[Home Entidad] Consulta no completada.');
+
           this.cargandoReportes = false;
           this.errorReportes = 'No se pudieron cargar los reportes. Intenta recargar la página.';
-console.log("Operación detenida o no confirmada:", this.errorReportes);
+
           if (
             this.sesionVigente(tokenSesion, idEntidad) &&
             error instanceof HttpErrorResponse &&
@@ -406,7 +410,7 @@ console.log("Operación detenida o no confirmada:", this.errorReportes);
     enRevision: number,
     atendidos: number,
   ): void {
-    console.log("Preparando el gráfico de reportes de la entidad");
+
     if (!this.tieneReportesEntidad || this.idEntidad === null
       || !this.sesionVigente(this.auth.token(), this.idEntidad)) return;
     // Aplicar el cambio de [hidden] antes de medir el canvas.
@@ -447,7 +451,7 @@ console.log("Operación detenida o no confirmada:", this.errorReportes);
     aprobadas: number,
     rechazadas: number,
   ): void {
-    console.log("Preparando el gráfico de solicitudes de la entidad");
+
     if (!this.tieneSolicitudesEntidad || this.idEntidad === null
       || !this.sesionVigente(this.auth.token(), this.idEntidad)) return;
     this.cdr.detectChanges();
