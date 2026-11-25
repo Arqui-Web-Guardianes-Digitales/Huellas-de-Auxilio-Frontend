@@ -22,6 +22,15 @@ import { AuthService } from '../../services/auth-service';
   styleUrl: './solicitud-adopcion-component.css',
 })
 export class SolicitudAdopcionComponent implements OnInit, OnDestroy {
+  menuMobileAbierto = false;
+  get nombreUsuario(): string { return this.auth.nombreCiudadano(); }
+  abrirMenu(): void { this.menuMobileAbierto = true; }
+  cerrarMenu(): void { this.menuMobileAbierto = false; }
+  cerrarSesion(): void {
+    this.auth.cerrarSesion();
+    void this.router.navigateByUrl('/login');
+  }
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
   private readonly mascotaService = inject(MascotaService);
   private readonly solicitudService = inject(SolicitudService);
   private readonly auth = inject(AuthService);

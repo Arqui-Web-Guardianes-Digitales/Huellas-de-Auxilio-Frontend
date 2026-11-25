@@ -251,24 +251,6 @@
   text-decoration: underline;
 }
 
-@media (max-width: 1024px) {
-  .footer-compacto {
-    padding: 24px 40px;
-  }
-
-  .footer-compacto-container {
-    gap: 28px;
-  }
-
-  .footer-compacto-links {
-    gap: 36px;
-  }
-
-  .footer-compacto-links a {
-    font-size: 14px;
-  }
-}
-
 @media (max-width: 768px) {
   .header-login {
     height: 310px;

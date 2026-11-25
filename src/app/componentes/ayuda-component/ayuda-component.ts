@@ -2,7 +2,7 @@ import { AuthService } from '../../services/auth-service';
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Route, Router } from '@angular/router';
+import { Route, Router, RouterLink } from '@angular/router';
 
 type VistaAyuda = 'centro' | 'chat' | 'guia';
 type Destino = 'inicio' | 'reportes' | 'directorio' | 'adopciones' | 'ayuda' | 'reportar' | 'notificaciones' | 'cuenta';
@@ -29,11 +29,20 @@ interface TemaGuia {
 @Component({
   selector: 'app-ayuda-component',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './ayuda-component.html',
   styleUrl: './ayuda-component.css'
 })
 export class AyudaComponent {
+  get esEntidad(): boolean { return this.auth.roles().includes('ROLE_ENTIDAD'); }
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+  get nombrePerfil(): string {
+    return this.esEntidad ? sessionStorage.getItem('nombreEntidad') || 'Mi cuenta' : this.auth.nombreCiudadano();
+  }
+  cerrarSesion(): void {
+    this.auth.cerrarSesion();
+    void this.router.navigateByUrl('/login');
+  }
   @ViewChild('historialChat') historialChat?: ElementRef<HTMLDivElement>;
 
   vista: VistaAyuda = 'centro';
@@ -178,6 +187,11 @@ export class AyudaComponent {
       return;
     }
 
+    if (this.esEntidad && (destino === 'inicio' || destino === 'reportes' || destino === 'adopciones')) {
+      const rutasEntidad = { inicio: '/home-entidad', reportes: '/reportes-entidad', adopciones: '/adopciones-entidad' };
+      void this.router.navigateByUrl(rutasEntidad[destino]);
+      return;
+    }
     const rutas = this.listarRutas(this.router.config);
     const candidatos = this.candidatos[destino];
     const ruta = rutas.find(r => candidatos.includes(r.split('/').pop() || ''))
