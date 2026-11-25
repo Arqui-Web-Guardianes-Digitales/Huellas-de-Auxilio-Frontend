@@ -754,3 +754,27 @@
     font-size: 13px;
   }
 }
+
+
+/* Mensajes de validación del formulario de solicitud. */
+.formulario-solicitud .validacion-error {
+  color: #a82330;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+
+.formulario-solicitud .validacion-ayuda {
+  color: #676d68;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.formulario-solicitud [aria-invalid="true"]:not(.radio-group) {
+  border-color: #a82330;
+}
+
+.formulario-solicitud input[type="checkbox"][aria-invalid="true"] {
+  outline: 1px solid #a82330;
+  outline-offset: 2px;
+}

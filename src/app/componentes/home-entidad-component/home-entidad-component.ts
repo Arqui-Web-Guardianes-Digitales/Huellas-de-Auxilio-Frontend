@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, DestroyRef, ViewChild, ElementRef, } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, DestroyRef, ViewChild, ElementRef, isDevMode } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PercentPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -23,6 +23,8 @@ Chart.register(...registerables);
   styleUrl: './home-entidad-component.css',
 })
 export class HomeEntidadComponent implements OnInit, OnDestroy {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -63,6 +65,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
   tieneSolicitudesEntidad: boolean = false;
 
   ngOnInit(): void {
+
     // No reutilizar la identidad de una entidad de una sesión anterior.
     this.auth.limpiarDatosEntidad();
     const roles = this.auth.roles();
@@ -85,14 +88,17 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (entidad) => {
+
           this.cargando = false;
           if (!this.sesionVigente(tokenSesion)) {
             this.error = 'La sesión cambió. Recarga la página para consultar tu entidad.';
+
             this.cdr.markForCheck();
             return;
           }
           if (!entidad) {
             this.error = 'No se encontró un perfil de entidad asociado a tu cuenta.';
+
           } else {
             this.idEntidad = entidad.idEntidad!;
             this.nombreEntidad = entidad.nombreEntidad.trim();
@@ -103,9 +109,12 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
         error: (error: HttpErrorResponse | Error) => {
+          if (isDevMode()) console.error(error instanceof HttpErrorResponse ? `[Home Entidad] Error HTTP ${error.status}.` : '[Home Entidad] Consulta no completada.');
+
           this.cargando = false;
           if (!this.sesionVigente(tokenSesion)) {
             this.error = 'La sesión cambió. Recarga la página para consultar tu entidad.';
+
             this.cdr.markForCheck();
             return;
           }
@@ -120,6 +129,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
               error instanceof HttpErrorResponse && error.status === 404
                 ? 'No se encontró un perfil de entidad asociado a tu cuenta.'
                 : 'No se pudo cargar el perfil de la entidad. Intenta recargar la página.';
+
           }
           this.cdr.markForCheck();
         },
@@ -127,6 +137,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
   }
 
   cargarSolicitudes(): void {
+
     this.consultaSolicitudes?.unsubscribe();
     this.solicitudesPendientes = null;
     this.solicitudesRecientes = [];
@@ -145,6 +156,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
       !this.sesionVigente(tokenSesion, idEntidad)
     ) {
       this.errorSolicitudes = 'No se pudo identificar una sesión de entidad válida.';
+
       return;
     }
 
@@ -200,10 +212,12 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (datos) => {
+
           this.cargandoSolicitudes = false;
           if (!this.sesionVigente(tokenSesion, idEntidad)) {
             this.errorSolicitudes =
               'La sesión cambió. Recarga la página para consultar tus solicitudes.';
+
           } else {
             this.solicitudesPendientes = datos.cantidad;
             this.solicitudesRecientes = datos.recientes;
@@ -218,9 +232,12 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
         error: (error: HttpErrorResponse | Error) => {
+          if (isDevMode()) console.error(error instanceof HttpErrorResponse ? `[Home Entidad] Error HTTP ${error.status}.` : '[Home Entidad] Consulta no completada.');
+
           this.cargandoSolicitudes = false;
           this.errorSolicitudes =
             'No se pudieron cargar las solicitudes. Intenta recargar la página.';
+
           if (
             this.sesionVigente(tokenSesion, idEntidad) &&
             error instanceof HttpErrorResponse &&
@@ -241,6 +258,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
     cantidad: number;
     recientes: { solicitud: Solicitud; mascota: Mascota | null }[];
   }> {
+
     if (!pendientes.length) return of({ cantidad: 0, recientes: [] });
     const recientes = pendientes.slice(0, 2);
     const ids = recientes.map((solicitud) => solicitud.mascotaIdMascota);
@@ -259,6 +277,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
   }
 
   private consultarMascota(idMascota: number, idEntidad: number): Observable<Mascota | null> {
+
     return this.mascotaService.buscarPorId(idMascota).pipe(
       map((mascota) => {
         if (!mascota || mascota.idMascota !== idMascota || mascota.entidadIdEntidad !== idEntidad) {
@@ -267,7 +286,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
         return mascota;
       }),
       catchError((error: HttpErrorResponse | Error) => {
-        if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
+        if (error instanceof HttpErrorResponse && error.status === 401) {
           throw error;
         }
         return of(null);
@@ -289,6 +308,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
   }
 
   cargarReportes(): void {
+
     this.consultaReportes?.unsubscribe();
     this.resumen = null;
     this.reportesRecientes = [];
@@ -306,6 +326,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
     ) {
       this.cargandoReportes = false;
       this.errorReportes = 'No se pudo identificar una entidad válida para consultar sus reportes.';
+
       return;
     }
 
@@ -339,9 +360,11 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (reportes) => {
+
           this.cargandoReportes = false;
           if (!this.sesionVigente(tokenSesion, idEntidad)) {
             this.errorReportes = 'La sesión cambió. Recarga la página para consultar tus reportes.';
+
             this.cdr.markForCheck();
             return;
           }
@@ -352,6 +375,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
             atendidos: reportes.filter((reporte) => reporte.estado === 'AT').length,
           };
           this.reportesRecientes = reportes.slice(0, 3);
+          if (isDevMode()) console.log('[Home Entidad] Reportes consultados correctamente.');
           this.tieneReportesEntidad = reportes.length > 0;
           this.renderizarGraficoReportes(
             this.resumen.recibidos,
@@ -361,8 +385,11 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
         error: (error: HttpErrorResponse | Error) => {
+          if (isDevMode()) console.error(error instanceof HttpErrorResponse ? `[Home Entidad] Error HTTP ${error.status}.` : '[Home Entidad] Consulta no completada.');
+
           this.cargandoReportes = false;
           this.errorReportes = 'No se pudieron cargar los reportes. Intenta recargar la página.';
+
           if (
             this.sesionVigente(tokenSesion, idEntidad) &&
             error instanceof HttpErrorResponse &&
@@ -383,6 +410,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
     enRevision: number,
     atendidos: number,
   ): void {
+
     if (!this.tieneReportesEntidad || this.idEntidad === null
       || !this.sesionVigente(this.auth.token(), this.idEntidad)) return;
     // Aplicar el cambio de [hidden] antes de medir el canvas.
@@ -423,6 +451,7 @@ export class HomeEntidadComponent implements OnInit, OnDestroy {
     aprobadas: number,
     rechazadas: number,
   ): void {
+
     if (!this.tieneSolicitudesEntidad || this.idEntidad === null
       || !this.sesionVigente(this.auth.token(), this.idEntidad)) return;
     this.cdr.detectChanges();

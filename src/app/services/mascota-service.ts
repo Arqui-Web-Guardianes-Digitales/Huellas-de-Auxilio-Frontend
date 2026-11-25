@@ -59,6 +59,10 @@ export class MascotaService {
     });
   }
 
+  editarMascota(idMascota: number, mascota: Mascota): Observable<Mascota | null> {
+    return this.http.put<Mascota | null>(`${this.url}/mascota/${idMascota}`, mascota, { headers: this.getHeaders() });
+  }
+
   publicarMascota(idEntidad: number, mascota: Mascota): Observable<Mascota | null> {
     return this.http.post<Mascota | null>(`${this.url}/mascotas/entidad/${idEntidad}`, mascota, {
       headers: this.getHeaders(),

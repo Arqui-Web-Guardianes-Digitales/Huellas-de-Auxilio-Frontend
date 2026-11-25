@@ -27,6 +27,7 @@ export class SolicitudService {
       tipoVivienda: solicitud.tipoVivienda,
       motivo: solicitud.motivo,
       experiencia: solicitud.experiencia,
+      aceptoTerminos: solicitud.aceptoTerminos,
     };
 
     return this.http.post<Solicitud | null>(
@@ -49,6 +50,31 @@ export class SolicitudService {
 
   listarPorCiudadano(idCiudadano: number): Observable<Solicitud[] | null> {
     return this.http.get<Solicitud[] | null>(`${this.url}/solicitudes/ciudadano/${idCiudadano}`, {
+      headers: this.getHeaders(),
+    });
+  }
+
+  buscarPorSolicitudYMascota(idMascota: number, idSolicitud: number): Observable<Solicitud | null> {
+    return this.http.get<Solicitud | null>(
+      `${this.url}/solicitud/mascota/${idMascota}/${idSolicitud}`,
+      { headers: this.getHeaders() },
+    );
+  }
+
+  aprobarSolicitud(idSolicitud: number): Observable<Solicitud | null> {
+    return this.http.put<Solicitud | null>(`${this.url}/solicitud/${idSolicitud}/aprobar`, null, {
+      headers: this.getHeaders(),
+    });
+  }
+
+  rechazarSolicitud(idSolicitud: number): Observable<Solicitud | null> {
+    return this.http.put<Solicitud | null>(`${this.url}/solicitud/${idSolicitud}/rechazar`, null, {
+      headers: this.getHeaders(),
+    });
+  }
+
+  listarPorMascota(idMascota: number): Observable<Solicitud[] | null> {
+    return this.http.get<Solicitud[] | null>(`${this.url}/solicitudes/mascota/${idMascota}`, {
       headers: this.getHeaders(),
     });
   }

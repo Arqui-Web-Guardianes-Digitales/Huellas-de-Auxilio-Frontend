@@ -15,6 +15,8 @@ import { Reporte } from '../../model/reporte';
   styleUrl: './seguimiento-reporte-component.css',
 })
 export class SeguimientoReporteComponent implements OnInit {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly reporteService = inject(ReporteService);
   private readonly router = inject(Router);

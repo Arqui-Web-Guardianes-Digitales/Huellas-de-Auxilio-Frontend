@@ -6,6 +6,7 @@ export class Entidad {
   zonaAtencion!: string;
   idUsuario!: number;
 
+  telefono?: string;
   sitioWeb?: string;
   fechaAtencionInicio?: string;
   fechaAtencionFinal?: string;

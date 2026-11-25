@@ -10,24 +10,23 @@
       <img src="/img/logo.png" alt="Huellas de Auxilio" />
     </a>
 
-    <button type="button" class="btn-campana-mobile" (click)="mostrarPendiente('Notificaciones de entidad')">
+    <a routerLink="/notificaciones" class="btn-campana-mobile">
       <img src="/icons/campana.png" alt="Notificaciones" />
-    </button>
+    </a>
 
     <ul class="nav-links">
       <li><a routerLink="/home-entidad" class="nav-link">Inicio</a></li>
       <li><a routerLink="/reportes-entidad" class="nav-link">Reportes</a></li>
-      <li><button type="button" class="nav-link" (click)="mostrarPendiente('Adopciones de entidad')">Adopciones</button></li>
-      <li><button type="button" class="nav-link" (click)="mostrarPendiente('Red de apoyo')">Red de apoyo</button></li>
-      <li><button type="button" class="nav-link" (click)="mostrarPendiente('Ayuda de entidad')">Ayuda</button></li>
+      <li><a routerLink="/adopciones-entidad" class="nav-link">Adopciones</a></li>
+      <li><a routerLink="/ayuda" class="nav-link">Ayuda</a></li>
     </ul>
 
     <div class="header-actions">
-      <button type="button" class="btn-campana" (click)="mostrarPendiente('Notificaciones de entidad')">
+      <a routerLink="/notificaciones" class="btn-campana">
         <img src="/icons/campana.png" alt="Notificaciones" />
-      </button>
+      </a>
 
-      <a routerLink="/mi-cuenta-entidad" class="btn-cuenta">
+      <a [routerLink]="rutaCuenta" class="btn-cuenta">
         <img src="/icons/user-circle.png" alt="Mi cuenta" />
         <span>Mi cuenta</span>
       </a>
@@ -41,7 +40,7 @@
 
         <div>
           <h3>{{ entidad.nombreEntidad }}</h3>
-          <a routerLink="/mi-cuenta-entidad">Ver mi perfil</a>
+          <a [routerLink]="rutaCuenta">Ver mi perfil</a>
         </div>
       </div>
 
@@ -53,9 +52,8 @@
     <div class="menu-mobile-links">
       <a routerLink="/home-entidad">Inicio</a>
       <a routerLink="/reportes-entidad">Reportes</a>
-      <button type="button" (click)="mostrarPendiente('Adopciones de entidad')">Adopciones</button>
-      <button type="button" (click)="mostrarPendiente('Red de apoyo')">Red de apoyo</button>
-      <button type="button" (click)="mostrarPendiente('Ayuda de entidad')">Ayuda</button>
+      <a routerLink="/adopciones-entidad">Adopciones</a>
+      <a routerLink="/ayuda" (click)="cerrarMenu()">Ayuda</a>
     </div>
   </div>
 </header>
@@ -70,7 +68,7 @@
     <div class="linea"></div>
 
     <nav class="menu-cuenta">
-      <a routerLink="/mi-cuenta-entidad" class="opcion-cuenta activa">
+      <a [routerLink]="rutaCuenta" class="opcion-cuenta activa">
         <img src="/icons/perfil.png" alt="Perfil" class="icono-opcion" />
         Perfil
       </a>
@@ -83,7 +81,7 @@
 
     <div class="linea"></div>
 
-    <button type="button" class="opcion-cuenta eliminar" (click)="mostrarPendiente('Eliminar cuenta')">
+    <button type="button" class="opcion-cuenta eliminar" [disabled]="cargando || guardando || eliminando || requiereLogin || !!errorCarga" (click)="informarEliminacion()">
       <img src="/icons/eliminar-rojo.png" alt="Eliminar cuenta" class="icono-opcion" />
       Eliminar cuenta
     </button>
@@ -95,15 +93,29 @@
     @if (mensaje) { <p class="mensaje-cuenta" role="status">{{ mensaje }}</p> }
     @if (error) { <p class="error-cuenta" role="alert">{{ error }}</p> }
 
-    <form class="card-datos" [class.card-editando]="editando === 'entidad'" (ngSubmit)="guardarEntidad()">
+    @if (requiereLogin) {
+      @if (cuentaDesactivada) {
+        <a routerLink="/" class="btn-editar">Volver al inicio</a>
+      } @else {
+        <p class="mensaje-cuenta">Tu nuevo correo es <strong>{{ correoActualizado }}</strong>.</p>
+        <a routerLink="/login" class="btn-editar">Iniciar sesión</a>
+      }
+    } @else {
+    @if (cargando) {
+      <p class="mensaje-cuenta" role="status">Cargando los datos de tu entidad...</p>
+    } @else if (errorCarga) {
+      <p class="error-cuenta" role="alert">{{ errorCarga }}</p>
+      <button type="button" class="btn-editar" (click)="cargarPerfil()">Reintentar</button>
+    } @else {
+    <form class="card-datos" [class.card-editando]="editando === 'entidad'" [attr.aria-busy]="guardando" (ngSubmit)="guardarEntidad()">
       <div class="card-header">
         <h2>Información de la entidad</h2>
         <div class="acciones-edicion">
           @if (editando === 'entidad') {
-            <button type="submit" class="btn-editar">Guardar</button>
-            <button type="button" class="btn-editar" (click)="cancelarEdicion()">Cancelar</button>
+            <button type="submit" class="btn-editar" [disabled]="guardando || eliminando || requiereLogin">{{ guardando ? 'Guardando...' : 'Guardar' }}</button>
+            <button type="button" class="btn-editar" [disabled]="guardando || eliminando || requiereLogin" (click)="cancelarEdicion()">Cancelar</button>
           } @else {
-            <button type="button" class="btn-editar" (click)="comenzarEdicion('entidad')" [disabled]="editando !== null">Editar</button>
+            <button type="button" class="btn-editar" (click)="comenzarEdicion('entidad')" [disabled]="guardando || eliminando || editando !== null">Editar</button>
           }
         </div>
       </div>
@@ -112,35 +124,88 @@
           <label [attr.for]="editando === 'entidad' ? 'nombreEntidad' : null">NOMBRE DE LA ENTIDAD</label>
           @if (editando === 'entidad') {
             <input id="nombreEntidad" name="nombreEntidad" type="text" autocomplete="organization"
-                   [(ngModel)]="borradorEntidad.nombreEntidad" maxlength="255" required />
+                   [(ngModel)]="borradorEntidad.nombreEntidad" [disabled]="guardando || eliminando || requiereLogin" maxlength="255" required />
           } @else { <p>{{ entidad.nombreEntidad }}</p> }
         </div>
         <div class="dato-item">
           <label [attr.for]="editando === 'entidad' ? 'tipoEntidad' : null">TIPO DE ENTIDAD</label>
           @if (editando === 'entidad') {
             <input id="tipoEntidad" name="tipoEntidad" type="text"
-                   [(ngModel)]="borradorEntidad.tipoEntidad" maxlength="255" required />
+                   [(ngModel)]="borradorEntidad.tipoEntidad" [disabled]="guardando || eliminando || requiereLogin" maxlength="255" required />
           } @else { <p>{{ entidad.tipoEntidad }}</p> }
         </div>
         <div class="dato-item">
           <label [attr.for]="editando === 'entidad' ? 'zonaAtencion' : null">ZONA DE ATENCIÓN</label>
           @if (editando === 'entidad') {
             <input id="zonaAtencion" name="zonaAtencion" type="text"
-                   [(ngModel)]="borradorEntidad.zonaAtencion" maxlength="255" required />
+                   [(ngModel)]="borradorEntidad.zonaAtencion" [disabled]="guardando || eliminando || requiereLogin" maxlength="255" required />
           } @else { <p>{{ entidad.zonaAtencion }}</p> }
         </div>
+        <div class="dato-item">
+          <label [attr.for]="editando === 'entidad' ? 'sitioWeb' : null">SITIO WEB (OPCIONAL)</label>
+          @if (editando === 'entidad') {
+            <input id="sitioWeb" name="sitioWeb" type="url" placeholder="https://www.ejemplo.com"
+                   [(ngModel)]="borradorEntidad.sitioWeb" [disabled]="guardando || eliminando || requiereLogin" maxlength="255" />
+          } @else { <p>{{ entidad.sitioWeb || 'Sin registrar' }}</p> }
+        </div>
+        <div class="dato-item">
+          <label [attr.for]="editando === 'entidad' ? 'fechaAtencionInicio' : null">HORA DE INICIO (OPCIONAL)</label>
+          @if (editando === 'entidad') {
+            <input id="fechaAtencionInicio" name="fechaAtencionInicio" type="time"
+                   [(ngModel)]="borradorEntidad.fechaAtencionInicio" [disabled]="guardando || eliminando || requiereLogin" />
+          } @else { <p>{{ entidad.fechaAtencionInicio?.slice(0, 5) || 'Sin registrar' }}</p> }
+        </div>
+        <div class="dato-item">
+          <label [attr.for]="editando === 'entidad' ? 'fechaAtencionFinal' : null">HORA DE FINALIZACIÓN (OPCIONAL)</label>
+          @if (editando === 'entidad') {
+            <input id="fechaAtencionFinal" name="fechaAtencionFinal" type="time"
+                   [(ngModel)]="borradorEntidad.fechaAtencionFinal" [disabled]="guardando || eliminando || requiereLogin" />
+          } @else { <p>{{ entidad.fechaAtencionFinal?.slice(0, 5) || 'Sin registrar' }}</p> }
+        </div>
+        <div class="dato-item">
+          <label [attr.for]="editando === 'entidad' ? 'diasAtencion' : null">DÍAS DE ATENCIÓN (OPCIONAL)</label>
+          @if (editando === 'entidad') {
+            <input id="diasAtencion" name="diasAtencion" type="text" placeholder="Lunes a viernes"
+                   [(ngModel)]="borradorEntidad.diasAtencion" [disabled]="guardando || eliminando || requiereLogin" maxlength="255" />
+          } @else { <p>{{ entidad.diasAtencion || 'Sin registrar' }}</p> }
+        </div>
       </div>
+      <section class="ubicacion-entidad" aria-labelledby="titulo-ubicacion-entidad">
+        <h3 id="titulo-ubicacion-entidad">Ubicación de la entidad</h3>
+        @if (editando === 'entidad') {
+          <p class="instruccion-mapa">Haz clic en el mapa para seleccionar la ubicación. Se guardará al pulsar Guardar.</p>
+          <div class="contenedor-mapa-entidad" [class.mapa-bloqueado]="guardando || eliminando || requiereLogin">
+            <div #mapaUbicacionEntidad class="mapa-edicion-entidad" role="region" aria-label="Mapa para seleccionar la ubicación de la entidad"></div>
+            @if (guardando || eliminando || requiereLogin) {
+              <p class="bloqueo-mapa" role="status">La selección de ubicación está deshabilitada.</p>
+            }
+          </div>
+          @if (coordenadasValidas(borradorEntidad.latitud, borradorEntidad.longitud)) {
+            <p class="coordenadas-entidad" aria-live="polite">Latitud: {{ borradorEntidad.latitud }} · Longitud: {{ borradorEntidad.longitud }}</p>
+          } @else {
+            <p class="coordenadas-entidad">Sin ubicación seleccionada. El centro del mapa es solo una referencia.</p>
+          }
+        } @else if (coordenadasValidas(entidad.latitud, entidad.longitud)) {
+          <p class="coordenadas-entidad">Latitud: {{ entidad.latitud }} · Longitud: {{ entidad.longitud }}</p>
+        } @else {
+          <p class="coordenadas-entidad">Sin ubicación registrada</p>
+        }
+      </section>
     </form>
+      @if (guardando) {
+        <p class="mensaje-cuenta" role="status">Guardando cambios. Espera la confirmación.</p>
+      }
+    }
 
     <form class="card-datos" [class.card-editando]="editando === 'contacto'" (ngSubmit)="guardarContacto()">
       <div class="card-header">
         <h2>Información de contacto</h2>
         <div class="acciones-edicion">
           @if (editando === 'contacto') {
-            <button type="submit" class="btn-editar">Guardar</button>
-            <button type="button" class="btn-editar" (click)="cancelarEdicion()">Cancelar</button>
+            <button type="submit" class="btn-editar" [disabled]="guardando || eliminando || requiereLogin">{{ guardando ? 'Guardando...' : 'Guardar' }}</button>
+            <button type="button" class="btn-editar" [disabled]="guardando || eliminando || requiereLogin" (click)="cancelarEdicion()">Cancelar</button>
           } @else {
-            <button type="button" class="btn-editar" (click)="comenzarEdicion('contacto')" [disabled]="editando !== null">Editar</button>
+            <button type="button" class="btn-editar" (click)="comenzarEdicion('contacto')" [disabled]="cargando || guardando || eliminando || requiereLogin || !!errorCarga || editando !== null">Editar</button>
           }
         </div>
       </div>
@@ -149,48 +214,51 @@
           <label [attr.for]="editando === 'contacto' ? 'correo' : null">CORREO ELECTRÓNICO</label>
           @if (editando === 'contacto') {
             <input id="correo" name="correo" type="email" autocomplete="email"
-                   [(ngModel)]="borradorUsuario.correo" maxlength="254" required />
+                   [(ngModel)]="borradorUsuario.correo" [disabled]="guardando || eliminando || requiereLogin" maxlength="254" required />
           } @else { <p>{{ usuario.correo }}</p> }
         </div>
         <div class="dato-item">
           <label [attr.for]="editando === 'contacto' ? 'telefono' : null">TELÉFONO DE CONTACTO</label>
           @if (editando === 'contacto') {
             <input id="telefono" name="telefono" type="tel" autocomplete="tel"
-                   [(ngModel)]="borradorUsuario.telefono" maxlength="16" required />
+                   [(ngModel)]="borradorUsuario.telefono" [disabled]="guardando || eliminando || requiereLogin" inputmode="numeric" maxlength="9" required />
           } @else { <p>{{ usuario.telefono }}</p> }
         </div>
       </div>
     </form>
+
+    @if (editando === 'contacto') {
+      <p class="nota-cuenta">Si cambias tu correo, deberás iniciar sesión nuevamente.</p>
+    }
 
     <form class="card-datos" [class.card-editando]="editando === 'seguridad'" (ngSubmit)="validarContrasena()">
       <div class="card-header">
         <h2>Seguridad de la cuenta</h2>
         <div class="acciones-edicion">
           @if (editando === 'seguridad') {
-            <button type="submit" class="btn-editar">Validar</button>
-            <button type="button" class="btn-editar" (click)="cancelarEdicion()">Cancelar</button>
+            <button type="submit" class="btn-editar" [disabled]="guardando || eliminando || requiereLogin">{{ guardando ? 'Guardando...' : 'Guardar' }}</button>
+            <button type="button" class="btn-editar" [disabled]="guardando || eliminando || requiereLogin" (click)="cancelarEdicion()">Cancelar</button>
           } @else {
-            <button type="button" class="btn-editar" (click)="comenzarEdicion('seguridad')" [disabled]="editando !== null">Editar</button>
+            <button type="button" class="btn-editar" (click)="comenzarEdicion('seguridad')" [disabled]="cargando || guardando || eliminando || requiereLogin || !!errorCarga || editando !== null">Editar</button>
           }
         </div>
       </div>
       @if (editando === 'seguridad') {
-        <p class="nota-cuenta">Demostración: se valida el formato y la confirmación. La contraseña actual debe comprobarse en el backend.</p>
         <div class="datos-grid">
           <div class="dato-item">
             <label for="contrasenaActual">CONTRASEÑA ACTUAL</label>
             <input id="contrasenaActual" name="contrasenaActual" type="password" autocomplete="current-password"
-                   [(ngModel)]="contrasenaActual" required />
+                   [(ngModel)]="contrasenaActual" [disabled]="guardando || eliminando || requiereLogin" required />
           </div>
           <div class="dato-item">
             <label for="nuevaContrasena">NUEVA CONTRASEÑA</label>
             <input id="nuevaContrasena" name="nuevaContrasena" type="password" autocomplete="new-password"
-                   [(ngModel)]="nuevaContrasena" minlength="8" required />
+                   [(ngModel)]="nuevaContrasena" [disabled]="guardando || eliminando || requiereLogin" minlength="8" required />
           </div>
           <div class="dato-item">
             <label for="confirmarContrasena">CONFIRMAR CONTRASEÑA</label>
             <input id="confirmarContrasena" name="confirmarContrasena" type="password" autocomplete="new-password"
-                   [(ngModel)]="confirmarContrasena" minlength="8" required />
+                   [(ngModel)]="confirmarContrasena" [disabled]="guardando || eliminando || requiereLogin" minlength="8" required />
           </div>
         </div>
       } @else {
@@ -198,43 +266,65 @@
       }
     </form>
 
+    }
   </section>
 </main>
 
 <footer class="footer-compacto">
   <div class="footer-compacto-container">
     <div class="footer-compacto-brand">
-      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
-
-      <p>
-        © 2026 Huellas de Auxilio. Todos<br />
-        los derechos reservados.
-      </p>
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio">
+      <p>© 2026 Huellas de Auxilio. Todos<br>los derechos reservados.</p>
     </div>
-
     <div class="footer-compacto-links">
-      <button type="button" class="enlace-footer" (click)="mostrarPendiente('Soporte')">Soporte</button>
-      <a href="/documentos/politica-privacidad.pdf" target="_blank" rel="noopener noreferrer">
-        Política de Privacidad
-      </a>
-      <a href="/documentos/terminos-condiciones.pdf" target="_blank" rel="noopener noreferrer">
-        Términos y condiciones
-      </a>
+      <a href="/ayuda">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank" rel="noopener noreferrer">Términos y condiciones</a>
     </div>
-
     <div class="footer-social">
-      <a href="https://www.facebook.com/">
-        <img src="/icons/facebook.png" alt="Facebook" />
-      </a>
-
-      <a href="https://x.com/">
-        <img src="/icons/x.png" alt="X" />
-      </a>
-
-      <a href="https://www.instagram.com/">
-        <img src="/icons/instagram.png" alt="Instagram" />
-      </a>
+      <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="/icons/facebook.png" alt=""></a>
+      <a href="https://x.com/" target="_blank" rel="noopener noreferrer" aria-label="X"><img src="/icons/x.png" alt=""></a>
+      <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="/icons/instagram.png" alt=""></a>
     </div>
   </div>
 </footer>
 
+
+<ng-template #dialogoEliminarEntidad>
+  <h2 mat-dialog-title id="titulo-eliminar-entidad">Desactivar cuenta</h2>
+
+  <mat-dialog-content>
+    <p class="aviso-eliminar">
+      La cuenta de tu entidad será desactivada y no podrás iniciar sesión.
+      Tus reportes y solicitudes se conservarán.
+    </p>
+
+    <form id="form-desactivar-entidad" (ngSubmit)="confirmarEliminacion()">
+      <div class="dato-item">
+        <label for="contrasena-eliminar-entidad">CONTRASEÑA ACTUAL</label>
+        <input id="contrasena-eliminar-entidad" name="contrasenaEliminar"
+               type="password" autocomplete="current-password"
+               [(ngModel)]="contrasenaEliminar" [disabled]="eliminando"
+               [attr.aria-invalid]="errorEliminar ? 'true' : null"
+               [attr.aria-describedby]="errorEliminar ? 'error-eliminar-entidad' : null"
+               required />
+      </div>
+    </form>
+
+    @if (errorEliminar) {
+      <p class="error-cuenta" id="error-eliminar-entidad" role="alert">{{ errorEliminar }}</p>
+    }
+    @if (eliminando) {
+      <p class="estado-carga" role="status">Desactivando tu cuenta...</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button type="button" class="btn-editar" [disabled]="eliminando"
+            (click)="cancelarEliminacion()">Cancelar</button>
+    <button type="submit" form="form-desactivar-entidad" class="btn-editar btn-desactivar"
+            [disabled]="eliminando">
+      {{ eliminando ? 'Desactivando...' : 'Desactivar' }}
+    </button>
+  </mat-dialog-actions>
+</ng-template>

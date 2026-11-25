@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from './guards/auth-guard';
+import { ForbiddenComponent } from './componentes/forbidden-component/forbidden-component';
 import { LandingComponent } from './componentes/landing-component/landing-component';
 import { LoginComponent } from './componentes/login-component/login-component';
 import { CrearCuentaComponent } from './componentes/crear-cuenta-component/crear-cuenta-component';
@@ -16,6 +18,7 @@ import { MisReportesComponent } from './componentes/mis-reportes-component/mis-r
 import { ReportarComponent } from './componentes/reportar-component/reportar-component';
 import { SeguimientoReporteComponent } from './componentes/seguimiento-reporte-component/seguimiento-reporte-component';
 import { DirectorioComponent } from './componentes/directorio-component/directorio-component';
+import { DetalleEntidadComponent } from './componentes/detalle-entidad-component/detalle-entidad-component';
 import { AdopcionesComponent } from './componentes/adopciones-component/adopciones-component';
 import { AyudaComponent } from './componentes/ayuda-component/ayuda-component';
 import { NotificacionesComponent } from './componentes/notificaciones-component/notificaciones-component';
@@ -31,6 +34,7 @@ export const routes: Routes = [
 
   // Auth y Registro
   { path: 'login', component: LoginComponent },
+  { path: 'forbidden', component: ForbiddenComponent },
   { path: 'crear-cuenta', component: CrearCuentaComponent },
   { path: 'registro-ciudadano', component: RegistroCiudadanoComponent },
   { path: 'registro-entidad', component: RegistroEntidadComponent },
@@ -42,35 +46,36 @@ export const routes: Routes = [
   { path: 'nueva-contrasena', component: NuevaContrasenaComponent },
 
   // Flujo Ciudadano
-  { path: 'home-ciudadano', component: HomeCiudadanoComponent },
-  { path: 'mis-reportes', component: MisReportesComponent },
-  { path: 'reportar', component: ReportarComponent },
-  { path: 'seguimiento-reporte/:id', component: SeguimientoReporteComponent },
-  { path: 'seguimiento-reporte', component: SeguimientoReporteComponent },
-  { path: 'directorio', component: DirectorioComponent },
-  { path: 'adopciones', component: AdopcionesComponent },
-  { path: 'ayuda', component: AyudaComponent },
-  { path: 'notificaciones', component: NotificacionesComponent },
-  { path: 'mi-cuenta-ciudadano', component: MiCuentaCiudadanoComponent },
-  { path: 'guia-ayuda', component: GuiaAyudaComponent },
-  { path: 'detalle-mascota/:idMascota', component: DetalleMascotaComponent },
-  { path: 'solicitud-adopcion/:idMascota', component: SolicitudAdopcionComponent },
+  { path: 'home-ciudadano', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO'] }, component: HomeCiudadanoComponent },
+  { path: 'mis-reportes', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO'] }, component: MisReportesComponent },
+  { path: 'reportar', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO'] }, component: ReportarComponent },
+  { path: 'seguimiento-reporte/:id', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO'] }, component: SeguimientoReporteComponent },
+  { path: 'seguimiento-reporte', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO'] }, component: SeguimientoReporteComponent },
+  { path: 'directorio', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO'] }, component: DirectorioComponent },
+  { path: 'detalle-entidad/:idEntidad', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO'] }, component: DetalleEntidadComponent },
+  { path: 'adopciones', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO'] }, component: AdopcionesComponent },
+  { path: 'ayuda', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO', 'ROLE_ENTIDAD'] }, component: AyudaComponent },
+  { path: 'notificaciones', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO', 'ROLE_ENTIDAD'] }, component: NotificacionesComponent },
+  { path: 'mi-cuenta-ciudadano', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO'] }, component: MiCuentaCiudadanoComponent },
+  { path: 'guia-ayuda', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO', 'ROLE_ENTIDAD'] }, component: GuiaAyudaComponent },
+  { path: 'detalle-mascota/:idMascota', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO'] }, component: DetalleMascotaComponent },
+  { path: 'solicitud-adopcion/:idMascota', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO'] }, component: SolicitudAdopcionComponent },
 
   //Flujo Solicitud
-  { path: 'mis-solicitudes', component: MisSolicitudesComponent },
-  { path: 'detalle-solicitud/:idSolicitud', component: DetalleSolicitudComponent },
+  { path: 'mis-solicitudes', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO'] }, component: MisSolicitudesComponent },
+  { path: 'detalle-solicitud/:idSolicitud', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO'] }, component: DetalleSolicitudComponent },
 
   // Flujo Entidad
-  { path: 'home-entidad', component: HomeEntidadComponent },
+  { path: 'home-entidad', canActivate: [AuthGuard], data: { roles: ['ROLE_ENTIDAD'] }, component: HomeEntidadComponent },
   {
-    path: 'mi-cuenta-entidad',
+    path: 'mi-cuenta-entidad', canActivate: [AuthGuard], data: { roles: ['ROLE_ENTIDAD'] },
     loadComponent: () =>
       import('./componentes/mi-cuenta-entidad-component/mi-cuenta-entidad-component').then(
         (componente) => componente.MiCuentaEntidadComponent,
       ),
   },
   {
-    path: 'reportes-entidad',
+    path: 'reportes-entidad', canActivate: [AuthGuard], data: { roles: ['ROLE_ENTIDAD'] },
     loadComponent: () =>
       import('./componentes/reportes-entidad-component/reportes-entidad-component').then(
         (componente) => componente.ReportesEntidadComponent,
@@ -78,7 +83,7 @@ export const routes: Routes = [
   },
 
   {
-    path: 'detalle-reporte-entidad/:id',
+    path: 'detalle-reporte-entidad/:id', canActivate: [AuthGuard], data: { roles: ['ROLE_ENTIDAD'] },
     loadComponent: () =>
       import('./componentes/detalle-reporte-entidad-component/detalle-reporte-entidad-component').then(
         (componente) => componente.DetalleReporteEntidadComponent,
@@ -86,7 +91,7 @@ export const routes: Routes = [
   },
 
   {
-    path: 'adopciones-entidad',
+    path: 'adopciones-entidad', canActivate: [AuthGuard], data: { roles: ['ROLE_ENTIDAD'] },
     loadComponent: () =>
       import('./componentes/adopciones-entidad-component/adopciones-entidad-component').then(
         (componente) => componente.AdopcionesEntidadComponent,
@@ -94,9 +99,36 @@ export const routes: Routes = [
   },
 
   {
-    path: 'publicar-mascota',
+    path: 'publicar-mascota', canActivate: [AuthGuard], data: { roles: ['ROLE_ENTIDAD'] },
     loadComponent: () => import('./componentes/publicar-mascota-component/publicar-mascota-component')
       .then((componente) => componente.PublicarMascotaComponent),
+  },
+
+  {
+    path: 'editar-mascota/:idMascota', canActivate: [AuthGuard], data: { roles: ['ROLE_ENTIDAD'] },
+    loadComponent: () => import('./componentes/publicar-mascota-component/publicar-mascota-component')
+      .then((componente) => componente.PublicarMascotaComponent),
+  },
+
+  {
+    path: 'solicitudes-mascota/:idMascota',
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_ENTIDAD'] },
+    loadComponent: () =>
+      import('./componentes/solicitudes-entidad-component/solicitudes-entidad-component')
+        .then((componente) => componente.SolicitudesEntidadComponent),
+  },
+
+  {
+    path: 'solicitudes-entidad', canActivate: [AuthGuard], data: { roles: ['ROLE_ENTIDAD'] },
+    loadComponent: () => import('./componentes/solicitudes-entidad-component/solicitudes-entidad-component')
+      .then((componente) => componente.SolicitudesEntidadComponent),
+  },
+
+  {
+    path: 'detalle-solicitud-entidad/:idMascota/:idSolicitud', canActivate: [AuthGuard], data: { roles: ['ROLE_ENTIDAD'] },
+    loadComponent: () => import('./componentes/detalle-solicitud-entidad-component/detalle-solicitud-entidad-component')
+      .then((componente) => componente.DetalleSolicitudEntidadComponent),
   },
 
   // Comodín para redirigir si no existe la ruta

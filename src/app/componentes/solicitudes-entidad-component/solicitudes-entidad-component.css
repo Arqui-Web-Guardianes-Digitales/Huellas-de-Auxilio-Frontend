@@ -1,0 +1,593 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
+
+/* Dimensiones de Home Ciudadano; navegación del rol ENTIDAD. */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #fbfaf7;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  color: #082f3d;
+  overflow-x: hidden;
+}
+
+/* Footer: mismas dimensiones y distribución que Home Entidad. */
+
+.solicitudes-page {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 26px 46px 8px;
+}
+
+.titulo-solicitudes {
+  margin-bottom: 34px;
+}
+
+.titulo-linea {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.btn-volver {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #d9dddd;
+  background-color: #ffffff;
+  border-radius: 50%;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-volver img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.btn-volver:hover {
+  background-color: #f7fbfa;
+}
+
+.titulo-linea h1 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1b746f;
+}
+
+.titulo-solicitudes p {
+  font-size: 16px;
+  color: #676d68;
+  font-weight: 600;
+}
+
+.mascota-resumen {
+  width: 860px;
+  min-height: 180px;
+  background-color: #ffffff;
+  border: 3px solid #d9dddd;
+  border-radius: 14px;
+  margin: 0 auto 16px;
+  padding: 10px 18px;
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  align-items: center;
+  gap: 48px;
+}
+
+.mascota-img {
+  width: 148px;
+  height: 152px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.mascota-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  margin-bottom: 18px;
+}
+
+.mascota-header h2 {
+  font-size: 36px;
+  color: #1b746f;
+  font-weight: 700;
+}
+
+.mascota-header span {
+  min-width: 145px;
+  height: 34px;
+  background-color: #e5f4df;
+  color: #1b746f;
+  border-radius: 20px;
+  font-size: 24px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mascota-datos {
+  display: flex;
+  align-items: center;
+  gap: 80px;
+  margin-bottom: 16px;
+}
+
+.mascota-datos p {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 22px;
+  color: #000000;
+}
+
+.mascota-datos img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.descripcion {
+  font-size: 20px;
+  color: #000000;
+}
+
+.filtros-solicitudes {
+  display: grid;
+  grid-template-columns: 445px 270px;
+  align-items: center;
+  gap: 34px;
+  margin-bottom: 30px;
+}
+
+.buscar-box {
+  height: 48px;
+  background-color: #ffffff;
+  border: 2px solid #d9dddd;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  gap: 14px;
+}
+
+.buscar-box img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.buscar-box input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  color: #263b3b;
+}
+
+.buscar-box input::placeholder {
+  color: #777777;
+}
+
+.filtros-solicitudes select {
+  height: 48px;
+  background-color: #ffffff;
+  border: 2px solid #d9dddd;
+  border-radius: 10px;
+  padding: 0 28px;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #676d68;
+  outline: none;
+  cursor: pointer;
+}
+
+.tabla-solicitudes {
+  background-color: #ffffff;
+  border: 3px solid #d9dddd;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.tabla-header,
+.tabla-fila {
+  display: grid;
+  grid-template-columns: 1.1fr 1.2fr 1.2fr 1.1fr 1fr 1fr;
+  align-items: center;
+}
+
+.tabla-header {
+  min-height: 50px;
+  background-color: #fbfaf7;
+  border-bottom: 2px solid #d9dddd;
+}
+
+.tabla-header p {
+  font-size: 14px;
+  font-weight: 700;
+  color: #676d68;
+  padding: 0 34px;
+}
+
+.tabla-fila {
+  min-height: 96px;
+  border-bottom: 2px solid #d9dddd;
+}
+
+.tabla-fila:last-child {
+  border-bottom: none;
+}
+
+.tabla-fila > p {
+  font-size: 14px;
+  font-weight: 700;
+  color: #676d68;
+  padding: 0 34px;
+}
+
+.estado {
+  min-width: 100px;
+  height: 28px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.estado-revision {
+  background-color: #edf7ff;
+  border: 1px solid #9bbbd4;
+  color: #005aa0;
+}
+
+.estado-rechazado {
+  background-color: #fde8e8;
+  border: 1px solid #d49b9b;
+  color: #e23737;
+}
+
+.estado-aprobado {
+  background-color: #f1f8ec;
+  border: 1px solid #b6ccb2;
+  color: #2d8a65;
+}
+
+.btn-detalle {
+  width: 140px;
+  height: 38px;
+  border: 2px solid #007476;
+  border-radius: 9px;
+  color: #1b746f;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-detalle:hover {
+  background-color: #eaf3f2;
+}
+
+.btn-detalle img {
+  width: 17px;
+  height: 17px;
+  object-fit: contain;
+}
+
+.paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.pagina {
+  min-width: 38px;
+  height: 38px;
+  border: 2px solid #d9dddd;
+  background-color: #ffffff;
+  border-radius: 9px;
+  color: #676d68;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.pagina.activa {
+  background-color: #1b746f;
+  color: #ffffff;
+  border-color: #1b746f;
+}
+
+.pagina:hover {
+  background-color: #eaf3f2;
+}
+
+
+
+
+
+@media (max-width: 960px) {
+  .solicitudes-page {
+    padding: 24px 22px;
+  }
+
+  
+
+
+
+  .titulo-linea h1 {
+    font-size: 30px;
+  }
+
+  .mascota-resumen {
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    text-align: center;
+    padding: 22px;
+  }
+
+  .mascota-img {
+    margin: 0 auto;
+  }
+
+  .mascota-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .mascota-header h2 {
+    font-size: 32px;
+  }
+
+  .mascota-header span {
+    font-size: 18px;
+  }
+
+  .mascota-datos {
+    justify-content: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+
+  .mascota-datos p {
+    font-size: 17px;
+  }
+
+  .descripcion {
+    font-size: 16px;
+  }
+
+  .filtros-solicitudes {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .tabla-header {
+    display: none;
+  }
+
+  .tabla-solicitudes {
+    border-radius: 16px;
+  }
+
+  .tabla-fila {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 18px;
+  }
+
+  .tabla-fila > p {
+    padding: 0;
+  }
+
+  .btn-detalle {
+    width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  .solicitudes-page {
+    padding: 22px 18px;
+  }
+
+  .titulo-linea {
+    align-items: flex-start;
+  }
+
+  .titulo-linea h1 {
+    font-size: 27px;
+  }
+
+  .btn-volver {
+    width: 42px;
+    height: 42px;
+  }
+
+  .btn-volver img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .buscar-box,
+  .filtros-solicitudes select {
+    height: 46px;
+  }
+
+  .mascota-datos img {
+    width: 24px;
+    height: 24px;
+  }
+}
+.solicitudes-page { flex: 1; }
+fieldset { border: 0; padding: 0; min-width: 0; }
+.filtros-solicitudes { grid-template-columns: minmax(0,445px) minmax(0,270px) auto; }
+.limpiar-filtros { border: 0; background: transparent; color: #007476; font: inherit; font-weight: 600; cursor: pointer; }
+.angular-info, .angular-error { padding: 18px; text-align: center; }
+.angular-error { color: #ad2929; }
+.nombre-mascota::first-letter { text-transform: uppercase; }
+.tabla-fila > *, .buscar-box input { min-width: 0; overflow-wrap: anywhere; }
+button { font-family: inherit; cursor: pointer; }
+button:disabled { cursor: default; opacity: .65; }
+@media (max-width: 960px) {
+ .filtros-solicitudes { grid-template-columns: minmax(0,1fr); }
+ .tabla-fila > p::before { content: attr(data-label) ': '; color: #263b3b; }
+}
+
+.hero-adopciones-entidad {
+  background-color: #eaf3f2;
+  border-radius: 0 0 18px 18px;
+  min-height: 162px;
+  display: flex;
+  align-items: center;
+  gap: 70px;
+  padding: 18px 60px;
+  margin-bottom: 14px;
+}
+
+.hero-img {
+  width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.hero-img img {
+  width: 220px;
+  height: auto;
+  display: block;
+}
+
+.hero-text h1 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #263b3b;
+  margin-bottom: 18px;
+}
+
+.hero-text p {
+  font-size: 16px;
+  color: #263b3b;
+}
+
+.acciones-superiores {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 14px;
+}
+
+.tabs-adopciones {
+  width: 660px;
+  height: 54px;
+  background-color: #ffffff;
+  border: 2px solid #d9dddd;
+  border-radius: 13px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+
+.tab {
+  border: none;
+  background-color: #ffffff;
+  color: #676d68;
+  font-family: "Poppins", Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  position: relative;
+  text-decoration: none;
+}
+
+.tab img {
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
+
+.tab.activo {
+  color: #1b746f;
+}
+
+.tab.activo::after {
+  content: "";
+  width: 78%;
+  height: 3px;
+  background-color: #1b746f;
+  position: absolute;
+  bottom: 0;
+  left: 11%;
+}
+
+.btn-publicar {
+  width: 210px;
+  height: 44px;
+  background-color: #007476;
+  color: #ffffff;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-publicar:hover {
+  background-color: #005d60;
+}
+
+
+.solicitudes-generales-page { padding-top: 0; }
+.filtros-generales { grid-template-columns: minmax(0,360px) minmax(0,270px) minmax(0,250px) auto; gap: 24px; }
+.tabs-adopciones { max-width: 100%; }
+.limpiar-filtros { text-decoration: underline; }
+@media (max-width: 960px) {
+ .hero-adopciones-entidad { padding: 24px; gap: 20px; }
+ .hero-img { width: 180px; } .hero-img img { width: 160px; }
+ .acciones-superiores { flex-wrap: wrap; }
+ .filtros-generales { grid-template-columns: minmax(0,1fr); }
+ .tab { font-size: 12px; gap: 8px; }
+}
+@media (max-width: 600px) {
+ .hero-adopciones-entidad { flex-direction: column; text-align: center; }
+ .hero-text h1 { font-size: 30px; margin-bottom: 12px; }
+ .tab { padding: 8px; } .tabs-adopciones { height: auto; min-height: 54px; }
+ .tab img { width: 20px; height: 20px; }
+ .acciones-superiores { gap: 16px; } .btn-publicar { width: 100%; }
+}
+
+.btn-detalle { max-width: 100%; }
+.mascota-resumen { max-width: 100%; }
+.mascota-resumen > div, .mascota-header h2 { min-width: 0; overflow-wrap: anywhere; }
