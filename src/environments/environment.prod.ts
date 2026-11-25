@@ -1,6 +1,5 @@
-// Cambiar la URL al desplegar el backend en producción.
 export const environment = {
   production: true,
-  apiURL: 'http://localhost:8088/api',
-  apiUrl: 'http://localhost:8088/api'
+  apiURL: 'https://54-158-100-66.sslip.io/api',
+  apiUrl: 'https://54-158-100-66.sslip.io/api'
 };
