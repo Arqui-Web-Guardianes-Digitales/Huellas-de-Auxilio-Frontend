@@ -16,6 +16,14 @@ import { Ubicacion } from '../../model/reporte';
   styleUrl: './reportar-component.css',
 })
 export class ReportarComponent implements OnInit, AfterViewInit {
+  menuMobileAbierto = false;
+  get nombreUsuario(): string { return this.auth.nombreCiudadano(); }
+  abrirMenu(): void { this.menuMobileAbierto = true; }
+  cerrarMenu(): void { this.menuMobileAbierto = false; }
+  cerrarSesion(): void {
+    this.auth.cerrarSesion();
+    void this.router.navigateByUrl('/login');
+  }
   get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
 
   private readonly auth = inject(AuthService);

@@ -1,28 +1,82 @@
 <header class="header-ciudadano">
   <nav class="navbar">
+    <!-- Botón Hamburguesa para Mobile -->
+    <button class="btn-menu" id="btnMenu" aria-label="Abrir menú" (click)="abrirMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
     <a routerLink="/home-ciudadano" class="logo">
       <img src="/img/logo.png" alt="Huellas de Auxilio" />
     </a>
 
+    <!-- Enlaces Desktop -->
     <ul class="nav-links">
-      <li><a routerLink="/home-ciudadano" class="nav-link">Inicio</a></li>
-      <li><a routerLink="/mis-reportes" class="nav-link">Mis reportes</a></li>
-      <li><a routerLink="/directorio" class="nav-link">Directorio</a></li>
-      <li><a routerLink="/adopciones" class="nav-link">Adopciones</a></li>
-      <li><a routerLink="/ayuda" class="nav-link">Ayuda</a></li>
+      <li>
+        <a routerLink="/home-ciudadano" class="nav-link">Inicio</a>
+      </li>
+      <li>
+        <a routerLink="/mis-reportes" class="nav-link">Mis reportes</a>
+      </li>
+      <li>
+        <a routerLink="/directorio" class="nav-link">Directorio</a>
+      </li>
+      <li>
+        <a routerLink="/adopciones" class="nav-link">Adopciones</a>
+      </li>
+      <li>
+        <a routerLink="/ayuda" class="nav-link">Ayuda</a>
+      </li>
     </ul>
 
+    <!-- Acciones Derecha -->
     <div class="header-actions">
-      <a routerLink="/reportar" class="btn-reportar activo">Reportar</a>
-      <a routerLink="/notificaciones" class="btn-campana">
+      <a routerLink="/reportar" class="btn-reportar activo">
+        Reportar
+      </a>
+
+      <a routerLink="/notificaciones" class="btn-campana" title="Notificaciones">
         <img src="/icons/campana.png" alt="Notificaciones" />
       </a>
+
       <a [routerLink]="rutaCuenta" class="btn-cuenta">
         <img src="/icons/user-circle.png" alt="Mi cuenta" />
         <span>Mi cuenta</span>
       </a>
     </div>
+
+    <a routerLink="/reportar" class="btn-reporte-mobile">
+      Reporte
+    </a>
   </nav>
+
+  <!-- Menú Mobile Desplegable -->
+  <div class="menu-mobile" [class.activo]="menuMobileAbierto">
+    <div class="menu-mobile-top">
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+        <div>
+          <h3>{{ nombreUsuario }}</h3>
+          <a [routerLink]="rutaCuenta" (click)="cerrarMenu()">Ver mi perfil</a>
+        </div>
+      </div>
+
+      <button class="btn-cerrar-menu" (click)="cerrarMenu()" aria-label="Cerrar menú">
+        ×
+      </button>
+    </div>
+
+    <div class="menu-mobile-links">
+      <a routerLink="/home-ciudadano" (click)="cerrarMenu()">Inicio</a>
+      <a routerLink="/mis-reportes" (click)="cerrarMenu()">Mis Reportes</a>
+      <a routerLink="/directorio" (click)="cerrarMenu()">Directorio</a>
+      <a routerLink="/adopciones" (click)="cerrarMenu()">Adopciones</a>
+      <a routerLink="/ayuda" (click)="cerrarMenu()">Ayuda</a>
+      <a routerLink="/notificaciones" (click)="cerrarMenu()">Notificaciones</a>
+      <a (click)="cerrarSesion(); cerrarMenu()" style="color: #c94040; cursor: pointer;">Cerrar sesión</a>
+    </div>
+  </div>
 </header>
 
 <main class="reportar-page">
@@ -291,3 +345,22 @@
     </section>
   }
 </main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+    <div class="footer-compacto-brand">
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio">
+      <p>© 2026 Huellas de Auxilio. Todos<br>los derechos reservados.</p>
+    </div>
+    <div class="footer-compacto-links">
+      <a href="/ayuda">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank" rel="noopener noreferrer">Términos y condiciones</a>
+    </div>
+    <div class="footer-social">
+      <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="/icons/facebook.png" alt=""></a>
+      <a href="https://x.com/" target="_blank" rel="noopener noreferrer" aria-label="X"><img src="/icons/x.png" alt=""></a>
+      <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="/icons/instagram.png" alt=""></a>
+    </div>
+  </div>
+</footer>

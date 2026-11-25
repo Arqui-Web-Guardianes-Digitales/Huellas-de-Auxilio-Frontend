@@ -13,6 +13,15 @@ import { AuthService } from '../../services/auth-service';
   styleUrl: './detalle-mascota-component.css',
 })
 export class DetalleMascotaComponent implements OnInit, OnDestroy {
+  menuMobileAbierto = false;
+  get nombreUsuario(): string { return this.auth.nombreCiudadano(); }
+  abrirMenu(): void { this.menuMobileAbierto = true; }
+  cerrarMenu(): void { this.menuMobileAbierto = false; }
+  cerrarSesion(): void {
+    this.auth.cerrarSesion();
+    void this.router.navigateByUrl('/login');
+  }
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
   urlFotoMascota(url?: string | null): string {
     return this.mascotaService.urlFotoMascota(url);
   }
