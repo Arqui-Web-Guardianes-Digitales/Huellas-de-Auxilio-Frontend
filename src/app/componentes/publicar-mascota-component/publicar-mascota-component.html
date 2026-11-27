@@ -31,28 +31,25 @@
         <a routerLink="/adopciones-entidad" class="nav-link activo" aria-current="page">Adopciones</a>
       </li>
       <li>
-        <span class="nav-link ruta-pendiente">Red de apoyo</span>
-      </li>
-      <li>
-        <span class="nav-link ruta-pendiente">Ayuda</span>
+        <a routerLink="/ayuda" class="nav-link">Ayuda</a>
       </li>
     </ul>
 
     <!-- Acciones de escritorio -->
     <div class="header-actions">
-      <span class="btn-campana" title="Notificaciones: integración pendiente" aria-disabled="true">
+      <a routerLink="/notificaciones" class="btn-campana">
         <img src="/icons/campana.png" alt="Notificaciones">
-      </span>
+      </a>
 
-      <span class="btn-cuenta" title="Mi cuenta: integración pendiente" aria-disabled="true">
+      <a [routerLink]="rutaCuenta" class="btn-cuenta">
         <img src="/icons/user-circle.png" alt="Mi cuenta">
         <span>Mi cuenta</span>
-      </span>
+      </a>
 
     </div>
-    <span class="btn-campana-mobile" title="Notificaciones: integración pendiente" aria-disabled="true">
+    <a routerLink="/notificaciones" class="btn-campana-mobile">
       <img src="/icons/campana.png" alt="Notificaciones">
-    </span>
+    </a>
   </nav>
 
   <!-- Menú móvil -->
@@ -64,7 +61,7 @@
 
         <div>
           <h3>{{ nombreEntidad }}</h3>
-          <span>Ver mi perfil</span>
+          <a [routerLink]="rutaCuenta">Ver mi perfil</a>
         </div>
       </div>
 
@@ -86,8 +83,7 @@
 
       <a routerLink="/reportes-entidad" (click)="cerrarMenu()">Reportes</a>
       <a routerLink="/adopciones-entidad" class="activo" aria-current="page" (click)="cerrarMenu()">Adopciones</a>
-      <span>Red de apoyo</span>
-      <span>Ayuda</span>
+      <a routerLink="/ayuda" (click)="cerrarMenu()">Ayuda</a>
 
     </div>
   </div>
@@ -100,10 +96,10 @@
           <span></span>
         </div>
 
-        <h1>¡Mascota publicada!</h1>
+        <h1>{{ edicion ? '¡Cambios guardados!' : '¡Mascota publicada!' }}</h1>
 
         <p class="mensaje-confirmacion">
-          La mascota fue publicada correctamente en la sección de adopciones.
+          {{ edicion ? 'La información de la mascota se actualizó correctamente.' : 'La mascota fue publicada correctamente en la sección de adopciones.' }}
         </p>
 
         <div class="resumen-confirmacion">
@@ -145,7 +141,7 @@
         </div>
 
         <p class="texto-extra">
-          Ahora los ciudadanos podrán ver esta mascota y enviar solicitudes de adopción.
+          {{ edicion ? 'La disponibilidad de la mascota se conserva.' : 'Ahora los ciudadanos podrán ver esta mascota y enviar solicitudes de adopción.' }}
         </p>
 
         <div class="acciones-confirmacion">
@@ -153,8 +149,8 @@
             Volver a adopciones
           </a>
 
-          <button type="button" class="btn-secundario" (click)="publicarOtra()">
-            Publicar otra mascota
+          <button type="button" class="btn-secundario" (click)="edicion ? seguirEditando() : publicarOtra()">
+            {{ edicion ? 'Seguir editando' : 'Publicar otra mascota' }}
           </button>
         </div>
       </section>
@@ -168,10 +164,10 @@
             <img src="/icons/flecha-volver.png" alt="Volver" />
           </a>
 
-          <h1>Publicar mascota</h1>
+          <h1>{{ edicion ? 'Editar mascota' : 'Publicar mascota' }}</h1>
         </div>
 
-        <p>Completa la información para publicar una mascota en adopción</p>
+        <p>{{ edicion ? 'Actualiza la información de tu mascota publicada' : 'Completa la información para publicar una mascota en adopción' }}</p>
       </section>
 
       @if (cargando) { <p class="angular-info" role="status">Cargando tu perfil de entidad...</p> }
@@ -198,11 +194,12 @@
           <div class="campo" [class.campo-invalido]="campoInvalido('edad')">
             <label for="edad">Edad</label>
             <div class="edad-controles">
-              <input type="number" id="edad" formControlName="edad" placeholder="Ej: 6" min="0" step="any" required />
+              <input type="number" id="edad" formControlName="edad" placeholder="Ej: 6" min="0" step="any" [required]="!edadAnterior" />
               <select formControlName="unidadEdad" aria-label="Unidad de edad" required>
                 <option value="meses">Meses</option><option value="años">Años</option>
               </select>
             </div>
+            @if (edadAnterior) { <small>Edad registrada: {{ edadAnterior }}. Si no conoces la edad exacta, deja el número vacío para conservarla.</small> }
             @if (campoInvalido('edad')) { <small class="error-campo">Ingresa una edad numérica mayor que cero.</small> }
             @if (campoInvalido('unidadEdad')) { <small class="error-campo">Selecciona meses o años.</small> }
           </div>
@@ -270,7 +267,7 @@
 
         <div class="acciones-form">
           <button type="button" class="btn-cancelar" [disabled]="guardando" (click)="cancelar()">Cancelar</button>
-          <button type="submit" class="btn-guardar" [disabled]="cargando || guardando || leyendoFoto || !!errorSesion">{{ guardando ? 'Publicando...' : 'Publicar mascota' }}</button>
+          <button type="submit" class="btn-guardar" [disabled]="cargando || guardando || leyendoFoto || !!errorSesion">{{ guardando ? 'Guardando...' : (edicion ? 'Guardar cambios' : 'Publicar mascota') }}</button>
         </div>
       </form>
 
@@ -278,61 +275,19 @@
 }
 <footer class="footer-compacto">
   <div class="footer-compacto-container">
-
-    <!-- Logo y derechos -->
     <div class="footer-compacto-brand">
-      <img
-        src="/img/logo-blanco.png"
-        alt="Logo Huellas de Auxilio">
-
-      <p>
-        © 2026 Huellas de Auxilio. Todos<br>
-        los derechos reservados.
-      </p>
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio">
+      <p>© 2026 Huellas de Auxilio. Todos<br>los derechos reservados.</p>
     </div>
-
-    <!-- Enlaces -->
     <div class="footer-compacto-links">
-      <span>Soporte</span>
-
-      <a
-        href="/documentos/politica-privacidad.pdf"
-        target="_blank"
-        rel="noopener noreferrer">
-        Política de Privacidad
-      </a>
-
-      <a
-        href="/documentos/terminos-condiciones.pdf"
-        target="_blank"
-        rel="noopener noreferrer">
-        Términos y condiciones
-      </a>
+      <a href="/ayuda">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank" rel="noopener noreferrer">Términos y condiciones</a>
     </div>
-
-    <!-- Redes sociales -->
     <div class="footer-social">
-      <a
-        href="https://www.facebook.com/"
-        target="_blank"
-        rel="noopener noreferrer">
-        <img src="/icons/facebook.png" alt="Facebook">
-      </a>
-
-      <a
-        href="https://x.com/"
-        target="_blank"
-        rel="noopener noreferrer">
-        <img src="/icons/x.png" alt="X">
-      </a>
-
-      <a
-        href="https://www.instagram.com/"
-        target="_blank"
-        rel="noopener noreferrer">
-        <img src="/icons/instagram.png" alt="Instagram">
-      </a>
+      <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="/icons/facebook.png" alt=""></a>
+      <a href="https://x.com/" target="_blank" rel="noopener noreferrer" aria-label="X"><img src="/icons/x.png" alt=""></a>
+      <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="/icons/instagram.png" alt=""></a>
     </div>
-
   </div>
 </footer>

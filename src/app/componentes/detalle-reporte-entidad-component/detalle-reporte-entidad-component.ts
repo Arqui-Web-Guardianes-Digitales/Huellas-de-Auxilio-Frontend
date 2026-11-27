@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, ElementRef, OnDestroy, OnInit, ViewChild, inject, isDevMode } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -24,6 +24,8 @@ interface EvidenciaDetalle {
   styleUrl: './detalle-reporte-entidad-component.css',
 })
 export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly reporteService = inject(ReporteService);
   private readonly route = inject(ActivatedRoute);
@@ -70,12 +72,14 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((parametros) => {
       this.cargarDetalle(parametros.get('id'));
     });
   }
 
   private cargarDetalle(id: string | null): void {
+
     this.consultas.unsubscribe();
     this.consultas = new Subscription();
     this.limpiarDetalle();
@@ -98,12 +102,14 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
     if (!id || !/^[1-9]\d*$/.test(id) || !Number.isSafeInteger(this.idReporte)) {
       this.cargando = false;
       this.error = 'El identificador del reporte no es válido.';
+
       return;
     }
     this.auth.limpiarDatosEntidad();
     const idReporte = this.idReporte;
     this.consultas.add(this.auth.obtenerPerfilEntidadDB().subscribe({
       next: (entidad) => {
+
         if (!this.comprobarSesion()) return;
         if (!entidad || !Number.isSafeInteger(entidad.idEntidad) || entidad.idEntidad! <= 0) {
           this.mostrarMensaje('No se encontró un perfil de entidad válido asociado a tu cuenta.');
@@ -114,6 +120,7 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
         this.auth.guardarDatosEntidad(this.idEntidad, this.nombreEntidad);
         this.consultas.add(this.reporteService.obtenerReporteEntidadPorId(idReporte).subscribe({
           next: (reporte) => {
+
             if (!this.comprobarSesion()) return;
             if (!reporte) {
               this.mostrarMensaje('El reporte solicitado no existe.');
@@ -128,6 +135,7 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
               return;
             }
             this.reporte = reporte;
+            if (isDevMode()) console.log('[HU26] Detalle del reporte cargado correctamente.');
             this.fechaReporte = reporte.fechaReporte && !Number.isNaN(Date.parse(reporte.fechaReporte))
               ? reporte.fechaReporte : null;
             const lat = reporte.ubicacion?.latitud;
@@ -139,32 +147,37 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
             this.cargarHistorial();
             this.cdr.markForCheck();
           },
-          error: (error: HttpErrorResponse | Error) => this.mostrarError(error),
+          error: (error: HttpErrorResponse | Error) => (this.mostrarError(error)),
         }));
       },
-      error: (error: HttpErrorResponse | Error) => this.mostrarError(error),
+      error: (error: HttpErrorResponse | Error) => (this.mostrarError(error)),
     }));
   }
 
   private cargarEvidencias(idReporte: number): void {
+
     this.cargandoEvidencias = true;
     this.consultas.add(this.reporteService.obtenerEvidencias(idReporte).subscribe({
       next: (lista) => {
+
         if (!this.comprobarSesion()) return;
         this.cargandoEvidencias = false;
         if (!Array.isArray(lista) || lista.some((evidencia) => !evidencia
           || evidencia.idReporte !== idReporte || !Number.isSafeInteger(evidencia.idEvidencia)
           || typeof evidencia.urlEvidencia !== 'string' || !evidencia.urlEvidencia.trim())) {
           this.errorEvidencias = 'La API no devolvió evidencias válidas para este reporte.';
+
         } else {
           this.evidencias = lista.map((evidencia) => ({ ...evidencia, noDisponible: false }));
         }
         this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse | Error) => {
+
         if (!this.comprobarSesion()) return;
         this.cargandoEvidencias = false;
         this.errorEvidencias = 'No se pudieron consultar las evidencias del reporte.';
+
         if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
           this.mostrarError(error);
         }
@@ -191,16 +204,18 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
   }
 
   private mostrarError(error: HttpErrorResponse | Error): void {
+    if (isDevMode()) console.error(error instanceof HttpErrorResponse ? `[HU26] Error HTTP ${error.status}.` : '[HU26] No se pudo completar la consulta.');
     if (!this.comprobarSesion()) return;
     this.mostrarMensaje(error instanceof HttpErrorResponse && error.status === 404
       ? 'El reporte solicitado no existe.' : 'No se pudo cargar el detalle del reporte. Intenta recargar la página.');
-    if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
+    if (error instanceof HttpErrorResponse && error.status === 401) {
       this.auth.cerrarSesion();
       void this.router.navigateByUrl('/login');
     }
   }
 
   private iniciarMapa(contenedor: HTMLDivElement): void {
+
     if (!this.comprobarSesion() || !this.tieneCoordenadas || !this.reporte?.ubicacion) return;
     const { latitud, longitud } = this.reporte.ubicacion;
     this.mapa = L.map(contenedor, { zoomControl: false, dragging: false, scrollWheelZoom: false })
@@ -210,6 +225,7 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
     }).on('tileerror', () => {
       if (!this.comprobarSesion()) return;
       this.errorMapa = 'No se pudo cargar parte del mapa. La dirección y las coordenadas siguen disponibles.';
+
       this.cdr.markForCheck();
     }).addTo(this.mapa);
     const icono = L.icon({ iconUrl: '/icons/map2.png', iconSize: [36, 36], iconAnchor: [18, 36] });
@@ -239,6 +255,7 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
   }
 
   async copiarCodigo(codigo: string): Promise<void> {
+
     const reporte = this.reporte;
     let mensaje: string;
     try {
@@ -258,12 +275,14 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
   }
 
   seleccionarEstado(estado: string): void {
+
     if (!this.guardando && estado === this.siguienteEstado()) {
       this.estadoForm.patchValue({ nuevoEstado: estado });
     }
   }
 
   abrirConfirmacion(): void {
+
     if (this.guardando || !this.comprobarSesion()) return;
     this.errorActualizacion = '';
     this.mensajeActualizacion = '';
@@ -271,16 +290,20 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
     if (this.estadoForm.invalid || !this.siguienteEstado()
       || this.estadoForm.value.nuevoEstado !== this.siguienteEstado()) {
       this.errorActualizacion = 'Selecciona el siguiente estado permitido.';
+      if (isDevMode()) console.warn('[HU06] Revisa el estado y la observación.');
+
       return;
     }
     this.confirmacion?.nativeElement.showModal();
   }
 
   cerrarConfirmacion(): void {
+
     if (!this.guardando) this.confirmacion?.nativeElement.close();
   }
 
   confirmarActualizacion(): void {
+
     if (this.guardando || !this.reporte || !this.comprobarSesion()) return;
     if (this.estadoForm.invalid || !this.siguienteEstado()
       || this.estadoForm.value.nuevoEstado !== this.siguienteEstado()) return;
@@ -291,34 +314,46 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
     this.errorActualizacion = '';
     this.consultas.add(this.reporteService.actualizarEstado(idReporte, estado, observacion).subscribe({
       next: (reporte) => {
+
         if (!this.comprobarSesion()) return;
         this.guardando = false;
         if (!reporte || reporte.idReporte !== idReporte || reporte.entidad?.idEntidad !== this.idEntidad
           || reporte.estado !== estado) {
           this.errorActualizacion = 'La respuesta no permite confirmar el cambio. Recarga el reporte antes de reintentar.';
+
           this.cdr.markForCheck();
           return;
         }
         this.reporte = reporte;
+        if (isDevMode()) console.log('[HU06] Estado del reporte actualizado correctamente.');
         this.estadoForm.reset({ nuevoEstado: '', observacion: '' });
         this.confirmacion?.nativeElement.close();
         this.mensajeActualizacion = 'Estado actualizado correctamente.';
+
         this.cargarHistorial();
         this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
+
         if (!this.comprobarSesion()) return;
         this.guardando = false;
+        if (isDevMode()) console.error(`[HU06] Error en la operación: HTTP ${error.status}.`);
         if (error.status === 400) {
-          this.errorActualizacion = 'Revisa el estado seleccionado y la observación (máximo 150 caracteres).';
+          this.errorActualizacion = error.error?.code === 'VALIDATION_ERROR' && typeof error.error.message === 'string'
+            ? error.error.message : 'Revisa el estado seleccionado y la observación (máximo 150 caracteres).';
+
         } else if (error.status === 403) {
           this.errorActualizacion = 'Tu cuenta no tiene permiso para actualizar este reporte.';
+
         } else if (error.status === 404) {
           this.errorActualizacion = 'El reporte ya no existe.';
+
         } else if (error.status === 409) {
           this.errorActualizacion = 'El estado cambió o la transición no está permitida. Recarga el reporte para consultar su estado actual.';
+
         } else {
           this.errorActualizacion = 'No se pudo confirmar la actualización. Recarga el reporte antes de reintentar.';
+
         }
         if (error.status === 401) {
           this.auth.cerrarSesion();
@@ -330,6 +365,7 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
   }
 
   cargarHistorial(): void {
+
     if (!this.reporte || !this.comprobarSesion()) return;
     this.consultaHistorial?.unsubscribe();
     this.cargandoHistorial = true;
@@ -337,12 +373,14 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
     const idReporte = this.idReporte;
     this.consultaHistorial = this.reporteService.obtenerHistorial(idReporte).subscribe({
       next: (lista) => {
+
         if (!this.comprobarSesion()) return;
         this.cargandoHistorial = false;
         if (!Array.isArray(lista) || lista.some((item) => !item || item.reporteIdReporte !== idReporte
           || !Number.isSafeInteger(item.idActualizacion) || typeof item.descripcionActu !== 'string'
           || !item.fechaActualizacion || Number.isNaN(Date.parse(item.fechaActualizacion)))) {
           this.errorHistorial = 'La API devolvió un historial incompleto.';
+
         } else {
           this.historial = [...lista].sort((a, b) => Date.parse(b.fechaActualizacion) - Date.parse(a.fechaActualizacion)
             || b.idActualizacion - a.idActualizacion);
@@ -350,9 +388,11 @@ export class DetalleReporteEntidadComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       },
       error: () => {
+
         if (!this.comprobarSesion()) return;
         this.cargandoHistorial = false;
         this.errorHistorial = 'No se pudo cargar el historial del reporte.';
+
         this.cdr.markForCheck();
       },
     });

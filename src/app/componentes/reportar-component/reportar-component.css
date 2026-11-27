@@ -2,19 +2,9 @@
 
 :host { display:block; background-color:#eaf3f2; font-family:"Poppins",sans-serif; color:#082f3d; min-height:100vh; }
 
+*, *::before, *::after { box-sizing: border-box; }
+
 /* Header & Navbar */
-.header-ciudadano { width:100%; background:#fff; border-bottom:1px solid #edf0f0; position:sticky; top:0; z-index:1000; }
-.navbar { width:100%; height:72px; padding:0 58px; display:flex; align-items:center; justify-content:space-between; }
-.logo img { width:145px; display:block; }
-.nav-links { list-style:none; display:flex; gap:34px; align-items:center; }
-.nav-link { color:#253b3b; text-decoration:none; font-size:13px; font-weight:600; padding:8px; border-radius:8px; }
-.nav-link:hover { color:#007476; background:#eaf3f2; }
-.header-actions { display:flex; align-items:center; gap:16px; }
-.btn-reportar { background:#007476; color:#fff; text-decoration:none; border-radius:10px; padding:10px 22px; font-size:13px; font-weight:700; }
-.btn-campana { width:38px; height:38px; display:flex; align-items:center; justify-content:center; }
-.btn-campana img { width:24px; }
-.btn-cuenta { min-width:130px; height:42px; border:2px solid #d9dddd; border-radius:18px; text-decoration:none; color:#253b3b; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:700; font-size:13px; }
-.btn-cuenta img { width:28px; }
 
 /* Contenedor del Reporte */
 .reportar-page { max-width:1360px; margin:0 auto; padding:24px 46px 42px; position:relative; }
@@ -113,7 +103,9 @@
 @media (max-width:960px) {
   .reportar-contenedor { grid-template-columns:1fr; }
   .panel-formulario, .panel-resumen { border-radius:14px; min-height:auto; margin-bottom:16px; }
-  .navbar { padding:0 20px; }
-  .nav-links, .header-actions { display:none; }
   .datos-confirmacion, .acciones-confirmacion { grid-template-columns:1fr; }
 }
+
+/* Validaciones visuales del formulario reactivo */
+.error-campo { display: block; color: #e23737; font-size: 12px; font-weight: 600; margin-top: 4px; }
+.campo-form input.invalido, .campo-form select.invalido, .campo-form textarea.invalido { border-color: #e23737; }

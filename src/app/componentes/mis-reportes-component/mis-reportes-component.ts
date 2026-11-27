@@ -45,6 +45,8 @@ export function getSpanishPaginatorIntl(): MatPaginatorIntl {
   styleUrl: './mis-reportes-component.css',
 })
 export class MisReportesComponent implements OnInit, AfterViewInit {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly reporteService = inject(ReporteService);
   private readonly router = inject(Router);

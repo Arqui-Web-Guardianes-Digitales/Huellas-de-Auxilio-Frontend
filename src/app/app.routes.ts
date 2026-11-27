@@ -118,9 +118,12 @@ export const routes: Routes = [
   },
 
   {
-    path: 'solicitudes-mascota/:idMascota', canActivate: [AuthGuard], data: { roles: ['ROLE_ENTIDAD'] },
-    loadComponent: () => import('./componentes/solicitudes-entidad-component/solicitudes-entidad-component')
-      .then((componente) => componente.SolicitudesEntidadComponent),
+    path: 'solicitudes-mascota/:idMascota',
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_ENTIDAD'] },
+    loadComponent: () =>
+      import('./componentes/solicitudes-entidad-component/solicitudes-entidad-component')
+        .then((componente) => componente.SolicitudesEntidadComponent),
   },
 
   {

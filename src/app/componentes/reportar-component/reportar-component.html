@@ -1,32 +1,85 @@
 <header class="header-ciudadano">
   <nav class="navbar">
+    <!-- Botón Hamburguesa para Mobile -->
+    <button class="btn-menu" id="btnMenu" aria-label="Abrir menú" (click)="abrirMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
     <a routerLink="/home-ciudadano" class="logo">
       <img src="/img/logo.png" alt="Huellas de Auxilio" />
     </a>
 
+    <!-- Enlaces Desktop -->
     <ul class="nav-links">
-      <li><a routerLink="/home-ciudadano" class="nav-link">Inicio</a></li>
-      <li><a routerLink="/mis-reportes" class="nav-link">Mis reportes</a></li>
-      <li><a routerLink="/directorio" class="nav-link">Directorio</a></li>
-      <li><a routerLink="/adopciones" class="nav-link">Adopciones</a></li>
-      <li><a routerLink="/ayuda" class="nav-link">Ayuda</a></li>
+      <li>
+        <a routerLink="/home-ciudadano" class="nav-link">Inicio</a>
+      </li>
+      <li>
+        <a routerLink="/mis-reportes" class="nav-link">Mis reportes</a>
+      </li>
+      <li>
+        <a routerLink="/directorio" class="nav-link">Directorio</a>
+      </li>
+      <li>
+        <a routerLink="/adopciones" class="nav-link">Adopciones</a>
+      </li>
+      <li>
+        <a routerLink="/ayuda" class="nav-link">Ayuda</a>
+      </li>
     </ul>
 
+    <!-- Acciones Derecha -->
     <div class="header-actions">
-      <a routerLink="/reportar" class="btn-reportar activo">Reportar</a>
-      <a routerLink="/notificaciones" class="btn-campana">
+      <a routerLink="/reportar" class="btn-reportar activo">
+        Reportar
+      </a>
+
+      <a routerLink="/notificaciones" class="btn-campana" title="Notificaciones">
         <img src="/icons/campana.png" alt="Notificaciones" />
       </a>
-      <a routerLink="/mi-cuenta-ciudadano" class="btn-cuenta">
+
+      <a [routerLink]="rutaCuenta" class="btn-cuenta">
         <img src="/icons/user-circle.png" alt="Mi cuenta" />
         <span>Mi cuenta</span>
       </a>
     </div>
+
+    <a routerLink="/reportar" class="btn-reporte-mobile">
+      Reporte
+    </a>
   </nav>
+
+  <!-- Menú Mobile Desplegable -->
+  <div class="menu-mobile" [class.activo]="menuMobileAbierto">
+    <div class="menu-mobile-top">
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+        <div>
+          <h3>{{ nombreUsuario }}</h3>
+          <a [routerLink]="rutaCuenta" (click)="cerrarMenu()">Ver mi perfil</a>
+        </div>
+      </div>
+
+      <button class="btn-cerrar-menu" (click)="cerrarMenu()" aria-label="Cerrar menú">
+        ×
+      </button>
+    </div>
+
+    <div class="menu-mobile-links">
+      <a routerLink="/home-ciudadano" (click)="cerrarMenu()">Inicio</a>
+      <a routerLink="/mis-reportes" (click)="cerrarMenu()">Mis Reportes</a>
+      <a routerLink="/directorio" (click)="cerrarMenu()">Directorio</a>
+      <a routerLink="/adopciones" (click)="cerrarMenu()">Adopciones</a>
+      <a routerLink="/ayuda" (click)="cerrarMenu()">Ayuda</a>
+      <a routerLink="/notificaciones" (click)="cerrarMenu()">Notificaciones</a>
+      <a (click)="cerrarSesion(); cerrarMenu()" style="color: #c94040; cursor: pointer;">Cerrar sesión</a>
+    </div>
+  </div>
 </header>
 
 <main class="reportar-page">
-  <!-- Botón Volver dinámico según el paso -->
   @if (pasoActual === 1) {
     <a routerLink="/home-ciudadano" class="btn-volver" title="Volver al inicio">
       <img src="/icons/flecha-volver.png" alt="Volver" />
@@ -37,20 +90,18 @@
     </button>
   }
 
-  <!-- ============================================================== -->
-  <!-- PASO 1 Y PASO 2: CONTENEDOR PRINCIPAL DEL REPORTE -->
-  <!-- ============================================================== -->
+  <!-- PASO 1 Y PASO 2: FORMULARIO REACTIVO -->
   @if (pasoActual === 1 || pasoActual === 2) {
-    <section class="reportar-contenedor">
+    <form [formGroup]="reporteForm" (ngSubmit)="enviarReporteFinal()" class="reportar-contenedor">
 
-      <!-- COLUMNA IZQUIERDA: FORMULARIO -->
+      <!-- COLUMNA IZQUIERDA -->
       <section class="panel-formulario">
         <div class="titulo-reporte">
           <h1>Nuevo Reporte</h1>
           <p>Completa la información del caso en pocos pasos</p>
         </div>
 
-        <!-- VISTA DE PASO 1: UBICACIÓN Y EVIDENCIA -->
+        <!-- PASO 1 -->
         @if (pasoActual === 1) {
           <div class="subtitulo-form">
             <img src="/icons/ubicacion-verde.png" alt="Ubicación" />
@@ -59,12 +110,15 @@
 
           <div class="campo-form">
             <label for="direccion">Dirección o calle aproximada</label>
-            <input type="text" id="direccion" [(ngModel)]="direccion" placeholder="Haz clic en el mapa o escribe aquí..." />
+            <input type="text" id="direccion" formControlName="direccion" [class.invalido]="campoInvalido('direccion')" placeholder="Haz clic en el mapa o escribe aquí..." />
+            @if (campoInvalido('direccion')) {
+              <span class="error-campo">La dirección es obligatoria (mínimo 4 caracteres).</span>
+            }
           </div>
 
           <div class="campo-form">
             <label for="distrito">Distrito</label>
-            <select id="distrito" [(ngModel)]="distrito">
+            <select id="distrito" formControlName="distrito" [class.invalido]="campoInvalido('distrito')">
               <option value="San Miguel">San Miguel</option>
               <option value="Miraflores">Miraflores</option>
               <option value="Lince">Lince</option>
@@ -72,11 +126,17 @@
               <option value="Jesús María">Jesús María</option>
               <option value="Pueblo Libre">Pueblo Libre</option>
             </select>
+            @if (campoInvalido('distrito')) {
+              <span class="error-campo">Selecciona un distrito válido (solo letras).</span>
+            }
           </div>
 
           <div class="campo-form">
             <label for="referencia">Referencia adicional</label>
-            <input type="text" id="referencia" [(ngModel)]="referencia" placeholder="Ej: Frente al parque, cerca de la tienda" />
+            <input type="text" id="referencia" formControlName="referencia" [class.invalido]="campoInvalido('referencia')" placeholder="Ej: Frente al parque, cerca de la tienda" />
+            @if (campoInvalido('referencia')) {
+              <span class="error-campo">La referencia no puede superar los 200 caracteres.</span>
+            }
           </div>
 
           <div class="subtitulo-form evidencia-title">
@@ -92,7 +152,6 @@
             </button>
           </div>
 
-          <!-- Previsualización de la foto -->
           <div class="preview-evidencia">
             @if (previewUrl) {
               <div class="item-evidencia">
@@ -109,7 +168,7 @@
           </div>
         }
 
-        <!-- VISTA DE PASO 2: DETALLES DEL CASO -->
+        <!-- PASO 2 -->
         @if (pasoActual === 2) {
           <div class="subtitulo-form">
             <img src="/icons/check-verde.png" alt="Detalles" />
@@ -118,24 +177,27 @@
 
           <div class="campo-form">
             <label for="tipoCaso">Tipo de situación</label>
-            <select id="tipoCaso" [(ngModel)]="tipoCaso">
+            <select id="tipoCaso" formControlName="tipoCaso" [class.invalido]="campoInvalido('tipoCaso')">
               <option value="Maltrato animal">Maltrato animal</option>
               <option value="Abandono animal">Abandono animal</option>
               <option value="Animal herido">Animal herido</option>
               <option value="Rescate urgente">Rescate urgente</option>
             </select>
+            @if (campoInvalido('tipoCaso')) {
+              <span class="error-campo">Selecciona un tipo de caso.</span>
+            }
           </div>
 
           <div class="campo-form">
             <label>Nivel de urgencia</label>
             <div class="urgencia-opciones">
-              <button type="button" class="btn-urgencia baja" [class.activo]="nivelUrgencia === 'Baja'" (click)="seleccionarUrgencia('Baja')">
+              <button type="button" class="btn-urgencia baja" [class.activo]="reporteForm.value.nivelUrgencia === 'Baja'" (click)="seleccionarUrgencia('Baja')">
                 <span></span> Baja
               </button>
-              <button type="button" class="btn-urgencia media" [class.activo]="nivelUrgencia === 'Media'" (click)="seleccionarUrgencia('Media')">
+              <button type="button" class="btn-urgencia media" [class.activo]="reporteForm.value.nivelUrgencia === 'Media'" (click)="seleccionarUrgencia('Media')">
                 <span></span> Media
               </button>
-              <button type="button" class="btn-urgencia alta" [class.activo]="nivelUrgencia === 'Alta'" (click)="seleccionarUrgencia('Alta')">
+              <button type="button" class="btn-urgencia alta" [class.activo]="reporteForm.value.nivelUrgencia === 'Alta'" (click)="seleccionarUrgencia('Alta')">
                 <span></span> Alta
               </button>
             </div>
@@ -144,8 +206,11 @@
           <div class="campo-form">
             <label for="descripcion">Descripción de los hechos</label>
             <small>Explica brevemente qué observaste para ayudar al rescatista</small>
-            <textarea id="descripcion" maxlength="500" [(ngModel)]="descripcion" placeholder="Describe el estado del animal, color, si está herido o amarrado..."></textarea>
-            <p class="contador-texto">{{ descripcion.length }}/500</p>
+            <textarea id="descripcion" maxlength="500" formControlName="descripcion" [class.invalido]="campoInvalido('descripcion')" placeholder="Describe el estado del animal, color, si está herido o amarrado..."></textarea>
+            <p class="contador-texto">{{ (reporteForm.value.descripcion || '').length }}/500</p>
+            @if (campoInvalido('descripcion')) {
+              <span class="error-campo">La descripción es obligatoria (mínimo 5 caracteres, máximo 500).</span>
+            }
           </div>
 
           <div class="aviso-identidad">
@@ -155,27 +220,16 @@
         }
       </section>
 
-      <!-- COLUMNA DERECHA: PASOS Y MAPA / RESUMEN -->
+      <!-- COLUMNA DERECHA -->
       <section class="panel-resumen">
-        <!-- Indicador de pasos sin errores de compilación -->
         <div class="pasos-indicador">
-          <div class="paso-num" [class.activo]="pasoActual >= 1">
-            <span>1</span>
-            <p>Ubicación</p>
-          </div>
+          <div class="paso-num" [class.activo]="pasoActual >= 1"><span>1</span><p>Ubicación</p></div>
           <div class="linea-paso" [class.activa]="pasoActual >= 2"></div>
-          <div class="paso-num" [class.activo]="pasoActual >= 2">
-            <span>2</span>
-            <p>Detalles</p>
-          </div>
+          <div class="paso-num" [class.activo]="pasoActual >= 2"><span>2</span><p>Detalles</p></div>
           <div class="linea-paso"></div>
-          <div class="paso-num">
-            <span>3</span>
-            <p>Confirmar</p>
-          </div>
+          <div class="paso-num"><span>3</span><p>Confirmar</p></div>
         </div>
 
-        <!-- EN PASO 1: MAPA LEAFLET INTERACTIVO -->
         @if (pasoActual === 1) {
           <div class="mapa-container">
             <div id="mapaLeaflet" class="mapa-leaflet"></div>
@@ -193,18 +247,17 @@
           </div>
         }
 
-        <!-- EN PASO 2: RESUMEN ANTES DE ENVIAR -->
         @if (pasoActual === 2) {
           <div class="resumen-box">
             <h2>Resumen previo</h2>
             <div class="resumen-dato">
               <span>Distrito y Dirección:</span>
-              <p><strong>{{ distrito }}</strong> - {{ direccion }}</p>
+              <p><strong>{{ reporteForm.value.distrito }}</strong> - {{ reporteForm.value.direccion }}</p>
             </div>
 
             <div class="resumen-dato">
               <span>Coordenadas fijadas:</span>
-              <p style="font-size: 13px; color: #007476;">Lat: {{ latitud | number:'1.4-4' }} | Lng: {{ longitud | number:'1.4-4' }}</p>
+              <p style="font-size: 13px; color: #007476;">Lat: {{ reporteForm.value.latitud | number:'1.4-4' }} | Lng: {{ reporteForm.value.longitud | number:'1.4-4' }}</p>
             </div>
 
             <div class="resumen-dato">
@@ -225,18 +278,16 @@
 
           <div class="acciones-reporte">
             <button type="button" class="btn-cancelar" (click)="volverAlPaso1()">Atrás</button>
-            <button type="button" class="btn-continuar" [disabled]="enviandoReporte" (click)="enviarReporteFinal()">
+            <button type="submit" class="btn-continuar" [disabled]="enviandoReporte">
               {{ enviandoReporte ? 'Enviando...' : 'Confirmar y Enviar' }}
             </button>
           </div>
         }
       </section>
-    </section>
+    </form>
   }
 
-  <!-- ============================================================== -->
-  <!-- PASO 3: CONFIRMACIÓN EXITOSA -->
-  <!-- ============================================================== -->
+  <!-- PASO 3: CONFIRMACIÓN -->
   @if (pasoActual === 3) {
     <section class="confirmacion-reporte">
       <div class="confirmacion-top">
@@ -260,41 +311,26 @@
         </div>
         <h2>¡Reporte enviado con éxito!</h2>
         <p>
-          La entidad de rescate más próxima a <strong>{{ distrito }}</strong> ha recibido tu notificación interna en tiempo real y atenderá la emergencia.
+          La entidad de rescate más próxima a <strong>{{ reporteForm.value.distrito }}</strong> ha recibido tu notificación interna en tiempo real y atenderá la emergencia.
         </p>
       </div>
 
       <div class="datos-confirmacion">
         <div class="dato-confirmacion">
           <img src="/icons/documento-verde.png" alt="Código" />
-          <div>
-            <span>Código de seguimiento:</span>
-            <strong>{{ codigoReporteGenerado }}</strong>
-          </div>
+          <div><span>Código de seguimiento:</span><strong>{{ codigoReporteGenerado }}</strong></div>
         </div>
-
         <div class="dato-confirmacion">
           <img src="/icons/map2.png" alt="Ubicación" />
-          <div>
-            <span>Ubicación:</span>
-            <strong>{{ distrito }}, Lima</strong>
-          </div>
+          <div><span>Ubicación:</span><strong>{{ reporteForm.value.distrito }}, Lima</strong></div>
         </div>
-
         <div class="dato-confirmacion">
           <img src="/icons/user-circle.png" alt="Alias" />
-          <div>
-            <span>Identidad:</span>
-            <strong>Anónima protegida</strong>
-          </div>
+          <div><span>Identidad:</span><strong>Anónima protegida</strong></div>
         </div>
-
         <div class="dato-confirmacion">
           <img src="/icons/reloj-naranja.png" alt="Estado" />
-          <div>
-            <span>Estado inicial:</span>
-            <strong style="color: #ff9800;">Recibido</strong>
-          </div>
+          <div><span>Estado inicial:</span><strong style="color: #ff9800;">Recibido</strong></div>
         </div>
       </div>
 
@@ -309,3 +345,22 @@
     </section>
   }
 </main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+    <div class="footer-compacto-brand">
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio">
+      <p>© 2026 Huellas de Auxilio. Todos<br>los derechos reservados.</p>
+    </div>
+    <div class="footer-compacto-links">
+      <a href="/ayuda">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank" rel="noopener noreferrer">Términos y condiciones</a>
+    </div>
+    <div class="footer-social">
+      <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="/icons/facebook.png" alt=""></a>
+      <a href="https://x.com/" target="_blank" rel="noopener noreferrer" aria-label="X"><img src="/icons/x.png" alt=""></a>
+      <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="/icons/instagram.png" alt=""></a>
+    </div>
+  </div>
+</footer>

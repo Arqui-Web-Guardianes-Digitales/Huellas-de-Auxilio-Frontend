@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
 @Component({
   imports: [],
@@ -6,4 +6,12 @@ import { Component } from '@angular/core';
   styleUrl: './confirmacion-solicitud-component.css',
   templateUrl: './confirmacion-solicitud-component.html',
 })
-export class ConfirmacionSolicitudComponent {}
+export class ConfirmacionSolicitudComponent implements OnInit, OnDestroy {
+  ngOnInit(): void {
+    console.log('[ConfirmacionSolicitudComponent] Entrada al componente.');
+  }
+
+  ngOnDestroy(): void {
+    console.log('[ConfirmacionSolicitudComponent] Salida del componente.');
+  }
+}

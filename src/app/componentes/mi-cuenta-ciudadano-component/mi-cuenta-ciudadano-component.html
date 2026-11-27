@@ -1,1 +1,236 @@
-<p>mi-cuenta-ciudadano-component works!</p>
+<header class="header-ciudadano">
+  <nav class="navbar">
+    <button class="btn-menu" id="btnMenu" type="button" (click)="menuAbierto = true" [attr.aria-expanded]="menuAbierto" aria-controls="menuMobile" aria-label="Abrir menú">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <a routerLink="/home-ciudadano" class="logo">
+      <img src="/img/logo.png" alt="Huellas de Auxilio" />
+    </a>
+
+    <a routerLink="/reportar" class="btn-reporte-mobile">
+      Reporte
+    </a>
+
+    <ul class="nav-links">
+      <li><a routerLink="/home-ciudadano" class="nav-link">Inicio</a></li>
+      <li><a routerLink="/mis-reportes" class="nav-link">Mis reportes</a></li>
+      <li><a routerLink="/directorio" class="nav-link">Directorio</a></li>
+      <li><a routerLink="/adopciones" class="nav-link">Adopciones</a></li>
+      <li><a routerLink="/ayuda" class="nav-link">Ayuda</a></li>
+    </ul>
+
+    <div class="header-actions">
+      <a routerLink="/reportar" class="btn-reportar">
+        Reportar
+      </a>
+
+      <a routerLink="/notificaciones" class="btn-campana">
+        <img src="/icons/campana.png" alt="Notificaciones" />
+      </a>
+
+      <a [routerLink]="rutaCuenta" class="btn-cuenta">
+        <img src="/icons/user-circle.png" alt="Mi cuenta" />
+        <span>Mi cuenta</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="menu-mobile" id="menuMobile" [class.activo]="menuAbierto" [attr.inert]="menuAbierto ? null : ''" (click)="menuAbierto = false">
+    <div class="menu-mobile-top">
+      <div class="menu-user">
+        <div class="menu-avatar"></div>
+
+        <div>
+          <h3>{{ nombreVisible }}</h3>
+          <a [routerLink]="rutaCuenta">Ver mi perfil</a>
+        </div>
+      </div>
+
+      <button class="btn-cerrar-menu" id="btnCerrarMenu" type="button" (click)="menuAbierto = false" aria-label="Cerrar menú">
+        ×
+      </button>
+    </div>
+
+    <div class="menu-mobile-links">
+      <a routerLink="/home-ciudadano">Inicio</a>
+      <a routerLink="/mis-reportes">Mis reportes</a>
+      <a routerLink="/directorio">Directorio</a>
+      <a routerLink="/adopciones">Adopciones</a>
+      <a routerLink="/ayuda">Ayuda</a>
+      <a routerLink="/notificaciones">Notificaciones</a>
+    </div>
+  </div>
+</header>
+
+<main class="mi-cuenta-ciudadano-page">
+  <aside class="panel-lateral">
+    <div class="saludo-box">
+      <h2>¡Hola,</h2>
+      <p>{{ nombreVisible }}!</p>
+    </div>
+
+    <div class="linea"></div>
+
+    <nav class="menu-cuenta">
+      <a [routerLink]="rutaCuenta" class="opcion-cuenta activa">
+        <img src="/icons/perfil.png" alt="Perfil" class="icono-opcion" />
+        Perfil
+      </a>
+
+      <button type="button" class="opcion-cuenta" (click)="cerrarSesion()">
+        <img src="/icons/cerrar-sesion.png" alt="Cerrar sesión" class="icono-opcion" />
+        Cerrar sesión
+      </button>
+    </nav>
+
+    <div class="linea"></div>
+
+    <button type="button" class="opcion-cuenta eliminar" [disabled]="cargando || guardando || eliminando || requiereLogin" (click)="informarEliminacion()">
+      <img src="/icons/eliminar-rojo.png" alt="Eliminar cuenta" class="icono-opcion" />
+      Eliminar cuenta
+    </button>
+  </aside>
+
+  <section class="contenido-cuenta" [attr.aria-busy]="cargando || guardando">
+    <h1>Mi perfil</h1>
+
+    @if (mensaje) {
+      <p class="mensaje-cuenta" role="status">{{ mensaje }}</p>
+    }
+
+    @if (requiereLogin) {
+      @if (cuentaDesactivada) {
+        <a routerLink="/" class="btn-editar">Volver al inicio</a>
+      } @else {
+        @if (correoActualizado) {
+          <p class="mensaje-cuenta">Tu nuevo correo es <strong>{{ correoActualizado }}</strong>.</p>
+        }
+        <a routerLink="/login" class="btn-editar">Iniciar sesión</a>
+      }
+    } @else if (cargando) {
+      <p class="estado-carga" role="status">Cargando tus datos...</p>
+    } @else if (errorCarga) {
+      <p class="error-cuenta" role="alert">{{ errorCarga }}</p>
+      <button type="button" class="btn-editar" (click)="cargarPerfil()">Reintentar</button>
+    } @else {
+      @if (guardando) {
+        <p class="estado-carga" role="status">Guardando cambios. Espera la confirmación.</p>
+      }
+      @for (tarjeta of tarjetas; track tarjeta.id) {
+        <article class="card-datos" [class.card-editando]="editando[tarjeta.id]">
+          <div class="card-header">
+            <h2>{{ tarjeta.titulo }}</h2>
+            <div class="acciones-edicion">
+              <button type="button" class="btn-editar" [disabled]="guardando || eliminando"
+                      (click)="alternarEdicion(tarjeta.id)">
+                {{ guardando && editando[tarjeta.id] ? 'Guardando...' : editando[tarjeta.id] ? 'Guardar' : 'Editar' }}
+              </button>
+              @if (editando[tarjeta.id]) {
+                <button type="button" class="btn-editar" [disabled]="guardando || eliminando"
+                        (click)="cancelarEdicion(tarjeta.id)">Cancelar</button>
+              }
+            </div>
+          </div>
+
+          @if (tarjeta.id === 'correo' && editando.correo) {
+            <p class="aviso-contacto">Si cambias tu correo, al guardar tendrás que iniciar sesión nuevamente con el correo nuevo.</p>
+          }
+
+          @if (tarjeta.id === 'password' && !editando.password) {
+            <div class="dato-item">
+              <p>************</p>
+            </div>
+          } @else {
+            <div class="datos-grid" [class.personales-grid]="tarjeta.id === 'personales'">
+              @for (campo of tarjeta.campos; track campo.clave) {
+                <div class="dato-item">
+                  <label [attr.for]="editando[tarjeta.id] ? 'perfil-' + campo.clave : null">
+                    {{ campo.etiqueta }}
+                  </label>
+                  @if (editando[tarjeta.id]) {
+                    <input [id]="'perfil-' + campo.clave" [name]="campo.clave"
+                           [type]="campo.tipo" [(ngModel)]="borrador[campo.clave]"
+                           [disabled]="guardando || eliminando" [attr.autocomplete]="campo.autocompletar"
+                           [attr.aria-invalid]="errores[tarjeta.id] ? 'true' : null"
+                           [attr.aria-describedby]="errores[tarjeta.id] ? 'error-' + tarjeta.id : null"
+                           [attr.maxlength]="campo.clave === 'dni' ? 8 : campo.clave === 'telefono' ? 9 : null"
+                           [attr.inputmode]="campo.clave === 'dni' || campo.clave === 'telefono' ? 'numeric' : null" />
+                  } @else {
+                    <p>{{ mostrarCampo(campo.clave) }}</p>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          @if (errores[tarjeta.id]) {
+            <p class="error-cuenta" [id]="'error-' + tarjeta.id" role="alert">{{ errores[tarjeta.id] }}</p>
+          }
+        </article>
+      }
+    }
+  </section>
+</main>
+
+<footer class="footer-compacto">
+  <div class="footer-compacto-container">
+    <div class="footer-compacto-brand">
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio">
+      <p>© 2026 Huellas de Auxilio. Todos<br>los derechos reservados.</p>
+    </div>
+    <div class="footer-compacto-links">
+      <a href="/ayuda">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank" rel="noopener noreferrer">Términos y condiciones</a>
+    </div>
+    <div class="footer-social">
+      <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="/icons/facebook.png" alt=""></a>
+      <a href="https://x.com/" target="_blank" rel="noopener noreferrer" aria-label="X"><img src="/icons/x.png" alt=""></a>
+      <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="/icons/instagram.png" alt=""></a>
+    </div>
+  </div>
+</footer>
+
+
+
+<ng-template #dialogoEliminar>
+  <h2 mat-dialog-title id="titulo-eliminar-cuenta">Desactivar cuenta</h2>
+
+  <mat-dialog-content>
+    <p class="aviso-eliminar">
+      Tu cuenta será desactivada y no podrás iniciar sesión.
+      Tus reportes y solicitudes se conservarán.
+    </p>
+
+    <form id="form-desactivar-cuenta" (ngSubmit)="confirmarEliminacion()">
+      <div class="dato-item">
+        <label for="contrasena-eliminar">CONTRASEÑA ACTUAL</label>
+        <input id="contrasena-eliminar" name="contrasenaEliminar"
+               type="password" autocomplete="current-password"
+               [(ngModel)]="contrasenaEliminar" [disabled]="eliminando"
+               [attr.aria-invalid]="errorEliminar ? 'true' : null"
+               [attr.aria-describedby]="errorEliminar ? 'error-eliminar-cuenta' : null"
+               required />
+      </div>
+    </form>
+
+    @if (errorEliminar) {
+      <p class="error-cuenta" id="error-eliminar-cuenta" role="alert">{{ errorEliminar }}</p>
+    }
+    @if (eliminando) {
+      <p class="estado-carga" role="status">Desactivando tu cuenta...</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button type="button" class="btn-editar" [disabled]="eliminando"
+            (click)="cancelarEliminacion()">Cancelar</button>
+    <button type="submit" form="form-desactivar-cuenta" class="btn-editar btn-desactivar"
+            [disabled]="eliminando">
+      {{ eliminando ? 'Desactivando...' : 'Desactivar' }}
+    </button>
+  </mat-dialog-actions>
+</ng-template>

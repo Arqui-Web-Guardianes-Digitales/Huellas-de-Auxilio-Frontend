@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject, isDevMode } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -14,6 +14,8 @@ import { Mascota } from '../../model/mascota';
   styleUrl: './adopciones-entidad-component.css',
 })
 export class AdopcionesEntidadComponent implements OnInit {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   readonly mascotaService = inject(MascotaService);
   private readonly router = inject(Router);
@@ -36,6 +38,7 @@ export class AdopcionesEntidadComponent implements OnInit {
   readonly porPagina = 6;
 
   ngOnInit(): void {
+
     this.tokenSesion = this.auth.token();
     const roles = this.auth.roles();
     if (!this.tokenSesion || !Array.isArray(roles) || !roles.includes('ROLE_ENTIDAD')) {
@@ -55,10 +58,12 @@ export class AdopcionesEntidadComponent implements OnInit {
     });
     this.auth.obtenerPerfilEntidadDB().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (entidad) => {
+
         if (!this.comprobarSesion()) return;
         if (!entidad) {
           this.cargando = false;
           this.error = 'No se encontró un perfil de entidad asociado a tu cuenta.';
+
           this.cdr.markForCheck();
           return;
         }
@@ -67,13 +72,15 @@ export class AdopcionesEntidadComponent implements OnInit {
         this.auth.guardarDatosEntidad(this.idEntidad, this.nombreEntidad);
         this.cargarMascotas(this.idEntidad);
       },
-      error: (error: HttpErrorResponse | Error) => this.mostrarError(error),
+      error: (error: HttpErrorResponse | Error) => (this.mostrarError(error)),
     });
   }
 
   private cargarMascotas(idEntidad: number): void {
+
     this.mascotaService.listarPorEntidad(idEntidad).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (lista) => {
+
         if (!this.comprobarSesion()) return;
         this.cargando = false;
         if (!Array.isArray(lista) || lista.some((mascota) => !mascota
@@ -82,18 +89,21 @@ export class AdopcionesEntidadComponent implements OnInit {
           || typeof mascota.nombre !== 'string' || typeof mascota.especie !== 'string'
           || typeof mascota.edad !== 'string')) {
           this.error = 'La API no devolvió un listado válido de mascotas de tu entidad.';
+
           this.cdr.markForCheck();
           return;
         }
+        if (isDevMode()) console.log('[HU27] Mascotas consultadas correctamente.');
         this.mascotas = lista.filter((mascota) => mascota.estado === true)
           .sort((a, b) => b.idMascota - a.idMascota);
         this.aplicarFiltros();
       },
-      error: (error: HttpErrorResponse | Error) => this.mostrarError(error),
+      error: (error: HttpErrorResponse | Error) => (this.mostrarError(error)),
     });
   }
 
   aplicarFiltros(): void {
+
     if (!this.comprobarSesion()) return;
     const nombre = (this.filtrosForm.value.nombre || '').trim().toLowerCase();
     const especie = this.filtrosForm.value.especie || '';
@@ -108,11 +118,13 @@ export class AdopcionesEntidadComponent implements OnInit {
   }
 
   limpiarFiltros(): void {
+
     this.filtrosForm.reset({ nombre: '', especie: '', edad: '' }, { emitEvent: false });
     this.aplicarFiltros();
   }
 
   cambiarPagina(pagina: number): void {
+
     if (!this.comprobarSesion()) return;
     this.paginaActual = Math.max(1, Math.min(pagina, this.paginas.length || 1));
     const inicio = (this.paginaActual - 1) * this.porPagina;
@@ -137,10 +149,11 @@ export class AdopcionesEntidadComponent implements OnInit {
   }
 
   private mostrarError(error: HttpErrorResponse | Error): void {
+    if (isDevMode()) console.error(error instanceof HttpErrorResponse ? `[HU27] Error HTTP ${error.status}.` : '[HU27] No se pudo completar la consulta.');
     if (!this.comprobarSesion()) return;
     this.cargando = false;
     this.error = 'No se pudieron cargar las mascotas de tu entidad. Intenta recargar la página.';
-    if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
+    if (error instanceof HttpErrorResponse && error.status === 401) {
       this.auth.cerrarSesion();
       void this.router.navigateByUrl('/login');
     }

@@ -1,7 +1,8 @@
+import { AuthService } from '../../services/auth-service';
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Route, Router } from '@angular/router';
+import { Route, Router, RouterLink } from '@angular/router';
 
 type VistaAyuda = 'centro' | 'chat' | 'guia';
 type Destino = 'inicio' | 'reportes' | 'directorio' | 'adopciones' | 'ayuda' | 'reportar' | 'notificaciones' | 'cuenta';
@@ -28,11 +29,20 @@ interface TemaGuia {
 @Component({
   selector: 'app-ayuda-component',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './ayuda-component.html',
   styleUrl: './ayuda-component.css'
 })
 export class AyudaComponent {
+  get esEntidad(): boolean { return this.auth.roles().includes('ROLE_ENTIDAD'); }
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+  get nombrePerfil(): string {
+    return this.esEntidad ? sessionStorage.getItem('nombreEntidad') || 'Mi cuenta' : this.auth.nombreCiudadano();
+  }
+  cerrarSesion(): void {
+    this.auth.cerrarSesion();
+    void this.router.navigateByUrl('/login');
+  }
   @ViewChild('historialChat') historialChat?: ElementRef<HTMLDivElement>;
 
   vista: VistaAyuda = 'centro';
@@ -136,25 +146,29 @@ export class AyudaComponent {
     }
   ];
 
-  constructor(private readonly router: Router) {}
+  constructor(private readonly router: Router, private readonly auth: AuthService) {}
 
   cambiarVista(vista: VistaAyuda): void {
+    console.log("Cambiando la vista de ayuda");
     this.vista = vista;
     this.menuAbierto = false;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   seleccionarPregunta(pregunta: PreguntaFrecuente): void {
+    console.log("Seleccionando una pregunta frecuente");
     this.cambiarVista('chat');
     this.agregarConversacion(pregunta.pregunta, pregunta.respuesta);
   }
 
   preguntar(texto: string): void {
+    console.log("Consultando una opción de ayuda");
     this.cambiarVista('chat');
     this.agregarConversacion(texto, this.buscarRespuesta(texto));
   }
 
   enviarConsulta(): void {
+    console.log("Intentando enviar la consulta de ayuda");
     const texto = this.consulta.trim();
     if (!texto) return;
     this.agregarConversacion(texto, this.buscarRespuesta(texto));
@@ -162,12 +176,22 @@ export class AyudaComponent {
   }
 
   navegar(destino: Destino): void {
+    console.log("Intentando navegar desde la pantalla de ayuda");
     this.menuAbierto = false;
+    if (destino === 'cuenta') {
+      void this.router.navigateByUrl(this.auth.rutaMiCuenta());
+      return;
+    }
     if (destino === 'ayuda') {
       this.cambiarVista('centro');
       return;
     }
 
+    if (this.esEntidad && (destino === 'inicio' || destino === 'reportes' || destino === 'adopciones')) {
+      const rutasEntidad = { inicio: '/home-entidad', reportes: '/reportes-entidad', adopciones: '/adopciones-entidad' };
+      void this.router.navigateByUrl(rutasEntidad[destino]);
+      return;
+    }
     const rutas = this.listarRutas(this.router.config);
     const candidatos = this.candidatos[destino];
     const ruta = rutas.find(r => candidatos.includes(r.split('/').pop() || ''))

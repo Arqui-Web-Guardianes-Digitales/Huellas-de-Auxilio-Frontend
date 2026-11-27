@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject, isDevMode } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -45,7 +45,7 @@ export class SolicitudesEntidadComponent implements OnInit {
   readonly porPagina = 6;
 
   ngOnInit(): void {
-    console.log("Abriendo las solicitudes de adopción de la entidad");
+
     this.tokenSesion = this.auth.token();
     if (!this.tokenSesion || !this.auth.correoEntidad() || !this.auth.roles().includes('ROLE_ENTIDAD')) {
       this.cargando = false;
@@ -56,7 +56,7 @@ export class SolicitudesEntidadComponent implements OnInit {
     this.auth.limpiarDatosEntidad();
     this.auth.obtenerPerfilEntidadDB().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (entidad) => {
-        console.log("Respuesta recibida: abriendo las solicitudes de adopción de la entidad", { cantidad: Array.isArray(entidad) ? entidad.length : null, respuestaRecibida: entidad != null });
+
         if (!this.comprobarSesion()) return;
         if (!entidad) { this.mostrarError('No se encontró el perfil de tu entidad.'); return; }
         this.idEntidad = entidad.idEntidad!;
@@ -65,18 +65,18 @@ export class SolicitudesEntidadComponent implements OnInit {
         if (this.general) this.cargarSolicitudes();
         else this.cargarMascota();
       },
-      error: (error: HttpErrorResponse) => (console.log("Error durante la operación: abriendo las solicitudes de adopción de la entidad"), this.errorPeticion(error)),
+      error: (error: HttpErrorResponse) => (this.errorPeticion(error)),
     });
   }
 
   private cargarMascota(): void {
-    console.log("Consultando la mascota para listar sus solicitudes");
+
     if (!Number.isSafeInteger(this.idMascota) || this.idMascota <= 0) {
       this.mostrarError('El identificador de mascota no es válido.'); return;
     }
     this.mascotaService.buscarPorId(this.idMascota).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (mascota) => {
-        console.log("Respuesta recibida: consultando la mascota para listar sus solicitudes", { cantidad: Array.isArray(mascota) ? mascota.length : null, respuestaRecibida: mascota != null });
+
         if (!this.comprobarSesion()) return;
         if (!mascota || mascota.entidadIdEntidad !== this.idEntidad) {
           this.mostrarError('No se encontró una mascota de tu entidad con ese identificador.'); return;
@@ -84,16 +84,16 @@ export class SolicitudesEntidadComponent implements OnInit {
         this.mascota = mascota;
         this.cargarSolicitudes();
       },
-      error: (error: HttpErrorResponse) => (console.log("Error durante la operación: consultando la mascota para listar sus solicitudes"), this.errorPeticion(error)),
+      error: (error: HttpErrorResponse) => (this.errorPeticion(error)),
     });
   }
 
   private cargarSolicitudes(): void {
-    console.log("Consultando las solicitudes recibidas para la mascota");
+
     (this.general ? this.solicitudesService.listarPorEntidad(this.idEntidad!)
       : this.solicitudesService.listarPorMascota(this.idMascota)).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (datos) => {
-        console.log("Respuesta recibida: consultando las solicitudes recibidas para la mascota", { cantidad: Array.isArray(datos) ? datos.length : null, respuestaRecibida: datos != null });
+
         if (!this.comprobarSesion()) return;
         if (!Array.isArray(datos) || (!this.general && datos.some(s => s.mascotaIdMascota !== this.idMascota))) {
           this.mostrarError('El servidor no devolvió las solicitudes de la mascota seleccionada.'); return;
@@ -101,15 +101,16 @@ export class SolicitudesEntidadComponent implements OnInit {
         this.solicitudes = [...datos].sort((a, b) =>
           (b.fechaSolicitud || '').localeCompare(a.fechaSolicitud || '') || (b.idSolicitud || 0) - (a.idSolicitud || 0));
         this.cargando = false;
+        if (isDevMode()) console.log(`[${this.general ? 'HU31' : 'HU30'}] Solicitudes consultadas correctamente.`);
         this.aplicarFiltros();
         this.cdr.markForCheck();
       },
-      error: (error: HttpErrorResponse) => (console.log("Error durante la operación: consultando las solicitudes recibidas para la mascota"), this.errorPeticion(error)),
+      error: (error: HttpErrorResponse) => (this.errorPeticion(error)),
     });
   }
 
   aplicarFiltros(): void {
-    console.log("Aplicando filtros a las solicitudes de la entidad");
+
     const filtros = this.filtrosForm.value;
     const codigo = (filtros.codigo || '').trim().toLowerCase();
     this.solicitudesFiltradas = this.solicitudes.filter(s =>
@@ -117,12 +118,13 @@ export class SolicitudesEntidadComponent implements OnInit {
       && (!filtros.estado || s.estadoSolicitud === filtros.estado)
       && (!filtros.especie || s.especieMascota?.toLowerCase() === filtros.especie));
     this.cambiarPagina(1);
+    if (isDevMode() && this.filtrosForm.dirty) console.log(`[${this.general ? 'HU31' : 'HU30'}] Filtros aplicados.`);
   }
 
   limpiarFiltros(): void {
-    console.log("Limpiando los filtros de solicitudes de la entidad"); this.filtrosForm.reset({ codigo: '', estado: '', especie: '' }); }
+     this.filtrosForm.reset({ codigo: '', estado: '', especie: '' }); }
   cambiarPagina(pagina: number): void {
-    console.log("Cambiando la página de solicitudes de la entidad");
+
     const cantidad = Math.ceil(this.solicitudesFiltradas.length / this.porPagina);
     this.paginas = Array.from({ length: cantidad }, (_, i) => i + 1);
     this.paginaActual = Math.max(1, Math.min(pagina, cantidad || 1));
@@ -146,6 +148,7 @@ export class SolicitudesEntidadComponent implements OnInit {
     return false;
   }
   private errorPeticion(error: HttpErrorResponse): void {
+    if (isDevMode()) console.error(error instanceof HttpErrorResponse ? `[Solicitudes] Error HTTP ${error.status}.` : '[Solicitudes] No se pudo completar la consulta.');
     if (!this.comprobarSesion()) return;
     this.mostrarError(error.status === 403 ? 'Solo puedes consultar solicitudes de tu entidad.'
       : 'No se pudieron cargar las solicitudes. Regresa a Adopciones e intenta nuevamente.');

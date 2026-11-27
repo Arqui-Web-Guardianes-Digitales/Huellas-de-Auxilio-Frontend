@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, inject, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 
@@ -11,32 +11,34 @@ import { Ubicacion } from '../../model/reporte';
 @Component({
   selector: 'app-reportar-component',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './reportar-component.html',
   styleUrl: './reportar-component.css',
 })
 export class ReportarComponent implements OnInit, AfterViewInit {
+  menuMobileAbierto = false;
+  get nombreUsuario(): string { return this.auth.nombreCiudadano(); }
+  abrirMenu(): void { this.menuMobileAbierto = true; }
+  cerrarMenu(): void { this.menuMobileAbierto = false; }
+  cerrarSesion(): void {
+    this.auth.cerrarSesion();
+    void this.router.navigateByUrl('/login');
+  }
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly reporteService = inject(ReporteService);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly fb = inject(FormBuilder);
 
+  reporteForm: FormGroup;
   pasoActual: number = 1;
-
-  direccion: string = 'Av. Arequipa 1230';
-  distrito: string = 'Lince';
-  referencia: string = 'Frente al parque principal';
-  latitud: number = -12.0833;
-  longitud: number = -77.0347;
 
   archivoSeleccionado: File | null = null;
   previewUrl: string = '';
   urlFotoSubida: string = '';
   subiendoFoto: boolean = false;
-
-  tipoCaso: string = 'Maltrato animal';
-  nivelUrgencia: string = 'Media';
-  descripcion: string = '';
 
   codigoReporteGenerado: string = 'HA-0000';
   enviandoReporte: boolean = false;
@@ -45,8 +47,27 @@ export class ReportarComponent implements OnInit, AfterViewInit {
   private map: L.Map | null = null;
   private marker: L.Marker | null = null;
 
+  constructor() {
+    this.reporteForm = this.fb.group({
+      direccion: [
+        'Av. Arequipa 1230',
+        [Validators.required, Validators.minLength(4), Validators.maxLength(200)],
+      ],
+      distrito: [
+        'Lince',
+        [Validators.required, Validators.pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,100}$/)],
+      ],
+      referencia: ['Frente al parque principal', [Validators.maxLength(200)]],
+      latitud: [-12.0833, [Validators.required]],
+      longitud: [-77.0347, [Validators.required]],
+      tipoCaso: ['Maltrato animal', [Validators.required]],
+      nivelUrgencia: ['Media', [Validators.required, Validators.pattern(/^(Baja|Media|Alta)$/)]],
+      descripcion: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(500)]],
+    });
+  }
+
   ngOnInit(): void {
-    console.log('ngOnInit de ReportarComponent');
+    console.log('ngOnInit de ReportarComponent (ReactiveForms)');
     if (!this.auth.token() || !this.auth.roles().includes('ROLE_CIUDADANO')) {
       console.log('Acceso denegado en Reportar, redirigiendo a /login');
       this.router.navigateByUrl('/login');
@@ -58,12 +79,20 @@ export class ReportarComponent implements OnInit, AfterViewInit {
     this.iniciarMapa();
   }
 
+  campoInvalido(campo: string): boolean {
+    const control = this.reporteForm.get(campo);
+    return !!control && control.invalid && (control.touched || control.dirty);
+  }
+
   iniciarMapa(): void {
     setTimeout(() => {
       const container = document.getElementById('mapaLeaflet');
       if (!container) return;
 
-      this.map = L.map('mapaLeaflet').setView([this.latitud, this.longitud], 14);
+      const latInicial = this.reporteForm.value.latitud;
+      const lngInicial = this.reporteForm.value.longitud;
+
+      this.map = L.map('mapaLeaflet').setView([latInicial, lngInicial], 14);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
@@ -75,34 +104,31 @@ export class ReportarComponent implements OnInit, AfterViewInit {
         iconAnchor: [18, 36],
       });
 
-      this.marker = L.marker([this.latitud, this.longitud], { icon: customIcon }).addTo(this.map);
+      this.marker = L.marker([latInicial, lngInicial], { icon: customIcon }).addTo(this.map);
 
       this.map.on('click', (e: L.LeafletMouseEvent) => {
-        this.latitud = e.latlng.lat;
-        this.longitud = e.latlng.lng;
-        console.log('Click en mapa - nuevas coordenadas:', {
-          latitud: this.latitud,
-          longitud: this.longitud,
-        });
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        this.reporteForm.patchValue({ latitud: lat, longitud: lng });
+        console.log('Click en mapa - nuevas coordenadas:', { latitud: lat, longitud: lng });
 
         if (this.marker) {
           this.marker.setLatLng(e.latlng);
         }
 
-        fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${this.latitud}&lon=${this.longitud}`,
-        )
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
           .then((res) => res.json())
           .then((data) => {
             console.log('Respuesta de geocodificación inversa (Nominatim):', data);
             if (data && data.address) {
-              const calle =
+              const calle = (
                 data.address.road ||
                 data.address.pedestrian ||
                 data.address.suburb ||
-                'Calle sin nombre';
-              this.direccion = calle;
-              this.referencia = data.display_name.split(',').slice(0, 3).join(',');
+                'Calle sin nombre'
+              ).slice(0, 200);
+              const ref = (data.display_name || '').split(',').slice(0, 3).join(',').slice(0, 200);
+              this.reporteForm.patchValue({ direccion: calle, referencia: ref });
               this.cdr.detectChanges();
             }
           })
@@ -153,22 +179,23 @@ export class ReportarComponent implements OnInit, AfterViewInit {
 
   seleccionarUrgencia(nivel: string): void {
     console.log('Nivel de urgencia seleccionado:', nivel);
-    this.nivelUrgencia = nivel;
+    this.reporteForm.patchValue({ nivelUrgencia: nivel });
   }
 
   irAlPaso2(): void {
-    if (!this.direccion || !this.distrito) {
-      console.log('Validación fallida en Paso 1: falta dirección o distrito');
-      alert('Por favor ingresa la dirección y el distrito.');
+    const camposPaso1 = ['direccion', 'distrito', 'referencia', 'latitud', 'longitud'];
+    let invalido = false;
+    for (const nombre of camposPaso1) {
+      const control = this.reporteForm.get(nombre);
+      control?.markAsTouched();
+      if (control?.invalid) invalido = true;
+    }
+    if (invalido) {
+      console.log('Formulario Paso 1 no válido, revisa los campos obligatorios');
       return;
     }
-    console.log('Avanzando al Paso 2 - Detalles del caso:', {
-      direccion: this.direccion,
-      distrito: this.distrito,
-      referencia: this.referencia,
-      latitud: this.latitud,
-      longitud: this.longitud,
-    });
+
+    console.log('Avanzando al Paso 2 - Datos de ubicación:', this.reporteForm.value);
     this.pasoActual = 2;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -180,23 +207,25 @@ export class ReportarComponent implements OnInit, AfterViewInit {
   }
 
   enviarReporteFinal(): void {
-    if (!this.tipoCaso || !this.descripcion.trim()) {
-      console.log('Formulario de reporte incompleto: falta tipoCaso o descripción');
-      alert('Por favor completa el tipo de caso y la descripción.');
+    if (this.reporteForm.invalid) {
+      console.log('Formulario no válido');
+      this.reporteForm.markAllAsTouched();
       return;
     }
+
+    const v = this.reporteForm.value;
+    console.log('Datos aceptados del formulario reactivo:', v);
 
     this.enviandoReporte = true;
     this.errorEnvio = '';
 
     const nuevaUbicacion: Ubicacion = {
-      direccion: this.direccion,
-      distrito: this.distrito,
-      referencia: this.referencia,
-      latitud: this.latitud,
-      longitud: this.longitud,
+      direccion: v.direccion.trim(),
+      distrito: v.distrito.trim(),
+      referencia: (v.referencia || '').trim(),
+      latitud: v.latitud,
+      longitud: v.longitud,
     };
-    console.log('Datos de ubicación aceptados, enviando al backend:', nuevaUbicacion);
 
     this.reporteService.crearUbicacion(nuevaUbicacion).subscribe({
       next: (ubCreada) => {
@@ -207,10 +236,10 @@ export class ReportarComponent implements OnInit, AfterViewInit {
           ubicacion: { idUbicacion: ubCreada.idUbicacion },
           ciudadano: { idCiudadano: idCiudadanoSesion },
           fechaReporte: new Date().toISOString().split('T')[0],
-          tipoCaso: this.tipoCaso.substring(0, 1).toUpperCase(),
+          tipoCaso: v.tipoCaso.substring(0, 1).toUpperCase(),
           nivelUrgencia:
-            this.nivelUrgencia === 'Alta' ? 'AL' : this.nivelUrgencia === 'Media' ? 'ME' : 'BA',
-          descripcion: this.descripcion,
+            v.nivelUrgencia === 'Alta' ? 'AL' : v.nivelUrgencia === 'Media' ? 'ME' : 'BA',
+          descripcion: v.descripcion.trim(),
           estado: 'R',
         };
         console.log('Datos de reporte aceptados, enviando al backend:', payloadReporte);
@@ -221,10 +250,6 @@ export class ReportarComponent implements OnInit, AfterViewInit {
             this.codigoReporteGenerado = `HA-00${repCreado.idReporte}`;
 
             if (this.urlFotoSubida && repCreado.idReporte) {
-              console.log('Guardando evidencia asociada al reporte:', {
-                idReporte: repCreado.idReporte,
-                url: this.urlFotoSubida,
-              });
               this.reporteService
                 .guardarEvidencia(repCreado.idReporte, this.urlFotoSubida)
                 .subscribe({

@@ -1,8 +1,8 @@
-import { ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, inject, isDevMode } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth-service';
 import { MascotaService } from '../../services/mascota-service';
 import { ReporteService } from '../../services/reporte-service';
@@ -21,10 +21,16 @@ function edadPositiva(control: AbstractControl): ValidationErrors | null {
   styleUrl: './publicar-mascota-component.css',
 })
 export class PublicarMascotaComponent implements OnInit, OnDestroy {
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
+
   private readonly auth = inject(AuthService);
   private readonly mascotaService = inject(MascotaService);
   private readonly reporteService = inject(ReporteService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  edicion = this.route.snapshot.paramMap.has('idMascota');
+  private idMascota = Number(this.route.snapshot.paramMap.get('idMascota'));
+  edadAnterior = '';
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -59,6 +65,7 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
   mascotaPublicada: Mascota | null = null;
 
   ngOnInit(): void {
+
     this.tokenSesion = this.auth.token();
     const roles = this.auth.roles();
     if (!this.tokenSesion || !this.auth.correoEntidad() || !Array.isArray(roles) || !roles.includes('ROLE_ENTIDAD')) {
@@ -69,25 +76,91 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
     this.auth.limpiarDatosEntidad();
     this.auth.obtenerPerfilEntidadDB().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (entidad) => {
+
         if (!this.comprobarSesion()) return;
         this.cargando = false;
         if (!entidad) {
           this.errorSesion = 'No se encontró un perfil de entidad asociado a tu cuenta.';
+
         } else {
           this.idEntidad = entidad.idEntidad!;
           this.nombreEntidad = entidad.nombreEntidad.trim();
           this.auth.guardarDatosEntidad(this.idEntidad, this.nombreEntidad);
+          if (this.edicion) this.cargarMascota();
         }
         this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse | Error) => {
+
         if (!this.comprobarSesion()) return;
         this.cargando = false;
         this.errorSesion = 'No se pudo cargar tu perfil de entidad. Intenta recargar la página.';
+
         this.tratarAutenticacion(error);
         this.cdr.markForCheck();
       },
     });
+  }
+
+  private cargarMascota(): void {
+
+    if (!Number.isSafeInteger(this.idMascota) || this.idMascota <= 0) {
+      this.errorSesion = 'El identificador de mascota no es válido.';
+
+      return;
+    }
+    this.cargando = true;
+    this.mascotaService.buscarPorId(this.idMascota).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (mascota) => {
+
+        if (!this.comprobarSesion()) return;
+        this.cargando = false;
+        if (!mascota || mascota.entidadIdEntidad !== this.idEntidad) {
+          this.errorSesion = 'No se encontró una mascota de tu entidad con ese identificador.';
+
+        } else {
+          this.cargarFormulario(mascota);
+        }
+        this.cdr.markForCheck();
+      },
+      error: (error: HttpErrorResponse) => {
+
+        if (!this.comprobarSesion()) return;
+        this.cargando = false;
+        this.errorSesion = 'No se pudo cargar la mascota. Regresa a Adopciones e intenta nuevamente.';
+
+        this.tratarAutenticacion(error);
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  private cargarFormulario(mascota: Mascota): void {
+
+    this.quitarFoto();
+    const edad = mascota.edad.trim().toLowerCase();
+    const partes = edad.match(/^([0-9]+(?:[.,][0-9]+)?(?:e[+-]?[0-9]+)?)\s+(mes|meses|año|años)$/);
+    this.edadAnterior = partes ? '' : mascota.edad;
+    this.mascotaForm.get('edad')!.setValidators(this.edadAnterior ? [edadPositiva] : [Validators.required, edadPositiva]);
+    this.mascotaForm.patchValue({
+      nombre: mascota.nombre, especie: mascota.especie, sexo: mascota.sexo,
+      edad: partes ? Number(partes[1].replace(',', '.')) : null,
+      unidadEdad: partes && partes[2].startsWith('año') ? 'años' : 'meses',
+      distrito: mascota.distrito, tamaño: mascota.tamaño, descripcion: mascota.descripcion,
+      foto: mascota.urlFoto,
+    });
+    this.urlFoto = mascota.urlFoto;
+    this.vistaPrevia = this.mascotaService.urlFotoMascota(mascota.urlFoto);
+    this.mascotaForm.markAsPristine();
+    this.mascotaForm.markAsUntouched();
+    this.error = '';
+  }
+
+  seguirEditando(): void {
+
+    if (!this.comprobarSesion() || !this.mascotaPublicada) return;
+    this.cargarFormulario(this.mascotaPublicada);
+    this.mascotaPublicada = null;
   }
 
   campoInvalido(nombre: string): boolean {
@@ -96,6 +169,7 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
   }
 
   seleccionarFoto(evento: Event): void {
+
     if (this.guardando || !this.comprobarSesion()) return;
     const entrada = evento.target as HTMLInputElement;
     const archivos = entrada.files;
@@ -108,6 +182,7 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
     if (cantidadArchivos !== 1 || !['image/png', 'image/jpeg', 'image/webp'].includes(foto.type)
       || foto.size === 0 || foto.size > 1024 * 1024) {
       this.errorFoto = 'Selecciona una sola imagen PNG, JPG o WebP de hasta 1 MB.';
+
       return;
     }
     this.leyendoFoto = true;
@@ -129,12 +204,14 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
       if (revision !== this.revisionFoto || !this.comprobarSesion()) return;
       this.leyendoFoto = false;
       this.errorFoto = 'El archivo no contiene una imagen válida. Selecciona otra fotografía.';
+
       this.cdr.markForCheck();
     };
     imagen.src = url;
   }
 
   quitarFoto(): void {
+
     if (this.guardando) return;
     this.revisionFoto++;
     if (this.vistaPrevia) URL.revokeObjectURL(this.vistaPrevia);
@@ -147,21 +224,28 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
   }
 
   publicar(): void {
+
     if (this.guardando || this.leyendoFoto || this.cargando || this.mascotaPublicada || !this.comprobarSesion()) return;
+    if (isDevMode()) console.log(`[${this.edicion ? 'HU29' : 'HU28'}] Validando formulario.`);
     this.mascotaForm.markAllAsTouched();
-    if (this.mascotaForm.invalid || !this.archivo || this.idEntidad === null) return;
+    if (this.mascotaForm.invalid || (!this.archivo && !this.urlFoto) || this.idEntidad === null) {
+      if (isDevMode()) console.warn(`[${this.edicion ? 'HU29' : 'HU28'}] Completa los campos y la fotografía.`);
+      return;
+    }
     this.guardando = true;
     this.error = '';
     if (this.urlFoto) {
       this.guardarMascota();
       return;
     }
-    this.reporteService.subirImagen(this.archivo).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.reporteService.subirImagen(this.archivo!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (respuesta) => {
+
         if (!this.comprobarSesion()) return;
         if (typeof respuesta?.url !== 'string' || !respuesta.url.trim() || respuesta.url.length > 255) {
           this.guardando = false;
           this.error = 'La subida no devolvió una URL válida. No se pudo registrar la mascota.';
+
           this.cdr.markForCheck();
           return;
         }
@@ -169,10 +253,13 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
         this.guardarMascota();
       },
       error: (error: HttpErrorResponse) => {
+
         if (!this.comprobarSesion()) return;
         this.guardando = false;
+        if (isDevMode()) console.error(`[${this.edicion ? 'HU29' : 'HU28'}] Error al subir imagen: HTTP ${error.status}.`);
         this.error = error.status === 413 ? 'La imagen supera el tamaño permitido por el servidor.'
           : 'No se pudo subir la fotografía. Intenta nuevamente.';
+
         this.tratarAutenticacion(error);
         this.cdr.markForCheck();
       },
@@ -180,6 +267,7 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
   }
 
   private guardarMascota(): void {
+
     if (!this.comprobarSesion() || this.idEntidad === null) return;
     const valores = this.mascotaForm.value;
     const cantidad = Number(valores.edad);
@@ -188,36 +276,49 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
     const mascota = new Mascota();
     mascota.nombre = valores.nombre.trim();
     mascota.especie = valores.especie;
-    mascota.edad = cantidad + ' ' + unidad;
+    mascota.edad = this.edadAnterior && (valores.edad === null || valores.edad === '')
+      ? this.edadAnterior : cantidad + ' ' + unidad;
     mascota.sexo = valores.sexo;
     mascota.distrito = valores.distrito;
     mascota.tamaño = valores.tamaño;
     mascota.descripcion = valores.descripcion.trim();
     mascota.urlFoto = this.urlFoto;
     const idEntidad = this.idEntidad;
-    this.mascotaService.publicarMascota(idEntidad, mascota).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    (this.edicion ? this.mascotaService.editarMascota(this.idMascota, mascota)
+      : this.mascotaService.publicarMascota(idEntidad, mascota)).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (respuesta) => {
+
         if (!this.comprobarSesion()) return;
         this.guardando = false;
         if (!respuesta || !Number.isSafeInteger(respuesta.idMascota) || respuesta.idMascota <= 0
-          || respuesta.entidadIdEntidad !== idEntidad || respuesta.estado !== true) {
-          this.error = 'No se pudo confirmar el registro. Comprueba Adopciones antes de reintentar.';
+          || respuesta.entidadIdEntidad !== idEntidad || (this.edicion ? respuesta.idMascota !== this.idMascota : respuesta.estado !== true)) {
+          this.error = 'No se pudo confirmar el guardado. Comprueba Adopciones antes de reintentar.';
+
         } else {
           this.mascotaPublicada = respuesta;
+          if (isDevMode()) console.log(this.edicion ? '[HU29] Mascota actualizada correctamente.' : '[HU28] Mascota publicada correctamente.');
+
         }
         this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
+
         if (!this.comprobarSesion()) return;
         this.guardando = false;
+        if (isDevMode()) console.error(`[${this.edicion ? 'HU29' : 'HU28'}] Error en la operación: HTTP ${error.status}.`);
         if (error.status === 403) {
-          this.error = 'Solo puedes publicar mascotas para tu propia entidad.';
+          this.error = 'Solo puedes guardar mascotas de tu propia entidad.';
+
         } else if (error.status === 404) {
-          this.error = 'No se encontró la entidad asociada a tu cuenta.';
+          this.error = this.edicion ? 'La mascota ya no existe. Regresa a Adopciones.' : 'No se encontró la entidad asociada a tu cuenta.';
+
         } else if (error.status === 400) {
-          this.error = 'Revisa los campos del formulario. El servidor rechazó los datos enviados.';
+          this.error = error.error?.code === 'VALIDATION_ERROR' && typeof error.error.message === 'string'
+            ? error.error.message : 'Revisa los campos del formulario. El servidor rechazó los datos enviados.';
+
         } else {
-          this.error = 'No se pudo confirmar la publicación. Comprueba Adopciones antes de reintentar. La fotografía subida se conserva.';
+          this.error = 'No se pudo confirmar el guardado. Comprueba Adopciones antes de reintentar. La fotografía se conserva.';
+
         }
         this.tratarAutenticacion(error);
         this.cdr.markForCheck();
@@ -226,6 +327,7 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
   }
 
   publicarOtra(): void {
+
     if (!this.comprobarSesion()) return;
     this.mascotaPublicada = null;
     this.mascotaForm.reset({ nombre: '', especie: '', edad: null, unidadEdad: 'meses', sexo: '', distrito: '', tamaño: '', descripcion: '', foto: '' });
@@ -234,6 +336,7 @@ export class PublicarMascotaComponent implements OnInit, OnDestroy {
   }
 
   cancelar(): void {
+
     if (!this.guardando) void this.router.navigateByUrl('/adopciones-entidad');
   }
 

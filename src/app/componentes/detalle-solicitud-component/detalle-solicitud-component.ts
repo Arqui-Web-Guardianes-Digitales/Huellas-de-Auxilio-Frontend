@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -16,7 +16,16 @@ import { SolicitudService } from '../../services/solicitud-service';
   templateUrl: './detalle-solicitud-component.html',
   styleUrl: './detalle-solicitud-component.css',
 })
-export class DetalleSolicitudComponent implements OnInit {
+export class DetalleSolicitudComponent implements OnInit, OnDestroy {
+  menuMobileAbierto = false;
+  get nombreUsuario(): string { return this.auth.nombreCiudadano(); }
+  abrirMenu(): void { this.menuMobileAbierto = true; }
+  cerrarMenu(): void { this.menuMobileAbierto = false; }
+  cerrarSesion(): void {
+    this.auth.cerrarSesion();
+    void this.router.navigateByUrl('/login');
+  }
+  get rutaCuenta(): string { return this.auth.rutaMiCuenta(); }
   private readonly auth = inject(AuthService);
   private readonly solicitudes = inject(SolicitudService);
   private readonly mascotas = inject(MascotaService);
@@ -35,11 +44,15 @@ export class DetalleSolicitudComponent implements OnInit {
   private mascotaConsultada: number | null = null;
 
   ngOnInit(): void {
+    console.log('[DetalleSolicitudComponent] Entrada al componente.');
     if (
       !this.auth.token() ||
       !this.auth.roles().includes('ROLE_CIUDADANO') ||
       !this.auth.correo()
     ) {
+      console.warn(
+        '[DetalleSolicitudComponent] Acceso no autorizado; se solicita volver al login.',
+      );
       void this.router.navigateByUrl('/login');
       return;
     }
@@ -60,6 +73,9 @@ export class DetalleSolicitudComponent implements OnInit {
             this.mostrarError('No se pudo identificar tu perfil de ciudadano.');
             return;
           }
+          console.log('[DetalleSolicitudComponent] Perfil confirmado; se consultará el progreso.', {
+            idSolicitud,
+          });
           this.consultarProgreso(idSolicitud, id);
         },
         error: () => this.mostrarError('No se pudo cargar tu perfil. Vuelve a iniciar sesión.'),
@@ -96,13 +112,22 @@ export class DetalleSolicitudComponent implements OnInit {
   }
 
   private consultarProgreso(idSolicitud: number, idCiudadano: number): void {
+    console.log('[DetalleSolicitudComponent] Seguimiento automático iniciado.', {
+      idSolicitud,
+      intervaloSegundos: 10,
+    });
     // Carga inmediatamente y actualiza el estado cada 10 segundos mientras se vea la pantalla.
     timer(0, 10_000)
       .pipe(
         exhaustMap(() =>
           this.solicitudes.buscarPorCodigoYCiudadano(idSolicitud, idCiudadano).pipe(
             map((solicitud) => ({ solicitud, fallo: false })),
-            catchError(() => of({ solicitud: null, fallo: true })),
+            catchError(() => {
+              console.error('[DetalleSolicitudComponent] Error al consultar el estado en la API.', {
+                idSolicitud,
+              });
+              return of({ solicitud: null, fallo: true });
+            }),
           ),
         ),
         takeUntilDestroyed(this.destroyRef),
@@ -113,6 +138,9 @@ export class DetalleSolicitudComponent implements OnInit {
         this.aviso = '';
 
         if (fallo) {
+          console.warn('[DetalleSolicitudComponent] Consulta de progreso fallida.', {
+            conservaUltimaRespuesta: Boolean(this.solicitud),
+          });
           if (this.solicitud) {
             this.aviso =
               'No se pudo actualizar el estado. Se muestra la última información recibida.';
@@ -120,10 +148,25 @@ export class DetalleSolicitudComponent implements OnInit {
             this.error = 'No se pudo consultar la solicitud.';
           }
         } else if (!solicitud || solicitud.ciudadanoIdCiudadano !== idCiudadano) {
+          console.warn(
+            '[DetalleSolicitudComponent] No se encontró la solicitud en la cuenta actual.',
+            { idSolicitud },
+          );
           this.solicitud = null;
           this.error = 'No se encontró la solicitud en tu cuenta.';
         } else {
+          const estadoAnterior = this.solicitud?.estadoSolicitud;
           this.solicitud = solicitud;
+          console.log('[DetalleSolicitudComponent] Progreso recibido.', {
+            idSolicitud,
+            estado: solicitud.estadoSolicitud,
+          });
+          if (estadoAnterior && estadoAnterior !== solicitud.estadoSolicitud) {
+            console.log('[DetalleSolicitudComponent] Cambio de estado detectado.', {
+              estadoAnterior,
+              estadoActual: solicitud.estadoSolicitud,
+            });
+          }
           if (this.mascotaConsultada !== solicitud.mascotaIdMascota) {
             this.cargarMascota(solicitud.mascotaIdMascota);
           }
@@ -134,6 +177,7 @@ export class DetalleSolicitudComponent implements OnInit {
   }
 
   private cargarMascota(idMascota: number): void {
+    console.log('[DetalleSolicitudComponent] Consulta de mascota iniciada.', { idMascota });
     this.mascotaConsultada = idMascota;
     this.mascota = null;
     this.nombreEntidad = 'Entidad no disponible';
@@ -145,21 +189,42 @@ export class DetalleSolicitudComponent implements OnInit {
       .subscribe({
         next: (mascota) => {
           this.mascota = mascota;
+          if (mascota) {
+            console.log('[DetalleSolicitudComponent] Mascota recibida.', { idMascota });
+          } else {
+            console.warn('[DetalleSolicitudComponent] La API no devolvió la mascota.', {
+              idMascota,
+            });
+          }
           if (mascota?.entidadIdEntidad) {
+            console.log('[DetalleSolicitudComponent] Consulta de entidad iniciada.', {
+              idEntidad: mascota.entidadIdEntidad,
+            });
             this.mascotas
               .buscarEntidadPorId(mascota.entidadIdEntidad)
               .pipe(takeUntilDestroyed(this.destroyRef))
               .subscribe({
                 next: (entidad) => {
+                  if (entidad) {
+                    console.log('[DetalleSolicitudComponent] Entidad recibida.', {
+                      idEntidad: entidad.idEntidad,
+                    });
+                  } else {
+                    console.warn('[DetalleSolicitudComponent] La API no devolvió la entidad.');
+                  }
                   this.nombreEntidad = entidad?.nombreEntidad ?? 'Entidad no disponible';
                   this.cdr.markForCheck();
                 },
-                error: () => this.cdr.markForCheck(),
+                error: () => {
+                  console.warn('[DetalleSolicitudComponent] No se pudo cargar la entidad.');
+                  this.cdr.markForCheck();
+                },
               });
           }
           this.cdr.markForCheck();
         },
         error: () => {
+          console.error('[DetalleSolicitudComponent] No se pudo cargar la mascota.', { idMascota });
           this.mascotaConsultada = null;
           this.cdr.markForCheck();
         },
@@ -167,8 +232,22 @@ export class DetalleSolicitudComponent implements OnInit {
   }
 
   private mostrarError(mensaje: string): void {
+    console.error('[DetalleSolicitudComponent]', mensaje);
     this.error = mensaje;
     this.cargando = false;
     this.cdr.markForCheck();
+  }
+
+  ocultarFoto(): void {
+    console.warn('[DetalleSolicitudComponent] Foto de mascota no disponible.');
+    this.fotoNoDisponible = true;
+  }
+
+  registrarNavegacion(destino: string | (string | number)[]): void {
+    console.log('[DetalleSolicitudComponent] Navegación solicitada.', { destino });
+  }
+
+  ngOnDestroy(): void {
+    console.log('[DetalleSolicitudComponent] Salida del componente.');
   }
 }
