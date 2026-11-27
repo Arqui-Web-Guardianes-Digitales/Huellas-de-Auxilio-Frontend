@@ -32,7 +32,7 @@
           <h2>Datos principales</h2>
 
           <form class="registro-form" (ngSubmit)="submit()">
-@if (error) { <p class="angular-error" role="alert">{{ error }}</p> }
+<app-alerta [mensaje]="error" tipo="error" />
             <div class="form-group">
               <label for="nombre-entidad">Nombre de la entidad</label>
 

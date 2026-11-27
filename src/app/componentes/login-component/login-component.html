@@ -10,15 +10,7 @@
         <img src="/img/logo.png" alt="Huellas de Auxilio" class="login-logo" />
 
         <h1 class="login-title">Bienvenido de vuelta</h1>
-
-        <div class="mensaje-error" id="mensajeError" [class.activo]="!!error">
-          <img src="/icons/jam_alert-f.png" alt="Error" class="alert-icon" />
-
-          <div>
-            <h3 id="tituloError">Correo o contraseña incorrectos</h3>
-            <p id="textoError">{{ error || "Verifica tus datos e inténtalo de nuevo." }}</p>
-          </div>
-        </div>
+        <app-alerta [mensaje]="error" tipo="error" />
 
 
         <form class="login-form" id="formLogin" (ngSubmit)="submit()">

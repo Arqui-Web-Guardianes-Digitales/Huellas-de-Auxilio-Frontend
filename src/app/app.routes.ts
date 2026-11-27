@@ -28,9 +28,12 @@ import { SolicitudAdopcionComponent } from './componentes/solicitud-adopcion-com
 import { MisSolicitudesComponent } from './componentes/mis-solicitudes-component/mis-solicitudes-component';
 import { DetalleSolicitudComponent } from './componentes/detalle-solicitud-component/detalle-solicitud-component';
 import { GuiaAyudaComponent } from './componentes/guia-ayuda-component/guia-ayuda-component';
+import { RecuperacionTokenGuard } from './guards/recuperacion-token-guard';
 
 export const routes: Routes = [
-  { path: '', component: LandingComponent },
+  // Página principal
+  { path: '', redirectTo: 'inicio', pathMatch: 'full' },
+  { path: 'inicio', component: LandingComponent },
 
   // Auth y Registro
   { path: 'login', component: LoginComponent },
@@ -43,7 +46,11 @@ export const routes: Routes = [
   { path: 'cuenta-registrada-ciudadano', component: CuentaRegistradaCiudadanoComponent },
   { path: 'cuenta-registrada-entidad', component: CuentaRegistradaEntidadComponent },
   { path: 'recuperar-cuenta', component: RecuperarCuentaComponent },
-  { path: 'nueva-contrasena', component: NuevaContrasenaComponent },
+  {
+    path: 'nueva-contrasena',
+    component: NuevaContrasenaComponent,
+    canActivate: [RecuperacionTokenGuard],
+  },
 
   // Flujo Ciudadano
   { path: 'home-ciudadano', canActivate: [AuthGuard], data: { roles: ['ROLE_CIUDADANO'] }, component: HomeCiudadanoComponent },
@@ -131,6 +138,6 @@ export const routes: Routes = [
       .then((componente) => componente.DetalleSolicitudEntidadComponent),
   },
 
-  // Comodín para redirigir si no existe la ruta
-  { path: '**', redirectTo: '', pathMatch: 'full' },
+  // Cualquier dirección inexistente vuelve al inicio
+  { path: '**', redirectTo: 'inicio' },
 ];

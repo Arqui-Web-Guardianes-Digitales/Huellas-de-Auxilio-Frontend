@@ -31,22 +31,11 @@
         <section class="form-card">
           <h2>Datos principales</h2>
 
-          <div class="mensaje-error" id="mensajeErrorDni" [class.activo]="error.startsWith('El DNI')">
-            <img src="/icons/jam_alert-f.png" alt="Error" class="alert-icon" />
-
-            <div>
-              <h3 id="tituloErrorDni">DNI inválido</h3>
-              <p id="textoErrorDni">
-                El DNI debe contener exactamente 8 dígitos.
-              </p>
-            </div>
-          </div>
-
           <form
             class="registro-form"
             id="formRegistroCiudadano"
            (ngSubmit)="submit()">
-@if (error && !error.startsWith('El DNI')) { <p class="angular-error" role="alert">{{ error }}</p> }
+<app-alerta [mensaje]="error" tipo="error" />
             <div class="form-group">
               <label for="dni">DNI</label>
               <div class="input-box" id="boxDni">
