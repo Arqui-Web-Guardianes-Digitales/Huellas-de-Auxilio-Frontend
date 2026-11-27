@@ -1,9 +1,10 @@
+import { AlertaComponent } from '../alerta-component/alerta-component';
 import {ChangeDetectorRef,Component,inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
 import {HttpErrorResponse} from '@angular/common/http';
 import {AuthService} from '../../services/auth-service';
-@Component({selector:'app-login-component',imports:[FormsModule,RouterLink],templateUrl:'./login-component.html',styleUrl:'./login-component.css'})
+@Component({selector:'app-login-component',imports:[FormsModule,RouterLink,AlertaComponent],templateUrl:'./login-component.html',styleUrl:'./login-component.css'})
 export class LoginComponent {
   private readonly auth=inject(AuthService);
   private readonly cdr=inject(ChangeDetectorRef);

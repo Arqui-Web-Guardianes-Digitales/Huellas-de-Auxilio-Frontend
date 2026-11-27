@@ -31,22 +31,11 @@
         <section class="form-card">
           <h2>Datos principales</h2>
 
-          <div class="mensaje-error" id="mensajeErrorDni" [class.activo]="error.startsWith('El DNI')">
-            <img src="/icons/jam_alert-f.png" alt="Error" class="alert-icon" />
-
-            <div>
-              <h3 id="tituloErrorDni">DNI inválido</h3>
-              <p id="textoErrorDni">
-                El DNI debe contener exactamente 8 dígitos.
-              </p>
-            </div>
-          </div>
-
           <form
             class="registro-form"
             id="formRegistroCiudadano"
            (ngSubmit)="submit()">
-@if (error && !error.startsWith('El DNI')) { <p class="angular-error" role="alert">{{ error }}</p> }
+<app-alerta [mensaje]="error" tipo="error" />
             <div class="form-group">
               <label for="dni">DNI</label>
               <div class="input-box" id="boxDni">
@@ -122,37 +111,19 @@
 <footer class="footer-compacto">
   <div class="footer-compacto-container">
     <div class="footer-compacto-brand">
-      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio" />
-
-      <p>
-        © 2026 Huellas de Auxilio. Todos<br />
-        los derechos reservados.
-      </p>
+      <img src="/img/logo-blanco.png" alt="Logo Huellas de Auxilio">
+      <p>© 2026 Huellas de Auxilio. Todos<br>los derechos reservados.</p>
     </div>
-
     <div class="footer-compacto-links">
-      <a href="#">Soporte</a>
-      <a href="/documentos/politica-privacidad.pdf" target="_blank">
-        Política de Privacidad
-      </a>
-      <a href="/documentos/terminos-condiciones.pdf" target="_blank">
-        Términos y condiciones
-      </a>
+      <a href="/ayuda">Soporte</a>
+      <a href="/documentos/politica-privacidad.pdf" target="_blank" rel="noopener noreferrer">Política de Privacidad</a>
+      <a href="/documentos/terminos-condiciones.pdf" target="_blank" rel="noopener noreferrer">Términos y condiciones</a>
     </div>
-
     <div class="footer-social">
-          <a href="https://www.facebook.com/">
-            <img src="/icons/facebook.png" alt="Facebook" />
-          </a>
-
-          <a href="https://x.com/">
-            <img src="/icons/x.png" alt="X" />
-          </a>
-
-          <a href="https://www.instagram.com/">
-            <img src="/icons/instagram.png" alt="Instagram" />
-          </a>
-        </div>
+      <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="/icons/facebook.png" alt=""></a>
+      <a href="https://x.com/" target="_blank" rel="noopener noreferrer" aria-label="X"><img src="/icons/x.png" alt=""></a>
+      <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="/icons/instagram.png" alt=""></a>
+    </div>
   </div>
 </footer>
   

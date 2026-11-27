@@ -1,10 +1,11 @@
+import { AlertaComponent } from '../alerta-component/alerta-component';
 import {Component,inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Router,RouterLink} from '@angular/router';
 import {HttpErrorResponse} from '@angular/common/http';
 import {AuthService} from '../../services/auth-service';
 import {RegistroStateService} from '../../services/registro-state-service';
-@Component({selector:'app-confirmacion-ciudadano-component',imports:[FormsModule,RouterLink],templateUrl:'./confirmacion-ciudadano-component.html',styleUrl:'./confirmacion-ciudadano-component.css'})
+@Component({selector:'app-confirmacion-ciudadano-component',imports:[FormsModule,RouterLink,AlertaComponent],templateUrl:'./confirmacion-ciudadano-component.html',styleUrl:'./confirmacion-ciudadano-component.css'})
 export class ConfirmacionCiudadanoComponent {
   private readonly auth=inject(AuthService);private readonly state=inject(RegistroStateService);private readonly router=inject(Router);
   contrasena='';confirmar='';acepto=false;error='';cargando=false;

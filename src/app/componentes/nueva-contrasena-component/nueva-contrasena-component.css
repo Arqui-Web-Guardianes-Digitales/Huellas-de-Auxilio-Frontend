@@ -348,3 +348,6 @@
   color: #08736e;
   text-decoration: underline;
 }
+/* HU04: estados accesibles al realizar solicitudes */
+.btn-enviar:disabled { opacity: .65; cursor: not-allowed; }
+.link-volver { display: block; margin-top: 10px; }

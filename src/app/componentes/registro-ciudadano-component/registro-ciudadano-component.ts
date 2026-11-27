@@ -1,9 +1,10 @@
+import { AlertaComponent } from '../alerta-component/alerta-component';
 import {Component,inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Router,RouterLink} from '@angular/router';
 import {RegistroStateService} from '../../services/registro-state-service';
 import {DatosCiudadano} from '../../model/ciudadano';
-@Component({selector:'app-registro-ciudadano-component',imports:[FormsModule,RouterLink],templateUrl:'./registro-ciudadano-component.html',styleUrl:'./registro-ciudadano-component.css'})
+@Component({selector:'app-registro-ciudadano-component',imports:[FormsModule,RouterLink,AlertaComponent],templateUrl:'./registro-ciudadano-component.html',styleUrl:'./registro-ciudadano-component.css'})
 export class RegistroCiudadanoComponent {
   private readonly state=inject(RegistroStateService);private readonly router=inject(Router);
   datos:DatosCiudadano=this.state.ciudadano ? {...this.state.ciudadano}:{dni:'',correo:'',distrito:'',telefono:''};
