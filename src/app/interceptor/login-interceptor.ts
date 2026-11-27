@@ -16,7 +16,8 @@ export const loginInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Login y creación de las dos cuentas deben funcionar sin token.
   const esPublica = req.method === 'POST' &&
-    ['/authenticate', '/usuario', '/ciudadano', '/entidad'].includes(ruta);
+    ['/authenticate', '/usuario', '/ciudadano', '/entidad',
+      '/auth/password/forgot', '/auth/password/reset'].includes(ruta);
 
   const token = auth.token();
   const peticion = esApi && !esPublica && token

@@ -16,7 +16,8 @@
         </p>
 
         <form class="recuperar-form" id="formNuevaContrasena" (ngSubmit)="submit()">
-@if (error) { <p class="angular-error" role="alert">{{ error }}</p> }
+          <app-alerta [mensaje]="error" tipo="error" />
+          <app-alerta [mensaje]="exito" tipo="exito" />
           
           <div class="form-group">
             <label class="input-label" for="newPassword">Nueva contraseña</label>
@@ -27,7 +28,7 @@
                 id="newPassword"
                 placeholder="********"
                 required
-               name="newPassword" [(ngModel)]="contrasena" >
+               name="newPassword" [(ngModel)]="contrasena" autocomplete="new-password" [disabled]="!token || cargando || !!exito" >
             </div>
           </div>
 
@@ -40,7 +41,7 @@
                 id="confirmPassword"
                 placeholder="********"
                 required
-               name="confirmPassword" [(ngModel)]="confirmar" >
+               name="confirmPassword" [(ngModel)]="confirmar" autocomplete="new-password" [disabled]="!token || cargando || !!exito" >
             </div>
           </div>
 
@@ -49,7 +50,9 @@
             Te recomendamos combinar mayúsculas, minúsculas<br>y números.
           </p>
 
-          <button type="submit" class="btn-enviar" disabled>Guardar nueva contraseña</button>
+          <button type="submit" class="btn-enviar" [disabled]="!token || cargando || !!exito">{{ cargando ? 'Guardando...' : 'Guardar nueva contraseña' }}</button>
+          @if (exito) { <a class="link-volver" routerLink="/login">Ir al inicio de sesión</a> }
+          @if (!token && !exito) { <a class="link-volver" routerLink="/recuperar-cuenta">Solicitar nuevo enlace</a> }
           
         </form>
       </section>

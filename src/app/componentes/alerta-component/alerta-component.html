@@ -1,0 +1,17 @@
+@if (mensaje) {
+  <div class="alerta" [class.error]="tipo === 'error'" [class.exito]="tipo === 'exito'"
+       [class.info]="tipo === 'info'" [attr.role]="tipo === 'error' ? 'alert' : 'status'"
+       aria-live="polite">
+    <span class="alerta-icono" aria-hidden="true">
+      @switch (tipo) {
+        @case ('exito') { ✓ }
+        @case ('info') { i }
+        @default { ! }
+      }
+    </span>
+    <div class="alerta-contenido">
+      <strong>@switch (tipo) { @case ('exito') { Listo } @case ('info') { Información } @default { Revisa los datos } }</strong>
+      <p>{{ mensaje }}</p>
+    </div>
+  </div>
+}

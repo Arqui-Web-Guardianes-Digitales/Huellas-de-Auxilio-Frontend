@@ -16,7 +16,8 @@
         </p>
 
         <form class="recuperar-form" id="formRecuperar" (ngSubmit)="submit()">
-@if (error) { <p class="angular-error" role="alert">{{ error }}</p> }
+          <app-alerta [mensaje]="error" tipo="error" />
+          <app-alerta [mensaje]="exito" tipo="exito" />
           
           <div class="input-box">
             <img src="/icons/email2.png" alt="Correo" class="input-icon" />
@@ -25,10 +26,10 @@
               id="emailRecovery"
               placeholder="ejemplo@correo.com"
               required
-             name="emailRecovery" [(ngModel)]="correo" >
+             name="emailRecovery" [(ngModel)]="correo" autocomplete="email" [disabled]="cargando" >
           </div>
 
-          <button type="submit" class="btn-enviar">Enviar verificación</button>
+          <button type="submit" class="btn-enviar" [disabled]="cargando">{{ cargando ? 'Enviando...' : 'Enviar verificación' }}</button>
 
           <a routerLink="/login" class="link-volver">
             Volver al inicio de sesión
