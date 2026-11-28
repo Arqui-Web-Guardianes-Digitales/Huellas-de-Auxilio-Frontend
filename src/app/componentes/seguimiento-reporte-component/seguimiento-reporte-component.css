@@ -4,10 +4,6 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
-
-/* HEADER */
-.btn-salir { background:transparent; border:1px solid #d9dddd; border-radius:10px; padding:8px 14px; color:#c94040; font-weight:600; cursor:pointer; font-size:13px; }
-
 /* ESTRUCTURA */
 .seguimiento-page { max-width:1320px; margin:0 auto; padding:28px 46px; }
 .seguimiento-header { margin-bottom:22px; }
@@ -82,9 +78,18 @@
 .mensaje-final { font-size:14px; color:#1b746f; font-weight:800; text-align:center; margin-top:20px; }
 
 /* FOOTER */
-
-@media (max-width:1150px) {
-  .resumen-superior { grid-template-columns:repeat(3, 1fr); gap:12px; }
-  .resumen-item { border-right:none; border-bottom:2px solid #e3e3e3; }
-  .seguimiento-grid, .fila-cards { grid-template-columns:1fr; }
+@media (max-width: 1150px) {
+  .resumen-superior { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .resumen-item { border-right: none; border-bottom: 2px solid #e3e3e3; }
+  .seguimiento-grid, .fila-cards { grid-template-columns: 1fr; }
+}
+@media (max-width: 960px) {
+  .progreso-linea { grid-template-columns: 1fr; padding: 10px 0; }
+  .linea-verde, .linea-gris { width: 2px; height: 34px; margin: 0 auto; }
+}
+@media (max-width: 650px) {
+  .seguimiento-page { padding: 18px 14px; }
+  .seguimiento-header h1 { font-size: 24px; }
+  .resumen-superior { grid-template-columns: 1fr; }
+  .resumen-item:last-child { border-bottom: none; }
 }
